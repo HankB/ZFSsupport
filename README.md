@@ -14,8 +14,8 @@ presently using ZFS.
 
 A (not sufficient) search was performed prior to beginning this with the
 thought of leveraging existing work but nothing useful was found. Before you
-use this, take a look at simplesnap (available as a .deb on Debian Stretch)
-and zfSnap to see if some combination can better meet your needs.
+use this, take a look at `simplesnap` (available as a .deb on Debian Stretch)
+and `zfSnap` to see if some combination can better meet your needs.
 
 ## Motivation
 
