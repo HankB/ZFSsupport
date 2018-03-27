@@ -35,7 +35,19 @@ A couple Bourne shell functions to provide process interlocks.
 
 ### test_lock.sh
 
-Test script for `lock.sh`.
+Test script for `lock.sh`. (Wee script for suggested ways to test.)
+
+### myzfs.pl
+
+Logic to delete older snapshots. ()Eventually to delete old snapshot dumps.)
+
+### myzfs.t
+
+Test script for `myzfs.pl`
+
+### myzfsMain.pl
+
+'Main' to execute logic in `myzfs.pl`
 
 ## Errata
 
