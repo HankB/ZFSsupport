@@ -49,7 +49,7 @@ tank/Archive@2018-03-26';
 my @snapshots = split /^/, $snapshots;
 chomp @snapshots;
 
-require "./myzfs.pl" $isIncluded=1;
+require "./myzfs.pl";
 
 # duplicate with test data
 my $override = Sub::Override->new(
@@ -109,7 +109,7 @@ is($tankSnapshots, $returnedSnaps, 'Match with provided test data');
 @testSnaps =  getSnapshots("tank");
 
 my $deleteCount = 5;
-my @snapsToDelete =  getDeleteSnaps(@testSnaps, $deleteCount);
+my @snapsToDelete =  getDeleteSnaps(\@testSnaps, $deleteCount);
 is(@snapsToDelete, $deleteCount, 'Match filtered element count with provided test data');
 
-
+#TODO test command line argument processing

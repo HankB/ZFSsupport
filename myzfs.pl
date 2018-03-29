@@ -18,10 +18,17 @@ sub getSnapshots {
 	return @snapshots;
 }
 
+# identify older snapshots in excess of the given number
+sub getExcessSnaps(\@$) {
+    my $snaps = shift || die "must call geDeleteSnaps() with snapshot list and residual count";
+    my $residual = shift || die "must call geDeleteSnaps() with snapshot list and residual count";
+	return @{$snaps}
+}
+
 sub getDeleteSnaps(\@$) {
-    my @snaps = shift || die "must call geDeleteSnaps() with snapshot list and residual count";
-    my @residual = shift || die "must call geDeleteSnaps() with snapshot list and residual count";
-    return @snaps
+    my $snaps = shift || die "must call geDeleteSnaps() with snapshot list and residual count";
+    my $residual = shift || die "must call geDeleteSnaps() with snapshot list and residual count";
+	return @{$snaps}
 }
 
 sub main {
