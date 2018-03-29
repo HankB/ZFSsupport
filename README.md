@@ -10,6 +10,16 @@ backup are sent as incremental snapshot 'send's. The actual backups are
 handled outside of these using `rsync` as the clients backed up are not
 presently using ZFS.
 
+## Status
+
+`update-snapshot.sh` is working and "in production." It needs:
+
+* further bulletproofing
+* a way to annunciate difficulties
+* cleanup of output/logging
+
+Cleanup scripts
+
 ## Other
 
 A (not sufficient) search was performed prior to beginning this with the
@@ -24,10 +34,15 @@ use the least bandwidth. (It turns out that is not always the case. (1))
 
 ## Components
 
+There are two scripts that will run in production. `update-snapshot.sh`
+will mirror snapshots to a remote system. `myzfsMain.pl` will cleanup
+after `update-snapshot.sh`. Other scripts are support and/or testing
+scripts.
+
 ### update-snapshot.sh
 
-The script that dumps local snapshots (ZFS send), sends them to the remote and
-incorporates them into the remote image.
+The script that dumps local snapshots (ZFS send), sends them to the remote
+and incorporates them into the remote image.
 
 ### lock.sh
 
@@ -35,7 +50,7 @@ A couple Bourne shell functions to provide process interlocks.
 
 ### test_lock.sh
 
-Test script for `lock.sh`. (Wee script for suggested ways to test.)
+Test script for `lock.sh`. (See script for suggested ways to test.)
 
 ### myzfs.pl
 
