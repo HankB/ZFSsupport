@@ -4,13 +4,13 @@ use strict;
 use warnings;
 
 use diagnostics; # this gives you more debugging information
-use Test::More qw( no_plan ); # for the is() and isnt() functions
+use Test::More;  # for the is() and isnt() functions
 use Sub::Override;
 
 # use Data::Dumper;
 
 
-# results collected recently
+# results collected recently - all snapshots.
 my $snapshots = 
 'tank@initial
 tank@2018-03-05
@@ -51,7 +51,7 @@ chomp @snapshots;
 
 require "./myzfs.pl";
 
-# duplicate with test data
+# duplicate getSnapshots() substituting test data
 my $override = Sub::Override->new(
 	getSnapshots =>sub {
 		my $f = shift;
@@ -67,11 +67,10 @@ my $override = Sub::Override->new(
 
 # test fetch of all snapshots
 my @testSnaps =  getSnapshots();
-my $returnedSnaps = join("\n", @testSnaps);
-is(@testSnaps, @snapshots, 'Match element count with provided test data');
-is($snapshots, $returnedSnaps, 'Match with provided test data');
+ok(eq_array(\@testSnaps, \@snapshots), "verify expected returned snapshots");
+# '~~' esperimental feature ok(@testSnaps ~~ @snapshots, "verify expected returned snapshots");
 
-# test fetch of snapshots for a particular file system
+# test fetch of snapshots for a particular file system 'tank'
 my $tankSnapshots = 
 'tank@initial
 tank@2018-03-05
@@ -95,21 +94,30 @@ tank@2018-03-25
 tank@2018-03-26
 tank@2018-04-02';
 
-@testSnaps =  getSnapshots("tank");
-$returnedSnaps = join("\n", @testSnaps);
-@snapshots = split /^/, $tankSnapshots;
-chomp @snapshots;
-
-is(@testSnaps, @snapshots, 'Match filtered element count with provided test data');
-is($tankSnapshots, $returnedSnaps, 'Match with provided test data');
+my @tankTestSnaps =  getSnapshots("tank");
+my @tankSnapshots = split /^/, $tankSnapshots;
+chomp @tankSnapshots;
+ok(eq_array(\@tankTestSnaps, \@tankSnapshots), "match snapshot lists");
 
 
 ######################## testing script functionality #########################
 
-@testSnaps =  getSnapshots("tank");
+# test filesystem filtering
+my @foundFileSystems = sort(getFilesystems(@testSnaps));
+my @expectedFilesystems = sort("tank", "tank/Archive");
+ok(eq_array(\@foundFileSystems, \@expectedFilesystems), "find filesystems from list of snaps");
+
+=begin GHOSTCODE
+@foundFileSystems = getFilesystems(getSnapshots("tank"));
+@expectedFilesystems = ("tank");
+ok(eq_array(\@foundFileSystems, \@expectedFilesystems), "find filesystems from list of snaps");
+=cut
+
+@testSnaps = getSnapshots("tank");
 
 my $deleteCount = 5;
 my @snapsToDelete =  getDeleteSnaps(\@testSnaps, $deleteCount);
-is(@snapsToDelete, $deleteCount, 'Match filtered element count with provided test data');
+is(@snapsToDelete, $deleteCount, 'Match \'to delete\' element count with provided test data');
 
 #TODO test command line argument processing
+done_testing();
