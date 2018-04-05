@@ -18,7 +18,7 @@ presently using ZFS.
 * a way to annunciate difficulties
 * cleanup of output/logging
 
-Cleanup scripts are presently a work in progress.
+Cleanup scripts are presently a work in progress. Not presently passing all tests.
 
 ## Other
 
