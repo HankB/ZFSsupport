@@ -18,7 +18,7 @@ presently using ZFS.
 * a way to annunciate difficulties
 * cleanup of output/logging
 
-Cleanup scripts
+Cleanup scripts are presently a work in progress.
 
 ## Other
 
@@ -31,6 +31,10 @@ and `zfSnap` to see if some combination can better meet your needs.
 
 It is thought that sending incremental snapshot dumps to a remote system will
 use the least bandwidth. (It turns out that is not always the case. (1))
+
+## Requirements
+
+* Sub::Override (`apt install libsub-override-perl`on Ubuntu)
 
 ## Components
 
