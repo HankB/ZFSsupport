@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(GetOptions);
 
 
-# fetch a list of snapshots
+# fetch a list of snapshots, perhaps limited to a particular filesystem
 sub getSnapshots {
 	my $f = shift;
 	my $cmd = "zfs list -t snap -H -o name";
@@ -16,6 +16,19 @@ sub getSnapshots {
 	print scalar @snapshots. " snapshots\n";
 	chomp @snapshots;
 	return @snapshots;
+}
+
+# identify unique filesystems in list of snapshot list.
+sub getFilesystems(@) {
+	my %f;
+	foreach my $s (@_) {
+		$s =~ /(.*)@/;	# isolate the filesystem name
+		$f{$1}++;		# count it (to create hash entry)
+	}
+	#$my @candidates = grep { $_ =~ /(.*)@/ } @_;
+	my @f = keys %f;
+	return @f;
+	#return \@(keys %f);
 }
 
 # identify older snapshots in excess of the given number
@@ -68,5 +81,5 @@ sub main {
 	print " $datecount dates found\n";
 }
 
-# finish ith status
+# finish with status
 1;
