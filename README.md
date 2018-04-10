@@ -34,7 +34,7 @@ use the least bandwidth. (It turns out that is not always the case. (1))
 
 ## Requirements
 
-* Sub::Override (`apt install libsub-override-perl`on Ubuntu)
+* Perl module Sub::Override (`apt install libsub-override-perl` on Ubuntu 16.04 and Debian 9)
 
 ## Components
 
