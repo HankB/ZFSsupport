@@ -102,22 +102,19 @@ ok(eq_array(\@tankTestSnaps, \@tankSnapshots), "match snapshot lists");
 
 ######################## testing script functionality #########################
 
-# test filesystem filtering
+# test filesystem filtering for getFilesystems()
 my @foundFileSystems = sort(getFilesystems(@testSnaps));
 my @expectedFilesystems = sort("tank", "tank/Archive");
 ok(eq_array(\@foundFileSystems, \@expectedFilesystems), "find filesystems from list of snaps");
 
-=begin GHOSTCODE
-@foundFileSystems = getFilesystems(getSnapshots("tank"));
+# test that getSnapshots() returns only specified filesystem
+@foundFileSystems = getFilesystems(@tankTestSnaps);
 @expectedFilesystems = ("tank");
-ok(eq_array(\@foundFileSystems, \@expectedFilesystems), "find filesystems from list of snaps");
-=cut
+ok(eq_array(\@foundFileSystems, \@expectedFilesystems), "find specific filesystems");
 
-@testSnaps = getSnapshots("tank");
-
-my $deleteCount = 5;
-my @snapsToDelete =  getDeleteSnaps(\@testSnaps, $deleteCount);
-is(@snapsToDelete, $deleteCount, 'Match \'to delete\' element count with provided test data');
+# test filtering of deletable snaps
+my @snapsToDelete =  getDeletableSnaps(@testSnaps);
+is(@snapsToDelete, @testSnaps-2, "Count of deletable snapshots");
 
 #TODO test command line argument processing
 done_testing();
