@@ -48,6 +48,7 @@ tank/Archive@2018-03-26';
 
 my @snapshots = split /^/, $snapshots;
 chomp @snapshots;
+my @deletableSnapshots = (@snapshots[1..20], @snapshots[22..-1]);
 
 require "./myzfs.pl";
 
@@ -97,6 +98,8 @@ tank@2018-04-02';
 my @tankTestSnaps =  getSnapshots("tank");
 my @tankSnapshots = split /^/, $tankSnapshots;
 chomp @tankSnapshots;
+my @deletableTestSnapshots = sort @tankSnapshots[1..$#tankSnapshots];
+
 ok(eq_array(\@tankTestSnaps, \@tankSnapshots), "match snapshot lists");
 
 
@@ -113,8 +116,9 @@ ok(eq_array(\@foundFileSystems, \@expectedFilesystems), "find filesystems from l
 ok(eq_array(\@foundFileSystems, \@expectedFilesystems), "find specific filesystems");
 
 # test filtering of deletable snaps
-my @snapsToDelete =  getDeletableSnaps(@testSnaps);
-is(@snapsToDelete, @testSnaps-2, "Count of deletable snapshots");
+my @snapsToDelete =  getDeletableSnaps(@tankTestSnaps);
+is(@snapsToDelete, @deletableTestSnapshots, "count of deletable snapshots");
+ok(eq_array(\@snapsToDelete, \@deletableTestSnapshots), "content of deletable snapshots");
 
 #TODO test command line argument processing
 done_testing();
