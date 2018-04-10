@@ -31,17 +31,20 @@ sub getFilesystems(@) {
 	#return \@(keys %f);
 }
 
-# identify older snapshots in excess of the given number
-sub getExcessSnaps(\@$) {
-    my $snaps = shift || die "must call geDeleteSnaps() with snapshot list and residual count";
-    my $residual = shift || die "must call geDeleteSnaps() with snapshot list and residual count";
-	return @{$snaps}
+# identify snapshots that meet criteria for deletion
+# Must match the pattern "filesystem>@YYYY-MM-DD" as produced
+# by update-snapshot.sh
+sub getDeletableSnaps(@) {
+	my @candidates = grep { $_ =~ /@[12][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]/ } @_;
+	return @candidates;
 }
 
+# filter out 
 sub getDeleteSnaps(\@$) {
     my $snaps = shift || die "must call geDeleteSnaps() with snapshot list and residual count";
     my $residual = shift || die "must call geDeleteSnaps() with snapshot list and residual count";
-	return @{$snaps}
+	my @deleteList = @{$snaps}[$#{$snaps}-($residual-1) .. $#{$snaps}];
+	return @deleteList;
 }
 
 sub main {
