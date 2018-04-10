@@ -35,7 +35,7 @@ sub getFilesystems(@) {
 # Must match the pattern "filesystem>@YYYY-MM-DD" as produced
 # by update-snapshot.sh
 sub getDeletableSnaps(@) {
-	my @candidates = grep { $_ =~ /@[12][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]/ } @_;
+	my @candidates = grep { $_ =~ /@[1-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]/ } @_;
 	return @candidates;
 }
 
