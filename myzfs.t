@@ -48,7 +48,10 @@ tank/Archive@2018-03-26';
 
 my @snapshots = split /^/, $snapshots;
 chomp @snapshots;
-my @deletableSnapshots = (@snapshots[1..20], @snapshots[22..-1]);
+my @deletableSnapshots = @snapshots;
+splice(@deletableSnapshots, 21, 1);
+splice(@deletableSnapshots, 0, 1);
+# print join("\n", @deletableSnapshots), "\n\n";
 
 require "./myzfs.pl";
 
@@ -115,10 +118,38 @@ ok(eq_array(\@foundFileSystems, \@expectedFilesystems), "find filesystems from l
 @expectedFilesystems = ("tank");
 ok(eq_array(\@foundFileSystems, \@expectedFilesystems), "find specific filesystems");
 
-# test filtering of deletable snaps
-my @snapsToDelete =  getDeletableSnaps(@tankTestSnaps);
-is(@snapsToDelete, @deletableTestSnapshots, "count of deletable snapshots");
-ok(eq_array(\@snapsToDelete, \@deletableTestSnapshots), "content of deletable snapshots");
+# test filtering of deletable snaps (one fs only)
+my @deletebleSnaps =  getDeletableSnaps(@tankTestSnaps);
+is(@deletebleSnaps, @deletableTestSnapshots, "count of deletable snapshots");
+ok(eq_array(\@deletebleSnaps, \@deletableTestSnapshots), "content of deletable snapshots");
+
+# test filtering of deletable snaps (multiple filesystems)
+@deletebleSnaps =  getDeletableSnaps(@testSnaps);
+is(@deletebleSnaps, @deletableSnapshots, "count of deletable snapshots, multiple fs");
+ok(eq_array(\@deletebleSnaps, \@deletableSnapshots), "content of deletable snapshots, multiple fs");
+
+# test identification of snaps to delete, single fs
+@deletebleSnaps =  getDeletableSnaps(@tankTestSnaps);
+my @snapsToDelete = sort (getSnapsToDelete(\@deletebleSnaps, 5));
+#print join("\n", @snapsToDelete), "\n\n";
+my @tankTestSnapsToDelete = sort @tankSnapshots[1..$#tankSnapshots-5];
+is(@snapsToDelete, @tankTestSnapsToDelete, "count of snapshots to delete");
+ok(eq_array(\@snapsToDelete, \@tankTestSnapsToDelete), "content of snaps to delete, single fs");
+
+# test identification of snaps to delete, multiple fs
+my @multipleTestSnapsToDelete = ();
+push(@multipleTestSnapsToDelete, @snapshots[22..27]);
+push(@multipleTestSnapsToDelete, @tankTestSnapsToDelete);
+@multipleTestSnapsToDelete = sort @multipleTestSnapsToDelete;
+#print join("\n", @multipleTestSnapsToDelete), "\n\n";
+@deletebleSnaps =  getDeletableSnaps(@testSnaps);
+@snapsToDelete = sort (getSnapsToDelete(\@deletebleSnaps, 5));
+is(@snapsToDelete, @multipleTestSnapsToDelete, "count of snapshots to delete, multiple fs");
+#print join("\n", @snapsToDelete), "\n\n";
+#print join("\n", @multipleTestSnapsToDelete), "\n\n";
+ok(eq_array(\@snapsToDelete, \@multipleTestSnapsToDelete), "content of snaps to delete, multiple fs");
+
+
 
 #TODO test command line argument processing
 done_testing();
