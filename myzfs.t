@@ -55,8 +55,8 @@ splice(@deletableSnapshots, 0, 1);
 
 require "./myzfs.pl";
 
-# duplicate getSnapshots() substituting test data
-my $override = Sub::Override->new(
+# override getSnapshots() substituting test data
+my $overrideGet = Sub::Override->new(
 	getSnapshots =>sub {
 		my $f = shift;
 
@@ -64,6 +64,19 @@ my $override = Sub::Override->new(
 			return grep { $_ =~ /$f@/ } @snapshots;
 		}
 		return @snapshots;
+	}
+);
+
+# override destroySnapshots()
+my $overrideDelete = Sub::Override->new(
+	destroySnapshots =>sub (@) {
+		my $destroyCount = 0;
+
+		foreach my $s (@_) {
+			#print "asked to destroy ".$s."\n";
+			$destroyCount++;
+		}
+		return $destroyCount;
 	}
 );
 
@@ -149,7 +162,7 @@ is(@snapsToDelete, @multipleTestSnapsToDelete, "count of snapshots to delete, mu
 #print join("\n", @multipleTestSnapsToDelete), "\n\n";
 ok(eq_array(\@snapsToDelete, \@multipleTestSnapsToDelete), "content of snaps to delete, multiple fs");
 
-
+is(destroySnapshots(@snapsToDelete), @snapsToDelete, "count snapshots destroyed");
 
 #TODO test command line argument processing
 done_testing();
