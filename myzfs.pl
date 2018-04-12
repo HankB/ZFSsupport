@@ -13,7 +13,7 @@ sub getSnapshots {
 		$cmd = $cmd . " -r $f -d 1";
 	}
 	my @snapshots = `$cmd`;
-	print scalar @snapshots. " snapshots\n";
+	#print scalar @snapshots. " snapshots\n";
 	chomp @snapshots;
 	return @snapshots;
 }
@@ -56,6 +56,15 @@ sub getSnapsToDelete(\@$) {
 			if $#candidates > $residual;
 	}
 	return @deletelist;
+}
+
+# destroy the list of snapshots
+sub destroySnapshots(@) {
+	my $cmd = "zfs destroy -v ";
+	foreach my $s (@_) {
+		my $result = `$cmd.$s`;
+		# TODO - check result for success
+	}
 }
 
 sub main {
