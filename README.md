@@ -18,6 +18,8 @@ presently using ZFS.
 * a way to annunciate difficulties
 * cleanup of output/logging
 
+See also issues related to this script.
+
 Cleanup scripts are presently a work in progress. Not presently passing all tests.
 
 ## Other
@@ -35,6 +37,9 @@ use the least bandwidth. (It turns out that is not always the case. (1))
 ## Requirements
 
 * Perl module Sub::Override (`apt install libsub-override-perl` on Ubuntu 16.04 and Debian 9)
+* passwordless ssh login on the remote (`see copy-ssh-id`)
+* `/shapshots` directory on both local and remote PCs for storing snapshot dumps.
+* `oxz` (On Debian, `apt install pxz`)
 
 ## Components
 
