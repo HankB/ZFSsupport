@@ -39,12 +39,23 @@ sub getDeletableSnaps(@) {
 	return @candidates;
 }
 
-# filter out 
-sub getDeleteSnaps(\@$) {
-    my $snaps = shift || die "must call geDeleteSnaps() with snapshot list and residual count";
-    my $residual = shift || die "must call geDeleteSnaps() with snapshot list and residual count";
-	my @deleteList = @{$snaps}[$#{$snaps}-($residual-1) .. $#{$snaps}];
-	return @deleteList;
+# Identify snapshots to delete.
+# e.g. all except the last 'n' for each filesystem
+sub getSnapsToDelete(\@$) {
+    my $snaps = shift
+		|| die "must call getSnapsToDelete() with snapshot list and residual count";
+    my $residual = shift
+		|| die "must call getSnapsToDelete() with snapshot list and residual count";
+	# identify filesystems
+	my @filesystems = getFilesystems(@{$snaps});
+	my @deletelist = ();
+	# add files to delete for each filesystem
+	foreach my $fs (@filesystems) {
+		my @candidates = (sort(grep { $_ =~ /^$fs@/ } @{$snaps}));
+		push @deletelist, @candidates[0..$#candidates-$residual]
+			if $#candidates > $residual;
+	}
+	return @deletelist;
 }
 
 sub main {
