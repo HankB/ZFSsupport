@@ -36,10 +36,11 @@ use the least bandwidth. (It turns out that is not always the case. (1))
 
 ## Requirements
 
-* Perl module Sub::Override (`apt install libsub-override-perl` on Ubuntu 16.04 and Debian 9)
+* Perl module `Sub::Override` (`apt install libsub-override-perl` on Ubuntu 16.04 and Debian 9)
+* Perl module  `File::Touch` (`apt install libfile-touch-perl` on Debian Stretch)
 * passwordless ssh login on the remote (`see copy-ssh-id`)
 * `/shapshots` directory on both local and remote PCs for storing snapshot dumps.
-* `oxz` (On Debian, `apt install pxz`)
+* `pxz` (On Debian, `apt install pxz`)
 
 ## Components
 
