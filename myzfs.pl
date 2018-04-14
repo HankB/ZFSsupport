@@ -61,10 +61,41 @@ sub getSnapsToDelete(\@$) {
 # destroy the list of snapshots
 sub destroySnapshots(@) {
 	my $cmd = "zfs destroy -v ";
+	my $destroyCount = 0;
 	foreach my $s (@_) {
 		my $result = `$cmd.$s`;
+		$destroyCount++;
 		# TODO - check result for success
 	}
+	return $destroyCount;
+}
+
+# identify dumps in /snapshots - files match "*.snap.xz"
+# first argument is directory to search for dumps
+# second arg is a reference to a list of snaps to delete
+sub findDeletableDumps($\@) {
+	my $dir = shift;
+	my $snaps = shift;
+	my @filesToDelete = ();
+	# print "\n\n", join("\nsnap ", @{$snaps}), "\n";
+	my @files = glob( "$dir"."*.snap.xz" );
+	# print "\n\n", join("\nfile ", @files), "\n";
+	# now search for matches between snapos and files
+	foreach my $s (@{$snaps}) {
+		# first substitute '-' for any '/' in the snapshot name
+		$s =~ tr /\//-/;
+		foreach my $f (@files) {
+			if ($f =~ $s) {
+				push(@filesToDelete, $f);
+				 #print "Matched $f\n";
+				 }
+			
+		}
+		#print grep { $_ =~ /"$s"/ } @filesToDelete;
+		#push(@filesToDelete, grep { $_ =~ /"$s"/ } @files);
+	}
+	# print "delete\n", join("\n ", @filesToDelete), "\n";
+	return @filesToDelete;
 }
 
 sub main {
