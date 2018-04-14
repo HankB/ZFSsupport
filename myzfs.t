@@ -6,6 +6,7 @@ use warnings;
 use diagnostics; # this gives you more debugging information
 use Test::More;  # for the is() and isnt() functions
 use Sub::Override;
+ use File::Touch;
 
 # use Data::Dumper;
 
@@ -51,7 +52,49 @@ chomp @snapshots;
 my @deletableSnapshots = @snapshots;
 splice(@deletableSnapshots, 21, 1);
 splice(@deletableSnapshots, 0, 1);
-# print join("\n", @deletableSnapshots), "\n\n";
+
+my $dumpfiles = 'tank-Archive@2018-03-15-tank-archive@2018-03-20.snap.xz
+tank-Archive@2018-03-20-tank-Archive@2018-03-22.snap.xz
+tank-Archive@2018-03-22-tank-Archive@2018-03-23.snap.xz
+tank-Archive@2018-03-23-tank-Archive@2018-03-24.snap.xz
+tank-Archive@2018-03-24-tank-Archive@2018-03-25.snap.xz
+tank-Archive@2018-03-25-tank-Archive@2018-03-26.snap.xz
+tank-Archive@2018-03-26-tank-Archive@2018-03-27.snap.xz
+tank-Archive@2018-03-27-tank-Archive@2018-03-28.snap.xz
+tank-Archive@2018-03-28-tank-Archive@2018-03-29.snap.xz
+tank-Archive@2018-04-01-tank-Archive@2018-04-07.snap.xz
+tank-Archive@2018-04-07-tank-Archive@2018-04-08.snap.xz
+tank-Archive@2018-04-08-tank-Archive@2018-04-09.snap.xz
+tank-Archive@2018-04-09-tank-Archive@2018-04-10.snap.xz
+tank-Archive@2018-04-10-tank-Archive@2018-04-11.snap.xz
+tank-Archive@initial-tank-Archive@2018-03-29.snap.xz
+tank-Archive@-tank-Archive@2018-03-29.snap.xz
+tank-srv@2018-03-18-tank-srv@2018-03-19.snap.xz
+tank-srv@2018-03-19-tank-srv@2018-03-20.snap.xz
+tank-srv@2018-03-20-tank-srv@2018-03-21.snap.xz
+tank-srv@2018-03-21-tank-srv@2018-03-22.snap.xz
+tank-srv@2018-03-22-tank-srv@2018-03-23.snap.xz
+tank-srv@2018-03-23-tank-srv@2018-03-24.snap.xz
+tank-srv@2018-03-24-tank-srv@2018-03-25.snap.xz
+tank-srv@2018-03-25-tank-srv@2018-03-26.snap.xz
+tank-srv@2018-03-26-tank-srv@2018-03-27.snap.xz
+tank-srv@2018-03-27-tank-srv@2018-03-28.snap.xz
+tank-srv@2018-03-28-tank-srv@2018-03-29.snap.xz
+tank-srv@2018-03-29-tank-srv@2018-03-30.snap.xz
+tank-srv@2018-03-30-tank-srv@2018-03-31.snap.xz
+tank-srv@2018-03-31-tank-srv@2018-04-01.snap.xz
+tank-srv@2018-04-01-tank-srv@2018-04-02.snap.xz
+tank-srv@2018-04-02-tank-srv@2018-04-03.snap.xz
+tank-srv@2018-04-03-tank-srv@2018-04-04.snap.xz
+tank-srv@2018-04-04-tank-srv@2018-04-05.snap.xz
+tank-srv@2018-04-05-tank-srv@2018-04-06.snap.xz
+tank-srv@2018-04-06-tank-srv@2018-04-07.snap.xz
+tank-srv@2018-04-07-tank-srv@2018-04-08.snap.xz
+tank-srv@2018-04-08-tank-srv@2018-04-09.snap.xz
+tank-srv@2018-04-09-tank-srv@2018-04-10.snap.xz
+tank-srv@2018-04-10-tank-srv@2018-04-11.snap.xz';
+my @dumpfiles = split /^/, $dumpfiles;
+chomp @dumpfiles;
 
 require "./myzfs.pl";
 
@@ -163,6 +206,16 @@ is(@snapsToDelete, @multipleTestSnapsToDelete, "count of snapshots to delete, mu
 ok(eq_array(\@snapsToDelete, \@multipleTestSnapsToDelete), "content of snaps to delete, multiple fs");
 
 is(destroySnapshots(@snapsToDelete), @snapsToDelete, "count snapshots destroyed");
+
+# test delete functionality
+# first create some files to delete
+my $testdir = "./snapshots/";
+mkdir $testdir;
+foreach my $f (@dumpfiles) {
+	touch "$testdir".$f;
+}
+
+findDeletableDumps($testdir, \@snapsToDelete);
 
 #TODO test command line argument processing
 done_testing();
