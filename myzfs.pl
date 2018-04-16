@@ -32,7 +32,7 @@ sub getFilesystems(@) {
 }
 
 # identify snapshots that meet criteria for deletion
-# Must match the pattern "filesystem>@YYYY-MM-DD" as produced
+# Remove any that do not match the pattern "<filesystem>@YYYY-MM-DD" as produced
 # by update-snapshot.sh
 sub getDeletableSnaps(@) {
 	my @candidates = grep { $_ =~ /@[1-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]/ } @_;
@@ -41,6 +41,7 @@ sub getDeletableSnaps(@) {
 
 # Identify snapshots to delete.
 # e.g. all except the last 'n' for each filesystem
+# Use the list returned by getDeletableSnaps(@)
 sub getSnapsToDelete(\@$) {
     my $snaps = shift
 		|| die "must call getSnapsToDelete() with snapshot list and residual count";
@@ -87,7 +88,7 @@ sub findDeletableDumps($\@) {
 		foreach my $f (@files) {
 			if ($f =~ $s) {
 				push(@filesToDelete, $f);
-				 #print "Matched $f\n";
+				 #print "Matched $f <-> $s\n";
 				 }
 			
 		}
@@ -95,7 +96,8 @@ sub findDeletableDumps($\@) {
 		#push(@filesToDelete, grep { $_ =~ /"$s"/ } @files);
 	}
 	# print "delete\n", join("\n ", @filesToDelete), "\n";
-	return @filesToDelete;
+	my %filesToDelete = map { $_, 1 } @filesToDelete;
+	return keys %filesToDelete;
 }
 
 sub main {
