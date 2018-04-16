@@ -232,6 +232,15 @@ splice @archiveTestDumpsToDelete, 10, 4;
 
 #print "archiveTestDumpsToDelete\n", join("\n", @archiveTestDumpsToDelete), "\n\n";
 
+my @srvTestDumpsToDelete = @dumpfiles;
+splice @srvTestDumpsToDelete, 36;
+splice @srvTestDumpsToDelete, 0, 16;
+#print "srvTestDumpsToDelete\n", join("\n", @srvTestDumpsToDelete), "\n\n";
+
+my @allTestDumpsToDelete;
+push @allTestDumpsToDelete, @archiveTestDumpsToDelete, @srvTestDumpsToDelete;
+
+
 
 require "./myzfs.pl";
 
@@ -313,23 +322,36 @@ is(destroySnapshots(@allTestSnapToDelete), @allTestSnapToDelete, "count snapshot
 
 # test delete functionality
 # first create some files to delete
-my $testdir = "./snapshots/";
-mkdir $testdir;
+use constant  TESTDIR => "./snapshots/";
+mkdir TESTDIR;
 foreach my $f (@dumpfiles) {
-	touch "$testdir".$f;
+	touch TESTDIR.$f;
 }
 
-my @archiveDumpsToDelete = findDeletableDumps($testdir, \@archiveTestSnapToDelete);
+# test identification of snapshot dumps to delete
+my @archiveDumpsToDelete = findDeletableDumps(TESTDIR, \@archiveTestSnapToDelete);
 is(@archiveDumpsToDelete, @archiveTestDumpsToDelete,
 	"count of dumps to delete, single fs");
 # print "archiveDumpsToDelete\n", join("\n", @archiveDumpsToDelete), "\n\n";
 @archiveTestDumpsToDelete = sort @archiveTestDumpsToDelete;
 @archiveDumpsToDelete = sort @archiveDumpsToDelete;
-my @archiveTestDumpsToDeleteFullPath = map "./snapshots/".$_, @archiveTestDumpsToDelete;
+my @archiveTestDumpsToDeleteFullPath = map TESTDIR.$_, @archiveTestDumpsToDelete;
 ok(eq_array(\@archiveDumpsToDelete, \@archiveTestDumpsToDeleteFullPath),
 	"content of dumps to delete, single fs");
 #print "archiveDumpsToDelete\n", join("\n", @archiveDumpsToDelete), "\n\n";
 #print "archiveTestDumpsToDeleteFullPath\n", join("\n", @archiveTestDumpsToDeleteFullPath), "\n\n";
+
+# Now check ID of files to delete for multiple filesystems
+my @allDumpsToDelete = findDeletableDumps(TESTDIR, \@allTestSnapToDelete);
+is(@allDumpsToDelete, @allTestDumpsToDelete,
+	"count of dumps to delete, multiple fs");
+@allDumpsToDelete = sort @allDumpsToDelete;
+@allTestDumpsToDelete = sort @allTestDumpsToDelete;
+my @allTestDumpsToDeleteFullPath = map TESTDIR.$_, @allTestDumpsToDelete;
+ok(eq_array(\@allDumpsToDelete, \@allTestDumpsToDeleteFullPath),
+	"content of dumps to delete, multiple fs");
+#print "allDumpsToDelete\n", join("\n", @allDumpsToDelete), "\n\n";
+#print "allTestDumpsToDeleteFullPath\n", join("\n", @allTestDumpsToDeleteFullPath), "\n\n";
 
 #TODO test command line argument processing
 done_testing();
