@@ -100,17 +100,35 @@ sub findDeletableDumps($\@) {
 	return keys %filesToDelete;
 }
 
-sub main {
-	my $filesystem;
-	my $trial = 0;
-	my $snapshotNumber = 5;
+our $filesystem;
+our $trial;
+our $reserveCount;
+our $dumpDirectory;
+
+sub processArgs() {
+	# assign default values
+	$filesystem = undef;
+	$trial = undef;
+	$reserveCount = 5;
+	$dumpDirectory = "/snapshots";
 
 	GetOptions(
 		'filesystem=s' => \$filesystem,
 		'trial' => \$trial,
-	) or die "Usage: $0 [-f|--filesystem] NAME\n";
+		'reserved=i' => \$reserveCount,
+		'directory=s' => \$dumpDirectory,
+	);
+}
 
-    print "$filesystem, $trial, $snapshotNumber\n";
+sub main {
+
+	processArgs() or die "Usage: $0
+		[-f|--filesystem filesystem (default=all)]
+		[-t|--trial]
+		[-r|--reserved reserve_count (default=5)]
+		[-d|--directory dump_directory (default=\"/snapshots\")]\n";
+
+	# TODO: fully implement all command line arguments
 
 	# warn the user
 	if ( $< != 0 ) {
