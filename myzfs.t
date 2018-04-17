@@ -334,11 +334,16 @@ is( destroySnapshots(@allTestSnapToDelete),
 
 # test delete functionality
 # first create some files to delete
-use constant TESTDIR => "./snapshots/";
-mkdir TESTDIR;
-foreach my $f (@dumpfiles) {
-    touch TESTDIR . $f;
+sub createTestDumps(@) {
+    my $dir = shift;
+    mkdir $dir;
+    foreach my $f (@_) {
+        touch $dir . $f;
+    }
 }
+use constant TESTDIR => "./snapshots/";
+
+createTestDumps( TESTDIR, @dumpfiles );
 
 # test identification of snapshot dumps to delete
 my @archiveDumpsToDelete =
@@ -371,6 +376,33 @@ ok( eq_array( \@allDumpsToDelete, \@allTestDumpsToDeleteFullPath ),
 #print "allTestDumpsToDeleteFullPath\n", join("\n", @allTestDumpsToDeleteFullPath), "\n\n";
 # TODO: implement and test something to delete dumps
 # TODO: delete test directory
+
+deleteSnapshotDumps(@allDumpsToDelete);
+my $remainingTestSnapshotDumps =
+  'tank-Archive@2018-04-07-tank-Archive@2018-04-08.snap.xz
+tank-Archive@2018-04-08-tank-Archive@2018-04-09.snap.xz
+tank-Archive@2018-04-09-tank-Archive@2018-04-10.snap.xz
+tank-Archive@2018-04-10-tank-Archive@2018-04-11.snap.xz
+tank-srv@2018-04-07-tank-srv@2018-04-08.snap.xz
+tank-srv@2018-04-08-tank-srv@2018-04-09.snap.xz
+tank-srv@2018-04-09-tank-srv@2018-04-10.snap.xz
+tank-srv@2018-04-10-tank-srv@2018-04-11.snap.xz
+';
+my @remainingTestSnapshotDumps = split /^/, $remainingTestSnapshotDumps;
+chomp @remainingTestSnapshotDumps;
+@remainingTestSnapshotDumps = sort @remainingTestSnapshotDumps;
+my @remainingTestSnapshotDumpsFullPath = map TESTDIR . $_,
+  @remainingTestSnapshotDumps;
+
+my @remainingSnapshotDumps = glob( TESTDIR . "*.snap.xz" );
+@remainingSnapshotDumps = sort @remainingSnapshotDumps;
+ok(
+    eq_array( \@remainingSnapshotDumps, \@remainingTestSnapshotDumpsFullPath ),
+    "undeleted files"
+);
+
+unlink glob TESTDIR."*" || die "cannot delete files in ".TESTDIR;
+rmdir TESTDIR || die "cannot 'rmdir' ".TESTDIR;
 
 # test command line argument processing
 our $filesystem;
