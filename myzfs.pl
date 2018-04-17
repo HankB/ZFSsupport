@@ -157,10 +157,14 @@ sub main {
         warn "warning: not running as root\n";
     }
 
-    my @snapshots = getSnapshots $filesystem;
-	my 
+    my @snapshots      = getSnapshots($filesystem);
+    my @deletableSnaps = getDeletableSnaps(@snapshots);
+    my @snapsToDelete  = getSnapsToDelete( \@deletableSnaps, $reserveCount );
+    if ( defined $trial ) {
+        print( "would destroy\n", join( "\t\n", @snapsToDelete ) );
+    }
 
 }
 
-# finish with status
+# finish with successful status
 1;
