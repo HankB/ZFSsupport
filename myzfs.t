@@ -353,5 +353,38 @@ ok(eq_array(\@allDumpsToDelete, \@allTestDumpsToDeleteFullPath),
 #print "allDumpsToDelete\n", join("\n", @allDumpsToDelete), "\n\n";
 #print "allTestDumpsToDeleteFullPath\n", join("\n", @allTestDumpsToDeleteFullPath), "\n\n";
 
-#TODO test command line argument processing
+# test command line argument processing
+our $filesystem;
+our $trial;
+our $reserveCount;
+our $dumpDirectory;
+
+# first default values
+processArgs();
+ok(	!defined $filesystem &&
+	!defined $trial &&
+	$reserveCount == 5 &&
+	$dumpDirectory eq "/snapshots", "expected default values");
+
+@ARGV=("-t", "-d", "./snapshots");	# some modifications
+processArgs();
+ok(	!defined $filesystem &&
+	defined $trial &&
+	$reserveCount == 5 &&
+	$dumpDirectory eq "./snapshots", "expected -t and -d args");
+
+@ARGV=("--reserved", "3", "--dir", "/localsnaps");	# some modifications
+processArgs();
+ok(	!defined $filesystem &&
+	!defined $trial &&
+	$reserveCount == 3 &&
+	$dumpDirectory eq "/localsnaps", "expected --reserved and --dir args");
+
+@ARGV=("-f", "rpool/var");	# some modifications
+processArgs();
+ok(	$filesystem eq "rpool/var" &&
+	!defined $trial &&
+	$reserveCount == 5 &&
+	$dumpDirectory eq "/snapshots", "expected -f arg");
+
 done_testing();
