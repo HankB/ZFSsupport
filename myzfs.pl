@@ -33,7 +33,7 @@ sub getFilesystems(@) {
     #return \@(keys %f);
 }
 
-# identify snapshots that meet criteria for deletion
+# identify snapshots in the provided list that meet criteria for deletion
 # Remove any that do not match the pattern "<filesystem>@YYYY-MM-DD" as produced
 # by update-snapshot.sh
 sub getDeletableSnaps(@) {
@@ -114,6 +114,13 @@ sub findDeletableDumps($\@) {
     return keys %filesToDelete;
 }
 
+# used to delete snapshot dumps (or any list of files padded. ;)
+sub deleteSnapshotDumps(@) {
+    foreach my $f (@_) {
+        unlink $f || die "cannot delete $f";
+    }
+}
+
 our $filesystem;
 our $trial;
 our $reserveCount;
@@ -149,25 +156,10 @@ sub main {
     if ( $< != 0 ) {
         warn "warning: not running as root\n";
     }
-    else {
-        print "running as root\n";
-    }
 
     my @snapshots = getSnapshots $filesystem;
+	my 
 
-    my $datecount = 0;
-
-    foreach my $s (@snapshots) {
-        print ">$s<\n";
-        if ( $s =~ /[0-9]{4}-[0,1][0-9]-[0-3][0-9]/ ) {
-            print "$s has date\n";
-            $datecount++;
-        }
-        if ( $s =~ /[0-9]{4}-[0,1][0-9]-02/ ) {
-            print "$s is second of the month\n";
-        }
-    }
-    print " $datecount dates found\n";
 }
 
 # finish with status
