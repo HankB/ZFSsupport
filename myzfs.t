@@ -352,6 +352,9 @@ ok(eq_array(\@allDumpsToDelete, \@allTestDumpsToDeleteFullPath),
 	"content of dumps to delete, multiple fs");
 #print "allDumpsToDelete\n", join("\n", @allDumpsToDelete), "\n\n";
 #print "allTestDumpsToDeleteFullPath\n", join("\n", @allTestDumpsToDeleteFullPath), "\n\n";
+# TODO: implement and test something to delete dumps
+# TODO: delete test directory
+
 
 # test command line argument processing
 our $filesystem;
