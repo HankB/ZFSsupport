@@ -3,10 +3,10 @@
 use strict;
 use warnings;
 
-use diagnostics; # this gives you more debugging information
-use Test::More;  # for the is() and isnt() functions
+use diagnostics;    # this gives you more debugging information
+use Test::More;     # for the is() and isnt() functions
 use Sub::Override;
- use File::Touch;
+use File::Touch;
 
 # use Data::Dumper;
 
@@ -43,22 +43,21 @@ pattern except 'Test' will be elided form the name.
 # lists of all categorized snapshots
 my @archiveTestSnapAll;
 my @srvTestSnapAll;
-my @allTestSnapAll;		# union of the previous two
+my @allTestSnapAll;    # union of the previous two
 
 # deletable snapshots
 my @archiveTestSnapDeletable;
 my @srvTestSnapDeletable;
-my @allTestSnapDeletable;		# union of the previous two
+my @allTestSnapDeletable;    # union of the previous two
 
 # snapshots to delete
 my @archiveTestSnapToDelete;
 my @srvTestSnapToDelete;
-my @allTestSnapToDelete;		# union of the previous two
+my @allTestSnapToDelete;     # union of the previous two
 
 # results collected recently - all snapshots presently on grandidier.
 # `zfs list -t snap -H -o name`
-my $archiveTestSnapAll =
-'tank@initial
+my $archiveTestSnapAll = 'tank@initial
 tank/Archive@2018-03-15
 tank/Archive@2018-03-20
 tank/Archive@2018-03-22
@@ -79,8 +78,7 @@ tank/Archive@2018-04-11
 @archiveTestSnapAll = split /^/, $archiveTestSnapAll;
 chomp @archiveTestSnapAll;
 
-my $srvTestSnapAll =
-'tank/srv@2018-01-09
+my $srvTestSnapAll = 'tank/srv@2018-01-09
 tank/srv@2018-01-14
 tank/srv@2018-01-17
 tank/srv@2018-01-19
@@ -151,9 +149,8 @@ push @allTestSnapAll, @archiveTestSnapAll, @srvTestSnapAll;
 @archiveTestSnapDeletable = @archiveTestSnapAll;
 splice @archiveTestSnapDeletable, 0, 1;
 @srvTestSnapDeletable = @srvTestSnapAll;
-splice @srvTestSnapDeletable, 21,1;
+splice @srvTestSnapDeletable, 21, 1;
 push @allTestSnapDeletable, @archiveTestSnapDeletable, @srvTestSnapDeletable;
-
 
 # prepare 'to delete' lists from Deletable lists by removing the last
 # RESERVE_COUNT entries
@@ -161,9 +158,9 @@ push @allTestSnapDeletable, @archiveTestSnapDeletable, @srvTestSnapDeletable;
 use constant RESERVE_COUNT => 5;
 
 @archiveTestSnapToDelete =
-	@archiveTestSnapDeletable[0..$#archiveTestSnapDeletable-RESERVE_COUNT];
+  @archiveTestSnapDeletable[ 0 .. $#archiveTestSnapDeletable -RESERVE_COUNT ];
 @srvTestSnapToDelete =
-	@srvTestSnapDeletable[0..$#srvTestSnapDeletable-RESERVE_COUNT];
+  @srvTestSnapDeletable[ 0 .. $#srvTestSnapDeletable -RESERVE_COUNT ];
 push @allTestSnapToDelete, @archiveTestSnapToDelete, @srvTestSnapToDelete;
 
 =pod
@@ -235,12 +232,11 @@ splice @archiveTestDumpsToDelete, 10, 4;
 my @srvTestDumpsToDelete = @dumpfiles;
 splice @srvTestDumpsToDelete, 36;
 splice @srvTestDumpsToDelete, 0, 16;
+
 #print "srvTestDumpsToDelete\n", join("\n", @srvTestDumpsToDelete), "\n\n";
 
 my @allTestDumpsToDelete;
 push @allTestDumpsToDelete, @archiveTestDumpsToDelete, @srvTestDumpsToDelete;
-
-
 
 require "./myzfs.pl";
 
@@ -248,27 +244,28 @@ require "./myzfs.pl";
 
 # override getSnapshots() substituting test data
 my $overrideGet = Sub::Override->new(
-	getSnapshots =>sub {
-		my $f = shift;
+    getSnapshots => sub {
+        my $f = shift;
 
-		if (defined $f) {
-			return grep { $_ =~ /$f@/ } @allTestSnapAll;
-		}
-		return @allTestSnapAll;
-	}
+        if ( defined $f ) {
+            return grep { $_ =~ /$f@/ } @allTestSnapAll;
+        }
+        return @allTestSnapAll;
+    }
 );
 
 # override destroySnapshots()
 my $overrideDelete = Sub::Override->new(
-	destroySnapshots =>sub (@) {
-		my $destroyCount = 0;
+    destroySnapshots => sub (@) {
+        my $destroyCount = 0;
 
-		foreach my $s (@_) {
-			#print "asked to destroy ".$s."\n";
-			$destroyCount++;
-		}
-		return $destroyCount;
-	}
+        foreach my $s (@_) {
+
+            #print "asked to destroy ".$s."\n";
+            $destroyCount++;
+        }
+        return $destroyCount;
+    }
 );
 
 ###### testing test support functions,  ######
@@ -276,85 +273,104 @@ my $overrideDelete = Sub::Override->new(
 # chiefly a mock for getSnapshots()
 
 # test fetch of all snapshots
-my @allSnapsAll =  getSnapshots();
-ok(eq_array(\@allSnapsAll, \@allTestSnapAll), "verify expected returned snapshots");
+my @allSnapsAll = getSnapshots();
+ok(
+    eq_array( \@allSnapsAll, \@allTestSnapAll ),
+    "verify expected returned snapshots"
+);
+
 # '~~' experimental feature ok(@testSnaps ~~ @allSnapshots, "verify expected returned snapshots");
 
 # test fetch of snapshots for a particular file system 'tank'
-my @srvSnapAll =  getSnapshots("tank/srv");
-ok(eq_array(\@srvSnapAll, \@srvTestSnapAll), "match snapshot lists");
-
+my @srvSnapAll = getSnapshots("tank/srv");
+ok( eq_array( \@srvSnapAll, \@srvTestSnapAll ), "match snapshot lists" );
 
 #================== testing script functionality ==================
 
 # test filesystem filtering for getFilesystems()
-my @foundFileSystems = sort(getFilesystems(@allTestSnapAll));
-my @expectedFilesystems = sort("tank", "tank/Archive", "tank/srv");
-ok(eq_array(\@foundFileSystems, \@expectedFilesystems), "find filesystems from list of snaps");
+my @foundFileSystems = sort( getFilesystems(@allTestSnapAll) );
+my @expectedFilesystems = sort( "tank", "tank/Archive", "tank/srv" );
+ok( eq_array( \@foundFileSystems, \@expectedFilesystems ),
+    "find filesystems from list of snaps" );
 
 # test that getFilesystems() returns only one filesystem when
 # there is only one
-@foundFileSystems = getFilesystems(@srvTestSnapDeletable);
+@foundFileSystems    = getFilesystems(@srvTestSnapDeletable);
 @expectedFilesystems = ("tank/srv");
-ok(eq_array(\@foundFileSystems, \@expectedFilesystems), "find single filesystem");
+ok( eq_array( \@foundFileSystems, \@expectedFilesystems ),
+    "find single filesystem" );
 
 # test filtering of deletable snaps (one fs only)
-my @srvSnapDeletable =  getDeletableSnaps(@srvTestSnapAll);
-is(@srvSnapDeletable, @srvTestSnapDeletable, "count of deletable snapshots");
-ok(eq_array(\@srvSnapDeletable, \@srvTestSnapDeletable), "content of deletable snapshots");
+my @srvSnapDeletable = getDeletableSnaps(@srvTestSnapAll);
+is( @srvSnapDeletable, @srvTestSnapDeletable, "count of deletable snapshots" );
+ok( eq_array( \@srvSnapDeletable, \@srvTestSnapDeletable ),
+    "content of deletable snapshots" );
 
 # test filtering of deletable snaps (multiple filesystems)
-my @allSnapDeletable =  getDeletableSnaps(@allTestSnapAll);
-is(@allSnapDeletable, @allTestSnapDeletable, "count of deletable snapshots, multiple fs");
-ok(eq_array(\@allSnapDeletable, \@allTestSnapDeletable), "content of deletable snapshots, multiple fs");
+my @allSnapDeletable = getDeletableSnaps(@allTestSnapAll);
+is( @allSnapDeletable, @allTestSnapDeletable,
+    "count of deletable snapshots, multiple fs" );
+ok(
+    eq_array( \@allSnapDeletable, \@allTestSnapDeletable ),
+    "content of deletable snapshots, multiple fs"
+);
 
 # test identification of snaps to delete, single fs
-my @srvSnapToDelete = sort (getSnapsToDelete(\@srvTestSnapDeletable, RESERVE_COUNT));
-is(@srvSnapToDelete, @srvTestSnapToDelete, "count of snapshots to delete");
-ok(eq_array(\@srvSnapToDelete, \@srvTestSnapToDelete), "content of snaps to delete, single fs");
+my @srvSnapToDelete =
+  sort ( getSnapsToDelete( \@srvTestSnapDeletable, RESERVE_COUNT ) );
+is( @srvSnapToDelete, @srvTestSnapToDelete, "count of snapshots to delete" );
+ok( eq_array( \@srvSnapToDelete, \@srvTestSnapToDelete ),
+    "content of snaps to delete, single fs" );
 
 # test identification of snaps to delete, multiple fs
-my @allSnapToDelete = sort (getSnapsToDelete(\@allTestSnapDeletable, RESERVE_COUNT));
-is(@allSnapToDelete, @allTestSnapToDelete, "count of snapshots to delete");
-ok(eq_array(\@allSnapToDelete, \@allTestSnapToDelete), "content of snaps to delete, single fs");
+my @allSnapToDelete =
+  sort ( getSnapsToDelete( \@allTestSnapDeletable, RESERVE_COUNT ) );
+is( @allSnapToDelete, @allTestSnapToDelete, "count of snapshots to delete" );
+ok( eq_array( \@allSnapToDelete, \@allTestSnapToDelete ),
+    "content of snaps to delete, single fs" );
 
-is(destroySnapshots(@allTestSnapToDelete), @allTestSnapToDelete, "count snapshots destroyed");
+is( destroySnapshots(@allTestSnapToDelete),
+    @allTestSnapToDelete, "count snapshots destroyed" );
 
 # test delete functionality
 # first create some files to delete
-use constant  TESTDIR => "./snapshots/";
+use constant TESTDIR => "./snapshots/";
 mkdir TESTDIR;
 foreach my $f (@dumpfiles) {
-	touch TESTDIR.$f;
+    touch TESTDIR . $f;
 }
 
 # test identification of snapshot dumps to delete
-my @archiveDumpsToDelete = findDeletableDumps(TESTDIR, \@archiveTestSnapToDelete);
-is(@archiveDumpsToDelete, @archiveTestDumpsToDelete,
-	"count of dumps to delete, single fs");
+my @archiveDumpsToDelete =
+  findDeletableDumps( TESTDIR, \@archiveTestSnapToDelete );
+is( @archiveDumpsToDelete, @archiveTestDumpsToDelete,
+    "count of dumps to delete, single fs" );
+
 # print "archiveDumpsToDelete\n", join("\n", @archiveDumpsToDelete), "\n\n";
 @archiveTestDumpsToDelete = sort @archiveTestDumpsToDelete;
-@archiveDumpsToDelete = sort @archiveDumpsToDelete;
-my @archiveTestDumpsToDeleteFullPath = map TESTDIR.$_, @archiveTestDumpsToDelete;
-ok(eq_array(\@archiveDumpsToDelete, \@archiveTestDumpsToDeleteFullPath),
-	"content of dumps to delete, single fs");
+@archiveDumpsToDelete     = sort @archiveDumpsToDelete;
+my @archiveTestDumpsToDeleteFullPath = map TESTDIR . $_,
+  @archiveTestDumpsToDelete;
+ok( eq_array( \@archiveDumpsToDelete, \@archiveTestDumpsToDeleteFullPath ),
+    "content of dumps to delete, single fs" );
+
 #print "archiveDumpsToDelete\n", join("\n", @archiveDumpsToDelete), "\n\n";
 #print "archiveTestDumpsToDeleteFullPath\n", join("\n", @archiveTestDumpsToDeleteFullPath), "\n\n";
 
 # Now check ID of files to delete for multiple filesystems
-my @allDumpsToDelete = findDeletableDumps(TESTDIR, \@allTestSnapToDelete);
-is(@allDumpsToDelete, @allTestDumpsToDelete,
-	"count of dumps to delete, multiple fs");
-@allDumpsToDelete = sort @allDumpsToDelete;
+my @allDumpsToDelete = findDeletableDumps( TESTDIR, \@allTestSnapToDelete );
+is( @allDumpsToDelete, @allTestDumpsToDelete,
+    "count of dumps to delete, multiple fs" );
+@allDumpsToDelete     = sort @allDumpsToDelete;
 @allTestDumpsToDelete = sort @allTestDumpsToDelete;
-my @allTestDumpsToDeleteFullPath = map TESTDIR.$_, @allTestDumpsToDelete;
-ok(eq_array(\@allDumpsToDelete, \@allTestDumpsToDeleteFullPath),
-	"content of dumps to delete, multiple fs");
+my @allTestDumpsToDeleteFullPath = map TESTDIR . $_, @allTestDumpsToDelete;
+ok( eq_array( \@allDumpsToDelete, \@allTestDumpsToDeleteFullPath ),
+    "content of dumps to delete, multiple fs" );
+
 #print "allDumpsToDelete\n", join("\n", @allDumpsToDelete), "\n\n";
 #print "allTestDumpsToDeleteFullPath\n", join("\n", @allTestDumpsToDeleteFullPath), "\n\n";
 # TODO: implement and test something to delete dumps
 # TODO: delete test directory
-
 
 # test command line argument processing
 our $filesystem;
@@ -364,30 +380,42 @@ our $dumpDirectory;
 
 # first default values
 processArgs();
-ok(	!defined $filesystem &&
-	!defined $trial &&
-	$reserveCount == 5 &&
-	$dumpDirectory eq "/snapshots", "expected default values");
+ok(
+    !defined $filesystem
+      && !defined $trial
+      && $reserveCount == 5
+      && $dumpDirectory eq "/snapshots",
+    "expected default values"
+);
 
-@ARGV=("-t", "-d", "./snapshots");	# some modifications
+@ARGV = ( "-t", "-d", "./snapshots" );    # some modifications
 processArgs();
-ok(	!defined $filesystem &&
-	defined $trial &&
-	$reserveCount == 5 &&
-	$dumpDirectory eq "./snapshots", "expected -t and -d args");
+ok(
+    !defined $filesystem
+      && defined $trial
+      && $reserveCount == 5
+      && $dumpDirectory eq "./snapshots",
+    "expected -t and -d args"
+);
 
-@ARGV=("--reserved", "3", "--dir", "/localsnaps");	# some modifications
+@ARGV = ( "--reserved", "3", "--dir", "/localsnaps" );    # some modifications
 processArgs();
-ok(	!defined $filesystem &&
-	!defined $trial &&
-	$reserveCount == 3 &&
-	$dumpDirectory eq "/localsnaps", "expected --reserved and --dir args");
+ok(
+    !defined $filesystem
+      && !defined $trial
+      && $reserveCount == 3
+      && $dumpDirectory eq "/localsnaps",
+    "expected --reserved and --dir args"
+);
 
-@ARGV=("-f", "rpool/var");	# some modifications
+@ARGV = ( "-f", "rpool/var" );                            # some modifications
 processArgs();
-ok(	$filesystem eq "rpool/var" &&
-	!defined $trial &&
-	$reserveCount == 5 &&
-	$dumpDirectory eq "/snapshots", "expected -f arg");
+ok(
+    $filesystem eq "rpool/var"
+      && !defined $trial
+      && $reserveCount == 5
+      && $dumpDirectory eq "/snapshots",
+    "expected -f arg"
+);
 
 done_testing();
