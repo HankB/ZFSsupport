@@ -6,13 +6,16 @@ use Getopt::Long qw(GetOptions);
 
 use Exporter qw(import);
 
-# FIXME
-our @EXPORT_OK = qw( main );
+our @EXPORT_OK = qw( main getSnapshots getFilesystems getDeletableSnaps
+  getSnapsToDelete destroySnapshots findDeletableDumps deleteSnapshotDumps
+  processArgs );
 
 # fetch a list of snapshots, perhaps limited to a particular filesystem
 sub getSnapshots {
-    my $f   = shift;
-    my $cmd = "zfs list -t snap -H -o name";
+    my $modName = shift;
+    my $f       = shift;
+    my $cmd     = "zfs list -t snap -H -o name";
+
     if ( defined($f) ) {
         $cmd = $cmd . " -r $f -d 1";
     }
@@ -23,8 +26,10 @@ sub getSnapshots {
     return @snapshots;
 }
 
+
 # identify unique filesystems in list of snapshot list.
 sub getFilesystems {
+    my $modName = shift;
     my %f;
     foreach my $s (@_) {
         $s =~ /(.*)@/;    # isolate the filesystem name
@@ -41,7 +46,8 @@ sub getFilesystems {
 # identify snapshots in the provided list that meet criteria for deletion
 # Remove any that do not match the pattern "<filesystem>@YYYY-MM-DD" as produced
 # by update-snapshot.sh
-sub getDeletableSnaps(@) {
+sub getDeletableSnaps {
+    my $modName = shift;
     my @candidates =
       grep { $_ =~ /@[1-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]/ } @_;
     return @candidates;
@@ -51,7 +57,8 @@ sub getDeletableSnaps(@) {
 # e.g. all except the last 'n' for each filesystem
 # Use the list returned by getDeletableSnaps(@)
 sub getSnapsToDelete {
-    my $snaps = shift
+    my $modName = shift;
+    my $snaps   = shift
       || die
       "must call getSnapsToDelete() with snapshot list and residual count";
     my $residual = shift
@@ -73,6 +80,7 @@ sub getSnapsToDelete {
 
 # destroy the list of snapshots
 sub destroySnapshots {
+    my $modName      = shift;
     my $cmd          = "zfs destroy -v ";
     my $destroyCount = 0;
     foreach my $s (@_) {
@@ -88,6 +96,7 @@ sub destroySnapshots {
 # first argument is directory to search for dumps
 # second arg is a reference to a list of snaps to delete
 sub findDeletableDumps {
+    my $modName       = shift;
     my $dir           = shift;
     my $snaps         = shift;
     my @filesToDelete = ();
@@ -120,7 +129,8 @@ sub findDeletableDumps {
 }
 
 # used to delete snapshot dumps (or any list of files padded. ;)
-sub deleteSnapshotDumps(@) {
+sub deleteSnapshotDumps {
+    my $modName = shift;
     foreach my $f (@_) {
         unlink $f || die "cannot delete $f";
     }
@@ -131,7 +141,7 @@ our $trial;
 our $reserveCount;
 our $dumpDirectory;
 
-sub processArgs() {
+sub processArgs {
 
     # assign default values
     $filesystem    = undef;
