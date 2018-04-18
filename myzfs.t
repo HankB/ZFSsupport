@@ -239,7 +239,7 @@ my @allTestDumpsToDelete;
 push @allTestDumpsToDelete, @archiveTestDumpsToDelete, @srvTestDumpsToDelete;
 
 use lib '.';
-use MyZFS;
+use MyZFS qw(:all);
 
 #================== Override Application Functions ==================
 

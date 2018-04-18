@@ -9,6 +9,7 @@ use Exporter qw(import);
 our @EXPORT_OK = qw( main getSnapshots getFilesystems getDeletableSnaps
   getSnapsToDelete destroySnapshots findDeletableDumps deleteSnapshotDumps
   processArgs );
+our %EXPORT_TAGS = ( all => \@EXPORT_OK );
 
 # fetch a list of snapshots, perhaps limited to a particular filesystem
 sub getSnapshots {
