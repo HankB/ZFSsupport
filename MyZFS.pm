@@ -19,7 +19,7 @@ sub getSnapshots {
     if ( defined($f) ) {
         $cmd = $cmd . " -r $f -d 1";
     }
-    my @snapshots = `$cmd`;
+    my @snapshots = `$cmd` || die;
 
     #print scalar @snapshots. " snapshots\n";
     chomp @snapshots;
@@ -60,10 +60,10 @@ sub getSnapsToDelete {
     my $modName = shift;
     my $snaps   = shift
       || die
-      "must call getSnapsToDelete() with snapshot list and residual count";
+      "must call getSnapsToDelete() with ref to snapshot list";
     my $residual = shift
       || die
-      "must call getSnapsToDelete() with snapshot list and residual count";
+      "must call getSnapsToDelete() with residual count";
 
     # identify filesystems
     my @filesystems = getFilesystems( @{$snaps} );
