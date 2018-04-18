@@ -1,8 +1,13 @@
 #!/usr/bin/perl
-
+package MyZFS;
 use strict;
 use warnings;
 use Getopt::Long qw(GetOptions);
+
+use Exporter qw(import);
+
+# FIXME
+our @EXPORT_OK = qw( );
 
 # fetch a list of snapshots, perhaps limited to a particular filesystem
 sub getSnapshots {
@@ -19,7 +24,7 @@ sub getSnapshots {
 }
 
 # identify unique filesystems in list of snapshot list.
-sub getFilesystems(@) {
+sub getFilesystems {
     my %f;
     foreach my $s (@_) {
         $s =~ /(.*)@/;    # isolate the filesystem name
@@ -67,7 +72,7 @@ sub getSnapsToDelete(\@$) {
 }
 
 # destroy the list of snapshots
-sub destroySnapshots(@) {
+sub destroySnapshots {
     my $cmd          = "zfs destroy -v ";
     my $destroyCount = 0;
     foreach my $s (@_) {
@@ -82,7 +87,7 @@ sub destroySnapshots(@) {
 # identify dumps in /snapshots - files match "*.snap.xz"
 # first argument is directory to search for dumps
 # second arg is a reference to a list of snaps to delete
-sub findDeletableDumps($\@) {
+sub findDeletableDumps {
     my $dir           = shift;
     my $snaps         = shift;
     my @filesToDelete = ();
