@@ -238,14 +238,16 @@ splice @srvTestDumpsToDelete, 0, 16;
 my @allTestDumpsToDelete;
 push @allTestDumpsToDelete, @archiveTestDumpsToDelete, @srvTestDumpsToDelete;
 
-require "./myzfs.pl";
+use lib '.';
+use MyZFS;
 
 #================== Override Application Functions ==================
 
 # override getSnapshots() substituting test data
 my $overrideGet = Sub::Override->new(
-    getSnapshots => sub {
-        my $f = shift;
+    'MyZFS::getSnapshots' => sub {
+        my $modName = shift;
+        my $f       = shift;
 
         if ( defined $f ) {
             return grep { $_ =~ /$f@/ } @allTestSnapAll;
@@ -256,7 +258,8 @@ my $overrideGet = Sub::Override->new(
 
 # override destroySnapshots()
 my $overrideDelete = Sub::Override->new(
-    destroySnapshots => sub (@) {
+    'MyZFS::destroySnapshots' => sub {
+        my $modName = shift;
         my $destroyCount = 0;
 
         foreach my $s (@_) {
@@ -273,7 +276,7 @@ my $overrideDelete = Sub::Override->new(
 # chiefly a mock for getSnapshots()
 
 # test fetch of all snapshots
-my @allSnapsAll = getSnapshots();
+my @allSnapsAll = MyZFS->getSnapshots();
 ok(
     eq_array( \@allSnapsAll, \@allTestSnapAll ),
     "verify expected returned snapshots"
@@ -282,32 +285,32 @@ ok(
 # '~~' experimental feature ok(@testSnaps ~~ @allSnapshots, "verify expected returned snapshots");
 
 # test fetch of snapshots for a particular file system 'tank'
-my @srvSnapAll = getSnapshots("tank/srv");
+my @srvSnapAll = MyZFS->getSnapshots("tank/srv");
 ok( eq_array( \@srvSnapAll, \@srvTestSnapAll ), "match snapshot lists" );
 
 #================== testing script functionality ==================
 
 # test filesystem filtering for getFilesystems()
-my @foundFileSystems = sort( getFilesystems(@allTestSnapAll) );
+my @foundFileSystems = sort( MyZFS->getFilesystems(@allTestSnapAll) );
 my @expectedFilesystems = sort( "tank", "tank/Archive", "tank/srv" );
 ok( eq_array( \@foundFileSystems, \@expectedFilesystems ),
     "find filesystems from list of snaps" );
 
 # test that getFilesystems() returns only one filesystem when
 # there is only one
-@foundFileSystems    = getFilesystems(@srvTestSnapDeletable);
+@foundFileSystems    = MyZFS->getFilesystems(@srvTestSnapDeletable);
 @expectedFilesystems = ("tank/srv");
 ok( eq_array( \@foundFileSystems, \@expectedFilesystems ),
     "find single filesystem" );
 
 # test filtering of deletable snaps (one fs only)
-my @srvSnapDeletable = getDeletableSnaps(@srvTestSnapAll);
+my @srvSnapDeletable = MyZFS->getDeletableSnaps(@srvTestSnapAll);
 is( @srvSnapDeletable, @srvTestSnapDeletable, "count of deletable snapshots" );
 ok( eq_array( \@srvSnapDeletable, \@srvTestSnapDeletable ),
     "content of deletable snapshots" );
 
 # test filtering of deletable snaps (multiple filesystems)
-my @allSnapDeletable = getDeletableSnaps(@allTestSnapAll);
+my @allSnapDeletable = MyZFS->getDeletableSnaps(@allTestSnapAll);
 is( @allSnapDeletable, @allTestSnapDeletable,
     "count of deletable snapshots, multiple fs" );
 ok(
@@ -317,19 +320,19 @@ ok(
 
 # test identification of snaps to delete, single fs
 my @srvSnapToDelete =
-  sort ( getSnapsToDelete( \@srvTestSnapDeletable, RESERVE_COUNT ) );
+  sort ( MyZFS->getSnapsToDelete( \@srvTestSnapDeletable, RESERVE_COUNT ) );
 is( @srvSnapToDelete, @srvTestSnapToDelete, "count of snapshots to delete" );
 ok( eq_array( \@srvSnapToDelete, \@srvTestSnapToDelete ),
     "content of snaps to delete, single fs" );
 
 # test identification of snaps to delete, multiple fs
 my @allSnapToDelete =
-  sort ( getSnapsToDelete( \@allTestSnapDeletable, RESERVE_COUNT ) );
+  sort ( MyZFS->getSnapsToDelete( \@allTestSnapDeletable, RESERVE_COUNT ) );
 is( @allSnapToDelete, @allTestSnapToDelete, "count of snapshots to delete" );
 ok( eq_array( \@allSnapToDelete, \@allTestSnapToDelete ),
     "content of snaps to delete, single fs" );
 
-is( destroySnapshots(@allTestSnapToDelete),
+is( MyZFS->destroySnapshots(@allTestSnapToDelete),
     @allTestSnapToDelete, "count snapshots destroyed" );
 
 # test delete functionality
@@ -347,7 +350,7 @@ createTestDumps( TESTDIR, @dumpfiles );
 
 # test identification of snapshot dumps to delete
 my @archiveDumpsToDelete =
-  findDeletableDumps( TESTDIR, \@archiveTestSnapToDelete );
+  MyZFS->findDeletableDumps( TESTDIR, \@archiveTestSnapToDelete );
 is( @archiveDumpsToDelete, @archiveTestDumpsToDelete,
     "count of dumps to delete, single fs" );
 
@@ -363,7 +366,7 @@ ok( eq_array( \@archiveDumpsToDelete, \@archiveTestDumpsToDeleteFullPath ),
 #print "archiveTestDumpsToDeleteFullPath\n", join("\n", @archiveTestDumpsToDeleteFullPath), "\n\n";
 
 # Now check ID of files to delete for multiple filesystems
-my @allDumpsToDelete = findDeletableDumps( TESTDIR, \@allTestSnapToDelete );
+my @allDumpsToDelete = MyZFS->findDeletableDumps( TESTDIR, \@allTestSnapToDelete );
 is( @allDumpsToDelete, @allTestDumpsToDelete,
     "count of dumps to delete, multiple fs" );
 @allDumpsToDelete     = sort @allDumpsToDelete;
@@ -377,7 +380,7 @@ ok( eq_array( \@allDumpsToDelete, \@allTestDumpsToDeleteFullPath ),
 # TODO: implement and test something to delete dumps
 # TODO: delete test directory
 
-deleteSnapshotDumps(@allDumpsToDelete);
+MyZFS->deleteSnapshotDumps(@allDumpsToDelete);
 my $remainingTestSnapshotDumps =
   'tank-Archive@2018-04-07-tank-Archive@2018-04-08.snap.xz
 tank-Archive@2018-04-08-tank-Archive@2018-04-09.snap.xz
@@ -405,48 +408,50 @@ unlink glob TESTDIR."*" || die "cannot delete files in ".TESTDIR;
 rmdir TESTDIR || die "cannot 'rmdir' ".TESTDIR;
 
 # test command line argument processing
+=pod
 our $filesystem;
 our $trial;
 our $reserveCount;
 our $dumpDirectory;
+=cut
 
 # first default values
-processArgs();
+MyZFS->processArgs();
 ok(
-    !defined $filesystem
-      && !defined $trial
-      && $reserveCount == 5
-      && $dumpDirectory eq "/snapshots",
+    !defined $MyZFS::filesystem
+      && !defined $MyZFS::trial
+      && $MyZFS::reserveCount == 5
+      && $MyZFS::dumpDirectory eq "/snapshots",
     "expected default values"
 );
 
 @ARGV = ( "-t", "-d", "./snapshots" );    # some modifications
-processArgs();
+MyZFS->processArgs();
 ok(
-    !defined $filesystem
-      && defined $trial
-      && $reserveCount == 5
-      && $dumpDirectory eq "./snapshots",
+    !defined $MyZFS::filesystem
+      && defined $MyZFS::trial
+      && $MyZFS::reserveCount == 5
+      && $MyZFS::dumpDirectory eq "./snapshots",
     "expected -t and -d args"
 );
 
 @ARGV = ( "--reserved", "3", "--dir", "/localsnaps" );    # some modifications
-processArgs();
+MyZFS->processArgs();
 ok(
-    !defined $filesystem
-      && !defined $trial
-      && $reserveCount == 3
-      && $dumpDirectory eq "/localsnaps",
+    !defined $MyZFS::filesystem
+      && !defined $MyZFS::trial
+      && $MyZFS::reserveCount == 3
+      && $MyZFS::dumpDirectory eq "/localsnaps",
     "expected --reserved and --dir args"
 );
 
 @ARGV = ( "-f", "rpool/var" );                            # some modifications
-processArgs();
+MyZFS->processArgs();
 ok(
-    $filesystem eq "rpool/var"
-      && !defined $trial
-      && $reserveCount == 5
-      && $dumpDirectory eq "/snapshots",
+    $MyZFS::filesystem eq "rpool/var"
+      && !defined $MyZFS::trial
+      && $MyZFS::reserveCount == 5
+      && $MyZFS::dumpDirectory eq "/snapshots",
     "expected -f arg"
 );
 
