@@ -6,25 +6,26 @@ use Getopt::Long qw(GetOptions);
 
 use Exporter qw(import);
 
-our @EXPORT_OK = qw( main getSnapshots getFilesystems getDeletableSnaps
+our @EXPORT_OK = qw( getSnapshots getFilesystems getDeletableSnaps
   getSnapsToDelete destroySnapshots findDeletableDumps deleteSnapshotDumps
-  processArgs );
+  processArgs filesystem);
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );
 
 # fetch a list of snapshots, perhaps limited to a particular filesystem
 sub getSnapshots {
-    my $modName = shift;
-    my $f       = shift;
-    my $cmd     = "zfs list -t snap -H -o name";
+	my $modName = shift;
+	my $f       = shift;
+	my $cmd     = "zfs list -t snap -H -o name";
 
-    if ( defined($f) ) {
-        $cmd = $cmd . " -r $f -d 1";
-    }
-    my @snapshots = `$cmd` || die;
+	if ( defined($f) ) {
+		$cmd = $cmd . " -r $f -d 1";
+	}
+	my $snapshots = `$cmd` || die;
+	my @snapshots = split /^/, $snapshots;
 
-    #print scalar @snapshots. " snapshots\n";
-    chomp @snapshots;
-    return @snapshots;
+	#print scalar @snapshots. " snapshots\n";
+	chomp @snapshots;
+	return @snapshots;
 }
 
 
@@ -85,7 +86,7 @@ sub destroySnapshots {
     my $cmd          = "zfs destroy -v ";
     my $destroyCount = 0;
     foreach my $s (@_) {
-        my $result = `$cmd.$s`;
+        my $result = `$cmd $s`;
         $destroyCount++;
 
         # TODO - check result for success
@@ -148,7 +149,7 @@ sub processArgs {
     $filesystem    = undef;
     $trial         = undef;
     $reserveCount  = 5;
-    $dumpDirectory = "/snapshots";
+    $dumpDirectory = "/snapshots/";
 
     GetOptions(
         'filesystem=s' => \$filesystem,
@@ -156,30 +157,6 @@ sub processArgs {
         'reserved=i'   => \$reserveCount,
         'directory=s'  => \$dumpDirectory,
     );
-}
-
-sub main {
-
-    processArgs() or die "Usage: $0
-		[-f|--filesystem filesystem (default=all)]
-		[-t|--trial]
-		[-r|--reserved reserve_count (default=5)]
-		[-d|--directory dump_directory (default=\"/snapshots\")]\n";
-
-    # TODO: fully implement all command line arguments
-
-    # warn the user
-    if ( $< != 0 ) {
-        warn "warning: not running as root\n";
-    }
-
-    my @snapshots      = getSnapshots($filesystem);
-    my @deletableSnaps = getDeletableSnaps(@snapshots);
-    my @snapsToDelete  = getSnapsToDelete( \@deletableSnaps, $reserveCount );
-    if ( defined $trial ) {
-        print( "would destroy\n", join( "\t\n", @snapsToDelete ) );
-    }
-
 }
 
 # finish with successful status
