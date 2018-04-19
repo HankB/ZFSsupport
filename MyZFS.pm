@@ -13,21 +13,20 @@ our %EXPORT_TAGS = ( all => \@EXPORT_OK );
 
 # fetch a list of snapshots, perhaps limited to a particular filesystem
 sub getSnapshots {
-	my $modName = shift;
-	my $f       = shift;
-	my $cmd     = "zfs list -t snap -H -o name";
+    my $modName = shift;
+    my $f       = shift;
+    my $cmd     = "zfs list -t snap -H -o name";
 
-	if ( defined($f) ) {
-		$cmd = $cmd . " -r $f -d 1";
-	}
-	my $snapshots = `$cmd` || die;
-	my @snapshots = split /^/, $snapshots;
+    if ( defined($f) ) {
+        $cmd = $cmd . " -r $f -d 1";
+    }
+    my $snapshots = `$cmd` || die;
+    my @snapshots = split /^/, $snapshots;
 
-	#print scalar @snapshots. " snapshots\n";
-	chomp @snapshots;
-	return @snapshots;
+    #print scalar @snapshots. " snapshots\n";
+    chomp @snapshots;
+    return @snapshots;
 }
-
 
 # identify unique filesystems in list of snapshot list.
 sub getFilesystems {
@@ -61,11 +60,9 @@ sub getDeletableSnaps {
 sub getSnapsToDelete {
     my $modName = shift;
     my $snaps   = shift
-      || die
-      "must call getSnapsToDelete() with ref to snapshot list";
+      || die "must call getSnapsToDelete() with ref to snapshot list";
     my $residual = shift
-      || die
-      "must call getSnapsToDelete() with residual count";
+      || die "must call getSnapsToDelete() with residual count";
 
     # identify filesystems
     my @filesystems = getFilesystems( @{$snaps} );

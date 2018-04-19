@@ -259,7 +259,7 @@ my $overrideGet = Sub::Override->new(
 # override destroySnapshots()
 my $overrideDelete = Sub::Override->new(
     'MyZFS::destroySnapshots' => sub {
-        my $modName = shift;
+        my $modName      = shift;
         my $destroyCount = 0;
 
         foreach my $s (@_) {
@@ -366,7 +366,8 @@ ok( eq_array( \@archiveDumpsToDelete, \@archiveTestDumpsToDeleteFullPath ),
 #print "archiveTestDumpsToDeleteFullPath\n", join("\n", @archiveTestDumpsToDeleteFullPath), "\n\n";
 
 # Now check ID of files to delete for multiple filesystems
-my @allDumpsToDelete = MyZFS->findDeletableDumps( TESTDIR, \@allTestSnapToDelete );
+my @allDumpsToDelete =
+  MyZFS->findDeletableDumps( TESTDIR, \@allTestSnapToDelete );
 is( @allDumpsToDelete, @allTestDumpsToDelete,
     "count of dumps to delete, multiple fs" );
 @allDumpsToDelete     = sort @allDumpsToDelete;
@@ -404,10 +405,11 @@ ok(
     "undeleted files"
 );
 
-unlink glob TESTDIR."*" || die "cannot delete files in ".TESTDIR;
-rmdir TESTDIR || die "cannot 'rmdir' ".TESTDIR;
+unlink glob TESTDIR . "*" || die "cannot delete files in " . TESTDIR;
+rmdir TESTDIR || die "cannot 'rmdir' " . TESTDIR;
 
 # test command line argument processing
+
 =pod
 our $filesystem;
 our $trial;
