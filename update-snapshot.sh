@@ -200,7 +200,12 @@ releaseLock "receive"
 # report snapshots following send
 echo
 echo "after send/receive to ${REMOTE_HOST}"
+ssh $REMOTE_HOST /sbin/zfs list
 ssh $REMOTE_HOST /sbin/zfs list -d 1 -t snap -r $REMOTE_FILESYSTEM
+
+echo "locally"
+/sbin/zfs list
+/sbin/zfs list -d 1 -t snap -r $FILESYSTEM
 
 date +%Y-%m-%d\ %H:%M:%S
 echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
