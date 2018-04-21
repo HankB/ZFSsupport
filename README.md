@@ -20,7 +20,7 @@ presently using ZFS.
 
 See also issues related to this script.
 
-Cleanup scripts are presently a work in progress. Not presently passing all tests.
+`myzfs.pl` and `MyZFS.pm` is in preliminary production testing.
 
 ## Other
 
@@ -64,15 +64,15 @@ Test script for `lock.sh`. (See script for suggested ways to test.)
 
 ### myzfs.pl
 
-Logic to delete older snapshots. ()Eventually to delete old snapshot dumps.)
+Logic to destroy older snapshots and delete old snapshot dumps.
 
 ### myzfs.t
 
-Test script for `myzfs.pl`
+Test script for `MyZFS.pm`
 
-### myzfsMain.pl
+### MyZFS.pm
 
-'Main' to execute logic in `myzfs.pl`
+Module to implement the lower level logic in a testable form.
 
 ## Errata
 
