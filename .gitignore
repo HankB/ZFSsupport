@@ -1,1 +1,7 @@
 .vstags
+cover_db
+Build
+_build
+blib
+MANIFEST*
+MYMETA*
