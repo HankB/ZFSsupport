@@ -47,6 +47,12 @@ fileLen()
     echo LEN
 }
 
+show_help()
+{
+    echo "Usage $0 [-b \"pre cmd\"] [-a \"post cmd\"] host filesystem [remote_filesystem]"
+    echo "v0.3"
+
+}
 # external code
 
 . `dirname $0`/lock.sh || exit 1
@@ -54,11 +60,40 @@ fileLen()
 echo "########################################################################"
 date +%Y-%m-%d\ %H:%M:%S
 
+# process command line arguments
+BEFORE_HOOK=""
+AFTER_HOOK=""
+
+# A POSIX variable
+OPTIND=1         # Reset in case getopts has been used previously in the shell.
+
+# Initialize our own variables:
+output_file=""
+verbose=0
+
+# from https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
+while getopts "h?b:a:" opt; do
+    case "$opt" in
+    h|\?)
+        show_help
+        exit 0
+        ;;
+    b)  BEFORE_HOOK=$OPTARG
+        ;;
+    a)  AFTER_HOOK=$OPTARG
+        ;;
+    esac
+done
+
+shift $((OPTIND-1))
+
+[ "$1" = "--" ] && shift
+
 # check for command line arguments
 if [ $# -lt 2 -o $# -gt 3 ]
 then
-    echo "Usage $0 host filesystem [remote_filesystem]"
-    echo "v0.2"
+    echo "got " $#
+    show_help
     exit 1
 fi
 
@@ -72,6 +107,23 @@ then
 else
     REMOTE_FILESYSTEM=$FILESYSTEM
 fi
+
+echo "filesystem        " $FILESYSTEM
+echo "remote host       " $REMOTE_HOST
+echo "remote filesystem " $REMOTE_FILESYSTEM
+
+if [ "$BEFORE_HOOK" != "" ]
+then
+    echo executing $BEFORE_HOOK
+    $BEFORE_HOOK
+fi
+
+if [ "$AFTER_HOOK" != "" ]
+then
+    echo executing BEFORE_HOOK
+    $AFTER_HOOK
+fi
+exit
 
 # provide variants of inputs w/out '/' characters
 FILESYSTEM_F=`echo $FILESYSTEM|tr / -`
