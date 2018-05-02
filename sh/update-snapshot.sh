@@ -118,13 +118,6 @@ then
     $BEFORE_HOOK
 fi
 
-if [ "$AFTER_HOOK" != "" ]
-then
-    echo executing BEFORE_HOOK
-    $AFTER_HOOK
-fi
-exit
-
 # provide variants of inputs w/out '/' characters
 FILESYSTEM_F=`echo $FILESYSTEM|tr / -`
 REMOTE_FILESYSTEM_F=`echo $REMOTE_FILESYSTEM|tr / -`
@@ -260,4 +253,12 @@ echo "locally"
 /sbin/zfs list -d 1 -t snap -r $FILESYSTEM
 
 date +%Y-%m-%d\ %H:%M:%S
+
+if [ "$AFTER_HOOK" != "" ]
+then
+    echo executing BEFORE_HOOK
+    $AFTER_HOOK
+fi
+date +%Y-%m-%d\ %H:%M:%S
+
 echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
