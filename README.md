@@ -74,6 +74,23 @@ Test script for `MyZFS.pm`
 
 Module to implement the lower level logic in a testable form.
 
+### Building (perl)
+
+Following guidelines from `https://stackoverflow.com/questions/533553/perl-build-unit-testing-code-coverage-a-complete-working-example`
+
+`cd perl`
+
+`perl Build manifest`
+
+`perl Build.PL`
+
+`perl Build test`
+
+`perl Build testcover`
+
+### Installing (sh)
+
+
 ## Errata
 
   1. It seems that when a lot of files are deleted locally, that results in a
