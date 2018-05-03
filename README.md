@@ -38,6 +38,8 @@ use the least bandwidth. (It turns out that is not always the case. (1))
 
 * Perl module `Sub::Override` (`apt install libsub-override-perl` on Ubuntu 16.04 and Debian 9)
 * Perl module  `File::Touch` (`apt install libfile-touch-perl` on Debian Stretch)
+* Perl module  `Module::Build` (`apt install libmodule-build-perl`  on Ubuntu 16.04)
+* Perl module  `Devel::Cover` (`apt install libdevel-cover-perl` on Ubuntu 16.04)
 * passwordless ssh login on the remote (`see copy-ssh-id`)
 * `/shapshots` directory on both local and remote PCs for storing snapshot dumps.
 * `pxz` (On Debian, `apt install pxz`)
