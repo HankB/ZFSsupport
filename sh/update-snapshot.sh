@@ -61,17 +61,13 @@ echo "########################################################################"
 date +%Y-%m-%d\ %H:%M:%S
 
 # process command line arguments
+# from https://stackoverflow.com//questions192249/how-do-i-parse-command-line-arguments-in-bash
 BEFORE_HOOK=""
 AFTER_HOOK=""
 
 # A POSIX variable
 OPTIND=1         # Reset in case getopts has been used previously in the shell.
 
-# Initialize our own variables:
-output_file=""
-verbose=0
-
-# from https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
 while getopts "h?b:a:" opt; do
     case "$opt" in
     h|\?)
@@ -92,7 +88,6 @@ shift $((OPTIND-1))
 # check for command line arguments
 if [ $# -lt 2 -o $# -gt 3 ]
 then
-    echo "got " $#
     show_help
     exit 1
 fi
@@ -256,7 +251,7 @@ date +%Y-%m-%d\ %H:%M:%S
 
 if [ "$AFTER_HOOK" != "" ]
 then
-    echo executing BEFORE_HOOK
+    echo executing AFTER_HOOK
     $AFTER_HOOK
 fi
 date +%Y-%m-%d\ %H:%M:%S
