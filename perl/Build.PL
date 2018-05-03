@@ -10,7 +10,7 @@ my $builder = Module::Build->new(
     build_requires => {
         'Test::More'    => '0.10',
         'Sub::Override' => '0.09',
-        'File::Touch'   => '0.11',
+        'File::Touch'   => '0.10',
     },
 );
 
