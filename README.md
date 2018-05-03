@@ -90,6 +90,25 @@ Following guidelines from `https://stackoverflow.com/questions/533553/perl-build
 
 `perl Build testcover`
 
+### Installing (perl)
+
+Put the module `MyZFS.pm` somewhere convenient. The following command lists possibilities:
+`perl -e 'print join "\n", @INC;'` and on my system shows
+``` perl
+hbarta@grandidier:~/Documents/ZFSsupport/perl$ perl -e 'print join "\n", @INC;'
+/etc/perl
+/usr/local/lib/x86_64-linux-gnu/perl/5.22.1
+/usr/local/share/perl/5.22.1
+/usr/lib/x86_64-linux-gnu/perl5/5.22
+/usr/share/perl5
+/usr/lib/x86_64-linux-gnu/perl/5.22
+/usr/share/perl/5.22
+/usr/local/lib/site_perl
+/usr/lib/x86_64-linux-gnu/perl-base
+.hbarta@grandidier:~/Documents/ZFSsupport/perl$ 
+```
+Copy the script `myzfs.pl` to a convenient location such as /usr/local/sbin
+
 ### Installing (sh)
 
 
