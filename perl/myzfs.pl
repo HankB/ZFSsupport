@@ -6,7 +6,7 @@ use strict;
 use warnings;
 use Getopt::Long qw(GetOptions);
 
-use lib '.';
+use lib './lib';
 use MyZFS;
 
 sub main {
