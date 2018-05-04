@@ -111,6 +111,10 @@ Copy the script `myzfs.pl` to a convenient location such as /usr/local/sbin
 
 ### Installing (sh)
 
+Copy the shell scripts somewhere convenient. Suggested:
+
+`cp sh/update-snapshot.sh sh/lock.sh /usr/local/sbin`
+
 
 ## Errata
 
