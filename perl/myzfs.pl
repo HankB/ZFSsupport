@@ -37,7 +37,7 @@ sub main {
     if ( defined $MyZFS::trial ) {
         print(
             "found ", scalar(@deletableSnaps),
-            " deletable snapshots\n\t",
+            " destroyable snapshots\n\t",
             join( "\n\t", @deletableSnaps ), "\n"
         );
     }
@@ -61,7 +61,7 @@ sub main {
     if ( defined $MyZFS::trial ) {
         print(
             "found ", scalar(@dumpsToDelete),
-            " dumps to destroy\n\t",
+            " snapshot dumps to delete\n\t",
             join( "\n\t", @dumpsToDelete ), "\n"
         );
     }
