@@ -109,7 +109,7 @@ echo "remote filesystem " $REMOTE_FILESYSTEM
 
 if [ "$BEFORE_HOOK" != "" ]
 then
-    echo executing $BEFORE_HOOK
+    echo executing BEFORE_HOOK $BEFORE_HOOK
     $BEFORE_HOOK
 fi
 
@@ -251,7 +251,7 @@ date +%Y-%m-%d\ %H:%M:%S
 
 if [ "$AFTER_HOOK" != "" ]
 then
-    echo executing AFTER_HOOK
+    echo executing AFTER_HOOK $AFTER_HOOK
     $AFTER_HOOK
 fi
 date +%Y-%m-%d\ %H:%M:%S
