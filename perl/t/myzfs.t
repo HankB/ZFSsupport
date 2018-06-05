@@ -415,6 +415,7 @@ our $filesystem;
 our $trial;
 our $reserveCount;
 our $dumpDirectory;
+our $verbosity;
 =cut
 
 # first default values
@@ -424,7 +425,8 @@ ok(
     !defined $MyZFS::filesystem
       && !defined $MyZFS::trial
       && $MyZFS::reserveCount == 5
-      && $MyZFS::dumpDirectory eq "/snapshots/",
+      && $MyZFS::dumpDirectory eq "/snapshots/"
+      && !defined $MyZFS::verbosity,
     "expected default values"
 );
 
@@ -434,7 +436,8 @@ ok(
     !defined $MyZFS::filesystem
       && defined $MyZFS::trial
       && $MyZFS::reserveCount == 5
-      && $MyZFS::dumpDirectory eq "./snapshots",
+      && $MyZFS::dumpDirectory eq "./snapshots"
+      && !defined $MyZFS::verbosity,
     "expected -t and -d args"
 );
 
@@ -444,7 +447,8 @@ ok(
     !defined $MyZFS::filesystem
       && !defined $MyZFS::trial
       && $MyZFS::reserveCount == 3
-      && $MyZFS::dumpDirectory eq "/localsnaps",
+      && $MyZFS::dumpDirectory eq "/localsnaps"
+      && !defined $MyZFS::verbosity,
     "expected --reserved and --dir args"
 );
 
@@ -454,8 +458,31 @@ ok(
     $MyZFS::filesystem eq "rpool/var"
       && !defined $MyZFS::trial
       && $MyZFS::reserveCount == 5
-      && $MyZFS::dumpDirectory eq "/snapshots/",
+      && $MyZFS::dumpDirectory eq "/snapshots/"
+      && !defined $MyZFS::verbosity,
     "expected -f arg"
+);
+
+@ARGV = ( "-f", "rpool/var", "-v" );                            # some modifications
+MyZFS->processArgs();
+ok(
+    $MyZFS::filesystem eq "rpool/var"
+      && !defined $MyZFS::trial
+      && $MyZFS::reserveCount == 5
+      && $MyZFS::dumpDirectory eq "/snapshots/"
+      && defined $MyZFS::verbosity,
+    "expected -f arg -v"
+);
+
+@ARGV = ( "-f", "rpool/var", "-verbose" );                            # some modifications
+MyZFS->processArgs();
+ok(
+    $MyZFS::filesystem eq "rpool/var"
+      && !defined $MyZFS::trial
+      && $MyZFS::reserveCount == 5
+      && $MyZFS::dumpDirectory eq "/snapshots/"
+      && defined $MyZFS::verbosity,
+    "expected -f arg -verbose"
 );
 
 done_testing();

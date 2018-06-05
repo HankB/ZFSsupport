@@ -142,6 +142,7 @@ our $filesystem;
 our $trial;
 our $reserveCount;
 our $dumpDirectory;
+our $verbosity;
 
 sub processArgs {
 
@@ -150,12 +151,14 @@ sub processArgs {
     $trial         = undef;
     $reserveCount  = 5;
     $dumpDirectory = "/snapshots/";
+    $verbosity     = undef;
 
     GetOptions(
         'filesystem=s' => \$filesystem,
         'trial'        => \$trial,
         'reserved=i'   => \$reserveCount,
         'directory=s'  => \$dumpDirectory,
+        'verbose'      => \$verbosity,
     );
 }
 
