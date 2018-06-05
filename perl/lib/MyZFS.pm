@@ -11,11 +11,14 @@ our @EXPORT_OK = qw( getSnapshots getFilesystems getDeletableSnaps
   processArgs filesystem);
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );
 
+# find the zfs binary
+my $bin = $ENV{ZFSBINPATH} // "/sbin/zfs";
+
 # fetch a list of snapshots, perhaps limited to a particular filesystem
 sub getSnapshots {
     my $modName = shift;
     my $f       = shift;
-    my $cmd     = "zfs list -t snap -H -o name";
+    my $cmd     = "$bin list -t snap -H -o name";
 
     if ( defined($f) ) {
         $cmd = $cmd . " -r $f -d 1";
@@ -80,7 +83,7 @@ sub getSnapsToDelete {
 # destroy the list of snapshots
 sub destroySnapshots {
     my $modName      = shift;
-    my $cmd          = "zfs destroy -v ";
+    my $cmd          = "$bin destroy -v ";
     my $destroyCount = 0;
     foreach my $s (@_) {
         my $result = `$cmd $s`;
