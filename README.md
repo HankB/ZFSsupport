@@ -10,6 +10,22 @@ backup are sent as incremental snapshot 'send's. The actual backups are
 handled outside of these using `rsync` as the clients backed up are not
 presently using ZFS.
 
+## Motivation
+
+Sending incremental snapshot dumps to a remote system will
+use the less bandwidth than `rsync`. (It may not always the case. (1))
+
+## Organization
+
+Capturing and sending the snapshots is performed by a shell script (with a 
+helper script to provide locking.) These are in the .../sh directory.
+
+Cleanup - removing old snapshots and snapshot dump files is done using Perl
+and code for that is in the .../perl directory. 
+
+For more details on these see the READMEs in the respective .../sh and 
+.../perl subdirectories.
+
 ## Status
 
 `update-snapshot.sh` is working and "in production." It needs:
@@ -20,105 +36,32 @@ presently using ZFS.
 
 See also issues related to this script.
 
-`myzfs.pl` and `MyZFS.pm` is in preliminary production testing.
+`myzfs.pl` and `MyZFS.pm` is in testing in a test environment.
 
-## Other
+## Errata
 
 A (not sufficient) search was performed prior to beginning this with the
 thought of leveraging existing work but nothing useful was found. Before you
 use this, take a look at `simplesnap` (available as a .deb on Debian Stretch)
 and `zfSnap` to see if some combination can better meet your needs.
 
-## Motivation
-
-It is thought that sending incremental snapshot dumps to a remote system will
-use the least bandwidth. (It turns out that is not always the case. (1))
+Occasional problems arise when 'receiving' the dump file on the remote 
+system. The problem may relate to the issue 
+https://github.com/zfsonlinux/zfs/issues/3742. It seems wise to not mount the
+remote filesystem unless it is necessary to inspect/retrieve files. Should
+this issue crop up it can be dealt with by using the '-F' flag when 'receiving'
+the dump on the remote. It will overwrite any local changes since the previous
+snapshot.
 
 ## Requirements
 
-* Perl module `Sub::Override` (`apt install libsub-override-perl` on Ubuntu 16.04 and Debian 9)
-* Perl module  `File::Touch` (`apt install libfile-touch-perl` on Debian Stretch)
-* Perl module  `Module::Build` (`apt install libmodule-build-perl`  on Ubuntu 16.04)
-* Perl module  `Devel::Cover` (`apt install libdevel-cover-perl` on Ubuntu 16.04)
 * passwordless ssh login on the remote (`see copy-ssh-id`)
 * `/shapshots` directory on both local and remote PCs for storing snapshot dumps.
-* `pxz` (On Debian, `apt install pxz`)
-
-## Components
-
-There are two scripts that will run in production. `update-snapshot.sh`
-will mirror snapshots to a remote system. `myzfsMain.pl` will cleanup
-after `update-snapshot.sh`. Other scripts are support and/or testing
-scripts.
-
-### update-snapshot.sh
-
-The script that dumps local snapshots (ZFS send), sends them to the remote
-and incorporates them into the remote image.
-
-### lock.sh
-
-A couple Bourne shell functions to provide process interlocks.
-
-### test_lock.sh
-
-Test script for `lock.sh`. (See script for suggested ways to test.)
-
-### myzfs.pl
-
-Logic to destroy older snapshots and delete old snapshot dumps.
-
-### myzfs.t
-
-Test script for `MyZFS.pm`
-
-### MyZFS.pm
-
-Module to implement the lower level logic in a testable form.
-
-### Building (perl)
-
-Following guidelines from `https://stackoverflow.com/questions/533553/perl-build-unit-testing-code-coverage-a-complete-working-example`
-
-`cd perl`
-
-`perl Build manifest`
-
-`perl Build.PL`
-
-`perl Build test`
-
-`perl Build testcover`
-
-### Installing (perl)
-
-Put the module `MyZFS.pm` somewhere convenient. The following command lists possibilities:
-`perl -e 'print join "\n", @INC;'` and on my system shows
-``` perl
-hbarta@grandidier:~/Documents/ZFSsupport/perl$ perl -e 'print join "\n", @INC;'
-/etc/perl
-/usr/local/lib/x86_64-linux-gnu/perl/5.22.1
-/usr/local/share/perl/5.22.1
-/usr/lib/x86_64-linux-gnu/perl5/5.22
-/usr/share/perl5
-/usr/lib/x86_64-linux-gnu/perl/5.22
-/usr/share/perl/5.22
-/usr/local/lib/site_perl
-/usr/lib/x86_64-linux-gnu/perl-base
-.hbarta@grandidier:~/Documents/ZFSsupport/perl$ 
-```
-Copy the script `myzfs.pl` to a convenient location such as /usr/local/sbin
-
-### Installing (sh)
-
-Copy the shell scripts somewhere convenient. Suggested:
-
-`cp sh/update-snapshot.sh sh/lock.sh /usr/local/sbin`
-
+* `pxz` (On Debian, Ubuntu `apt install pxz`) For the current versions of ZFS on Debian 9 and Ubuntu 16.04 this is required for the user `root` as a normal user cannot run `zfs` commands. (Later versions of ZFS support the `zfs allow ...` that will eliminate this need.) For this reason it is recommended to disable password ssh login on the hosts involved. (Step 5 at https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-16-04.)
 
 ## Errata
 
   1. It seems that when a lot of files are deleted locally, that results in a
   fairly large snapshot dump.
   1. Any local changes to the remote system will result in an error receiving
-  the dump.
+  the dump. This can happen even if no operations are performed on the remote filesystem. (See second erratum.)
