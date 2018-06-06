@@ -6,8 +6,8 @@ use Getopt::Long qw(GetOptions);
 
 use Exporter qw(import);
 
-our @EXPORT_OK = qw( getSnapshots getFilesystems getDeletableSnaps
-  getSnapsToDelete destroySnapshots findDeletableDumps deleteSnapshotDumps
+our @EXPORT_OK = qw( getSnapshots getFilesystems getDestroyableSnaps
+  getSnapsToDestroy destroySnapshots findDeletableDumps deleteSnapshotDumps
   processArgs filesystem);
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );
 
@@ -50,7 +50,7 @@ sub getFilesystems {
 # identify snapshots in the provided list that meet criteria for deletion
 # Remove any that do not match the pattern "<filesystem>@YYYY-MM-DD" as produced
 # by update-snapshot.sh
-sub getDeletableSnaps {
+sub getDestroyableSnaps {
     my $modName = shift;
     my @candidates =
       grep { $_ =~ /@[1-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]/ } @_;
@@ -59,13 +59,13 @@ sub getDeletableSnaps {
 
 # Identify snapshots to delete.
 # e.g. all except the last 'n' for each filesystem
-# Use the list returned by getDeletableSnaps(@)
-sub getSnapsToDelete {
+# Use the list returned by getDestroyableSnaps(@)
+sub getSnapsToDestroy {
     my $modName = shift;
     my $snaps   = shift
-      || die "must call getSnapsToDelete() with ref to snapshot list";
+      || die "must call getSnapsToDestroy() with ref to snapshot list";
     my $residual = shift
-      || die "must call getSnapsToDelete() with residual count";
+      || die "must call getSnapsToDestroy() with residual count";
 
     # identify filesystems
     my @filesystems = getFilesystems( @{$snaps} );

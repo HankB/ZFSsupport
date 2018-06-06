@@ -16,7 +16,7 @@ sub main {
 		[-t|--trial]
 		[-r|--reserved reserve_count (default=5)]
 		[-d|--directory dump_directory (default=\"/snapshots\")]
-		[-v|--verbose\n";
+		[-v|--verbose]\n";
 
     # warn the user
     if ( $< != 0 ) {
@@ -32,30 +32,30 @@ sub main {
         );
     }
 
-    my @deletableSnaps = MyZFS->getDeletableSnaps(@snapshots);
+    my @destroyableSnaps = MyZFS->getDestroyableSnaps(@snapshots);
     if ( defined $MyZFS::trial || defined $MyZFS::verbosity ) {
         print(
-            "found ", scalar(@deletableSnaps),
+            "found ", scalar(@destroyableSnaps),
             " destroyable snapshots\n\t",
-            join( "\n\t", @deletableSnaps ), "\n"
+            join( "\n\t", @destroyableSnaps ), "\n"
         );
     }
 
-    my @snapsToDelete =
-      MyZFS->getSnapsToDelete( \@deletableSnaps, $MyZFS::reserveCount );
+    my @snapsToDestroy =
+      MyZFS->getSnapsToDestroy( \@destroyableSnaps, $MyZFS::reserveCount );
     if ( defined $MyZFS::trial || defined $MyZFS::verbosity ) {
         print(
-            "found ", scalar(@snapsToDelete),
+            "found ", scalar(@snapsToDestroy),
             " snapshots to destroy\n\t",
-            join( "\n\t", @snapsToDelete ), "\n"
+            join( "\n\t", @snapsToDestroy ), "\n"
         );
     }
     if(!defined $MyZFS::trial ) {
-        MyZFS->destroySnapshots(@snapsToDelete);
+        MyZFS->destroySnapshots(@snapsToDestroy);
     }
 
     my @dumpsToDelete =
-      MyZFS->findDeletableDumps( $MyZFS::dumpDirectory, \@snapsToDelete );
+      MyZFS->findDeletableDumps( $MyZFS::dumpDirectory, \@snapsToDestroy );
 
     if ( defined $MyZFS::trial || defined $MyZFS::verbosity ) {
         print(

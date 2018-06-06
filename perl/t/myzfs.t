@@ -304,13 +304,13 @@ ok( eq_array( \@foundFileSystems, \@expectedFilesystems ),
     "find single filesystem" );
 
 # test filtering of deletable snaps (one fs only)
-my @srvSnapDeletable = MyZFS->getDeletableSnaps(@srvTestSnapAll);
+my @srvSnapDeletable = MyZFS->getDestroyableSnaps(@srvTestSnapAll);
 is( @srvSnapDeletable, @srvTestSnapDeletable, "count of deletable snapshots" );
 ok( eq_array( \@srvSnapDeletable, \@srvTestSnapDeletable ),
     "content of deletable snapshots" );
 
 # test filtering of deletable snaps (multiple filesystems)
-my @allSnapDeletable = MyZFS->getDeletableSnaps(@allTestSnapAll);
+my @allSnapDeletable = MyZFS->getDestroyableSnaps(@allTestSnapAll);
 is( @allSnapDeletable, @allTestSnapDeletable,
     "count of deletable snapshots, multiple fs" );
 ok(
@@ -320,14 +320,14 @@ ok(
 
 # test identification of snaps to delete, single fs
 my @srvSnapToDelete =
-  sort ( MyZFS->getSnapsToDelete( \@srvTestSnapDeletable, RESERVE_COUNT ) );
+  sort ( MyZFS->getSnapsToDestroy( \@srvTestSnapDeletable, RESERVE_COUNT ) );
 is( @srvSnapToDelete, @srvTestSnapToDelete, "count of snapshots to delete" );
 ok( eq_array( \@srvSnapToDelete, \@srvTestSnapToDelete ),
     "content of snaps to delete, single fs" );
 
 # test identification of snaps to delete, multiple fs
 my @allSnapToDelete =
-  sort ( MyZFS->getSnapsToDelete( \@allTestSnapDeletable, RESERVE_COUNT ) );
+  sort ( MyZFS->getSnapsToDestroy( \@allTestSnapDeletable, RESERVE_COUNT ) );
 is( @allSnapToDelete, @allTestSnapToDelete, "count of snapshots to delete" );
 ok( eq_array( \@allSnapToDelete, \@allTestSnapToDelete ),
     "content of snaps to delete, single fs" );
