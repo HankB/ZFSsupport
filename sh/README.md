@@ -25,7 +25,7 @@ Test script for `lock.sh`. (See script for suggested ways to test.)
 
 Copy the shell scripts somewhere convenient. Suggested:
 
-`cp sh/update-snapshot.sh sh/lock.sh /usr/local/sbin`
+`sudo cp sh/update-snapshot.sh sh/lock.sh /usr/local/sbin`
 
 Add a cron job to execute the script once daily.
 
