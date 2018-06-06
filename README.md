@@ -55,10 +55,15 @@ snapshot.
 
 ## Requirements
 
-* passwordless ssh login on the remote (`see copy-ssh-id`)
-* `/shapshots` directory on both local and remote PCs for storing snapshot dumps.
-* `pxz` (On Debian, Ubuntu `apt install pxz`) For the current versions of ZFS on Debian 9 and Ubuntu 16.04 this is required for the user `root` as a normal user cannot run `zfs` commands. (Later versions of ZFS support the `zfs allow ...` that will eliminate this need.) For this reason it is recommended to disable password ssh login on the hosts involved. (Step 5 at https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-16-04.)
+* passwordless ssh login on the remote (`see copy-ssh-id`) For the current
+versions of ZFS on Debian 9 and  Ubuntu 16.04 this is required for the user
+`root` as a normal user cannot run `zfs` commands. (Later versions of ZFS
+support the `zfs allow ...` that will eliminate this need.) For this reason
+it is recommended to disable password ssh login on the hosts involved. (Step
+5 at https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-16-04.)
 
+* `/shapshots` directory on both local and remote PCs for storing snapshot dumps.
+* `pxz` (On Debian, Ubuntu `apt install pxz`) 
 ## Errata
 
   1. It seems that when a lot of files are deleted locally, that results in a
