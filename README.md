@@ -36,7 +36,7 @@ For more details on these see the READMEs in the respective .../sh and
 
 See also issues related to this script.
 
-`myzfs.pl` and `MyZFS.pm` is in testing in a test environment.
+`myzfs.pl` and `MyZFS.pm` is in testing in a ~test! production environment.
 
 ## Errata
 
@@ -53,6 +53,9 @@ this issue crop up it can be dealt with by using the '-F' flag when 'receiving'
 the dump on the remote. It will overwrite any local changes since the previous
 snapshot.
 
+It seems that when a lot of files are deleted locally, that results in a
+fairly large snapshot dump.
+
 ## Requirements
 
 * passwordless ssh login on the remote (`see copy-ssh-id`) For the current
@@ -64,9 +67,4 @@ it is recommended to disable password ssh login on the hosts involved. (Step
 
 * `/shapshots` directory on both local and remote PCs for storing snapshot dumps.
 * `pxz` (On Debian, Ubuntu `apt install pxz`) 
-## Errata
 
-  1. It seems that when a lot of files are deleted locally, that results in a
-  fairly large snapshot dump.
-  1. Any local changes to the remote system will result in an error receiving
-  the dump. This can happen even if no operations are performed on the remote filesystem. (See second erratum.)
