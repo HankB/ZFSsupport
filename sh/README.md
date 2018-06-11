@@ -21,11 +21,14 @@ A couple Bourne shell functions to provide process interlocks.
 Test script for `lock.sh`. (See script for suggested ways to test.)
 
 
-## Installing (sh)
+## Installing
 
 Copy the shell scripts somewhere convenient. Suggested:
 
-`sudo cp sh/update-snapshot.sh sh/lock.sh /usr/local/sbin`
+```
+cd sh
+sudo cp update-snapshot.sh lock.sh /usr/local/sbin
+```
 
 Add a cron job to execute the script once daily.
 
