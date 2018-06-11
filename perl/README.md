@@ -26,7 +26,7 @@ Test script for `MyZFS.pm`
 
 Module to implement the lower level logic in a testable form.
 
-### Building (perl)
+### Building
 
 Following guidelines from `https://stackoverflow.com/questions/533553/perl-build-unit-testing-code-coverage-a-complete-working-example`
 
@@ -37,7 +37,7 @@ perl Build.PL
 perl Build test
 perl Build testcover
 ```
-### Installing (perl)
+### Installing
 
 Put the module `MyZFS.pm` somewhere convenient. The following command lists possibilities:
 `perl -e 'print join "\n", @INC;'` and on my system shows
@@ -59,9 +59,10 @@ Copy the script `myzfs.pl` to a convenient location such as /usr/local/sbin
 #### my install commands
 
 ```
+cd perl
 sudo mkdir /usr/local/lib/site_perl
-sudo cp perl/lib/MyZFS.pm /usr/local/lib/site_perl
-sudo cp perl/myzfs.pl /usr/local/sbin
+sudo cp lib/MyZFS.pm /usr/local/lib/site_perl
+sudo cp myzfs.pl /usr/local/sbin
 ```
 
 ### Errata
