@@ -37,6 +37,7 @@ not matching the "<filesystem>@yyyy-mm-dd" naming pattern
 
 Lists returned form the various subroutines will follow the same naming
 pattern except 'Test' will be elided form the name.
+
 =cut
 
 # predeclare all collections ...
@@ -47,7 +48,7 @@ my @allTestSnapAll;    # union of the previous two
 
 # deletable snapshots
 my @archiveTestSnapDeletable;
-my @srvTestSnapDeletable;
+my @srvTestSnapDestroyable;
 my @allTestSnapDeletable;    # union of the previous two
 
 # snapshots to delete
@@ -148,19 +149,19 @@ push @allTestSnapAll, @archiveTestSnapAll, @srvTestSnapAll;
 # that do not look like "<snapshot>@YYYY-MM-DD"
 @archiveTestSnapDeletable = @archiveTestSnapAll;
 splice @archiveTestSnapDeletable, 0, 1;
-@srvTestSnapDeletable = @srvTestSnapAll;
-splice @srvTestSnapDeletable, 21, 1;
-push @allTestSnapDeletable, @archiveTestSnapDeletable, @srvTestSnapDeletable;
+@srvTestSnapDestroyable = @srvTestSnapAll;
+splice @srvTestSnapDestroyable, 21, 1;
+push @allTestSnapDeletable, @archiveTestSnapDeletable, @srvTestSnapDestroyable;
 
 # prepare 'to delete' lists from Deletable lists by removing the last
 # RESERVE_COUNT entries
-# TODO: test with RESERVE_COUNT equal to and treater than the list length.
+# TODO: test with RESERVE_COUNT equal to and greater than the list length.
 use constant RESERVE_COUNT => 5;
 
 @archiveTestSnapToDelete =
   @archiveTestSnapDeletable[ 0 .. $#archiveTestSnapDeletable -RESERVE_COUNT ];
 @srvTestSnapToDelete =
-  @srvTestSnapDeletable[ 0 .. $#srvTestSnapDeletable -RESERVE_COUNT ];
+  @srvTestSnapDestroyable[ 0 .. $#srvTestSnapDestroyable -RESERVE_COUNT ];
 push @allTestSnapToDelete, @archiveTestSnapToDelete, @srvTestSnapToDelete;
 
 =pod
@@ -171,7 +172,7 @@ print "srvTestSnapAll\n", join("\n", @srvTestSnapAll), "\n\n";
 print "allTestSnapAll\n", join("\n", @allTestSnapAll), "\n\n";
 
 print "archiveTestSnapDeletable\n", join("\n", @archiveTestSnapDeletable), "\n\n";
-print "srvTestSnapDeletable\n", join("\n", @srvTestSnapDeletable), "\n\n";
+print "srvTestSnapDestroyable\n", join("\n", @srvTestSnapDestroyable), "\n\n";
 print "allTestSnapDeletable\n", join("\n", @allTestSnapDeletable), "\n\n";
 
 print "archiveTestSnapToDelete\n", join("\n", @archiveTestSnapToDelete), "\n\n";
@@ -298,18 +299,18 @@ ok( eq_array( \@foundFileSystems, \@expectedFilesystems ),
 
 # test that getFilesystems() returns only one filesystem when
 # there is only one
-@foundFileSystems    = MyZFS->getFilesystems(@srvTestSnapDeletable);
+@foundFileSystems    = MyZFS->getFilesystems(@srvTestSnapDestroyable);
 @expectedFilesystems = ("tank/srv");
 ok( eq_array( \@foundFileSystems, \@expectedFilesystems ),
     "find single filesystem" );
 
-# test filtering of deletable snaps (one fs only)
+# test filtering of destroyable snaps (one fs only)
 my @srvSnapDeletable = MyZFS->getDestroyableSnaps(@srvTestSnapAll);
-is( @srvSnapDeletable, @srvTestSnapDeletable, "count of deletable snapshots" );
-ok( eq_array( \@srvSnapDeletable, \@srvTestSnapDeletable ),
+is( @srvSnapDeletable, @srvTestSnapDestroyable, "count of deletable snapshots" );
+ok( eq_array( \@srvSnapDeletable, \@srvTestSnapDestroyable ),
     "content of deletable snapshots" );
 
-# test filtering of deletable snaps (multiple filesystems)
+# test filtering of destroyable snaps (multiple filesystems)
 my @allSnapDeletable = MyZFS->getDestroyableSnaps(@allTestSnapAll);
 is( @allSnapDeletable, @allTestSnapDeletable,
     "count of deletable snapshots, multiple fs" );
@@ -318,14 +319,19 @@ ok(
     "content of deletable snapshots, multiple fs"
 );
 
-# test identification of snaps to delete, single fs
-my @srvSnapToDelete =
-  sort ( MyZFS->getSnapsToDestroy( \@srvTestSnapDeletable, RESERVE_COUNT ) );
-is( @srvSnapToDelete, @srvTestSnapToDelete, "count of snapshots to delete" );
-ok( eq_array( \@srvSnapToDelete, \@srvTestSnapToDelete ),
+# test identification of snaps to destroy, single fs
+my @srvSnapToDestroy =
+  sort ( MyZFS->getSnapsToDestroy( \@srvTestSnapDestroyable, RESERVE_COUNT ) );
+is( @srvSnapToDestroy, @srvTestSnapToDelete, "count of snapshots to delete" );
+ok( eq_array( \@srvSnapToDestroy, \@srvTestSnapToDelete ),
     "content of snaps to delete, single fs" );
 
-# test identification of snaps to delete, multiple fs
+# test count of snaps to destroy, single fs (only one snap to destroy)
+@srvSnapToDestroy =
+  MyZFS->getSnapsToDestroy( \@srvTestSnapDestroyable, scalar @srvTestSnapDestroyable -1 );
+is( @srvSnapToDestroy, 1, "count of snapshots to delete, reserve+1" );
+
+# test identification of snaps to destroy, multiple fs
 my @allSnapToDelete =
   sort ( MyZFS->getSnapsToDestroy( \@allTestSnapDeletable, RESERVE_COUNT ) );
 is( @allSnapToDelete, @allTestSnapToDelete, "count of snapshots to delete" );
