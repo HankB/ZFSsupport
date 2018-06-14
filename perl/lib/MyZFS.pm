@@ -75,7 +75,7 @@ sub getSnapsToDestroy {
     foreach my $fs (@filesystems) {
         my @candidates = ( sort( grep { $_ =~ /^$fs@/ } @{$snaps} ) );
         push @deletelist, @candidates[ 0 .. $#candidates - $residual ]
-          if $#candidates > $residual;
+          if scalar @candidates > $residual;
     }
     return @deletelist;
 }
