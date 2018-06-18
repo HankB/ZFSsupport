@@ -329,7 +329,12 @@ ok( eq_array( \@srvSnapToDestroy, \@srvTestSnapToDelete ),
 # test count of snaps to destroy, single fs (only one snap to destroy)
 @srvSnapToDestroy =
   MyZFS->getSnapsToDestroy( \@srvTestSnapDestroyable, scalar @srvTestSnapDestroyable -1 );
-is( @srvSnapToDestroy, 1, "count of snapshots to delete, reserve+1" );
+is( scalar @srvSnapToDestroy, 1, "count of snapshots to delete, reserve+1" );
+
+# test count of snaps to destroy, single fs (none to destroy)
+@srvSnapToDestroy =
+  MyZFS->getSnapsToDestroy( \@srvTestSnapDestroyable, scalar @srvTestSnapDestroyable);
+is( scalar @srvSnapToDestroy, 0, "count of snapshots to delete, reserve+1" );
 
 # test identification of snaps to destroy, multiple fs
 my @allSnapToDelete =
