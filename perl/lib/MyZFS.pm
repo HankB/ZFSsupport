@@ -74,7 +74,7 @@ sub getSnapsToDestroy {
     # add files to delete for each filesystem
     foreach my $fs (@filesystems) {
         my @candidates = ( sort( grep { $_ =~ /^$fs@/ } @{$snaps} ) );
-        push @deletelist, @candidates[ 0 .. $#candidates - $residual ]
+        push @deletelist, @candidates[ 0 .. scalar(@candidates) - $residual - 1 ]
           if scalar @candidates > $residual;
     }
     return @deletelist;
