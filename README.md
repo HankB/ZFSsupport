@@ -43,7 +43,8 @@ See also issues related to this script.
 A (not sufficient) search was performed prior to beginning this with the
 thought of leveraging existing work but nothing useful was found. Before you
 use this, take a look at `simplesnap` (available as a .deb on Debian Stretch)
-and `zfSnap` to see if some combination can better meet your needs.
+and `zfSnap` to see if some combination can better meet your needs. Also
+check out `sanoid` https://github.com/jimsalterjrs/sanoid.
 
 Occasional problems arise when 'receiving' the dump file on the remote 
 system. The problem may relate to the issue 
@@ -65,6 +66,6 @@ support the `zfs allow ...` that will eliminate this need.) For this reason
 it is recommended to disable password ssh login on the hosts involved. (Step
 5 at https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-16-04.)
 
-* `/shapshots` directory on both local and remote PCs for storing snapshot dumps.
+* `/snapshots` directory on both local and remote PCs for storing snapshot dumps.
 * `pxz` (On Debian, Ubuntu `apt install pxz`) 
 
