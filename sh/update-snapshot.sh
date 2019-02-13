@@ -70,11 +70,12 @@ date +%Y-%m-%d\ %H:%M:%S
 # from https://stackoverflow.com//questions192249/how-do-i-parse-command-line-arguments-in-bash
 BEFORE_HOOK=""
 AFTER_HOOK=""
+INIT_REMOTE="false"
 
 # A POSIX variable
 OPTIND=1         # Reset in case getopts has been used previously in the shell.
 
-while getopts "h?b:a:" opt; do
+while getopts "h?b:a:i" opt; do
     case "$opt" in
     h|\?)
         show_help
@@ -83,6 +84,8 @@ while getopts "h?b:a:" opt; do
     b)  BEFORE_HOOK=$OPTARG
         ;;
     a)  AFTER_HOOK=$OPTARG
+        ;;
+    i)  INIT_REMOTE="true"
         ;;
     esac
 done
@@ -112,6 +115,7 @@ fi
 echo "filesystem        " $FILESYSTEM
 echo "remote host       " $REMOTE_HOST
 echo "remote filesystem " $REMOTE_FILESYSTEM
+echo "initialize remote " $INIT_REMOTE
 
 if [ "$BEFORE_HOOK" != "" ]
 then
@@ -127,6 +131,11 @@ REMOTE_FILESYSTEM_F=`echo $REMOTE_FILESYSTEM|tr / -`
 # check to see if we can reach the remote
 while ( ! isRemoteReachable $REMOTE_HOST)
 do
+    if [ "$INIT_REMOTE" = "true" ]
+    then
+        echo $REMOTE_HOST not reachable
+        exit
+    fi
     echo $REMOTE_HOST not reachable
     sleep 60
 done
@@ -152,66 +161,121 @@ export LOCAL=`/sbin/zfs list -d 1 -t snap -r $FILESYSTEM | \
 echo REMOTE $REMOTE
 echo LOCAL $LOCAL
 
-
-# see if we need to snap
-echo check for "`date +%Y-%m-%d`" against $LOCAL
-if [ `date +%Y-%m-%d` = $LOCAL ]
+if [ "$REMOTE" = ""  ] && [ "$INIT_REMOTE" = "false" ]
 then
-    echo
-    echo "snapshot already captured today $LOCAL"
-    echo
-else
-    echo
-    echo snapshotting $FILESYSTEM
-    echo /usr/bin/time -p /sbin/zfs snap ${FILESYSTEM}@`date +%Y-%m-%d`
-    /usr/bin/time -p /sbin/zfs snap ${FILESYSTEM}@`date +%Y-%m-%d`
+    echo "no remote snapshots - did you mean to initialize with the '-i' option?"
+    exit
+elif [ "$REMOTE" != ""  ] && [ "$INIT_REMOTE" = "true" ]
+then
+    echo "remote snapshot exists - They must be destroyed before init."
+    exit
+fi
 
-    PREV_LOCAL=$LOCAL
-    LOCAL=`/sbin/zfs list -d 1 -t snap -r $FILESYSTEM | tail -1 | \
-        awk '{match($1,"@(.*)")}END{print substr($1, RSTART+1, RLENGTH)}'`
-    
-    # check to see if the snapshot operation worked, $LOCAL should change
-    echo  test "$PREV_LOCAL = $LOCAL"
-    if [ $PREV_LOCAL = $LOCAL  ]
+if [ "$LOCAL" = ""  ]
+then
+    echo "no local snapshots "
+    exit
+fi
+
+
+# see if we need to snap (if not init)
+if [ "$INIT_REMOTE" = "false" ]
+then
+    echo check for "`date +%Y-%m-%d`" against $LOCAL
+    if [ `date +%Y-%m-%d` = $LOCAL ]
     then
-        echo snapshot failed
-        exit 1 # no obvious recoveryzpool create
+        echo
+        echo "snapshot already captured today $LOCAL"
+        echo
+    else
+        echo
+        echo snapshotting $FILESYSTEM
+        echo /usr/bin/time -p /sbin/zfs snap ${FILESYSTEM}@`date +%Y-%m-%d`
+        /usr/bin/time -p /sbin/zfs snap ${FILESYSTEM}@`date +%Y-%m-%d`
+
+        PREV_LOCAL=$LOCAL
+        LOCAL=`/sbin/zfs list -d 1 -t snap -r $FILESYSTEM | tail -1 | \
+            awk '{match($1,"@(.*)")}END{print substr($1, RSTART+1, RLENGTH)}'`
+
+        # check to see if the snapshot operation worked, $LOCAL should change
+        echo  test "$PREV_LOCAL = $LOCAL"
+        if [ $PREV_LOCAL = $LOCAL  ]
+        then
+            echo snapshot failed
+            exit 1 # no obvious recoveryzpool create
+        fi
+        echo
     fi
-    echo
 fi
 
 date +%Y-%m-%d\ %H:%M:%S
 
 # see if we need to send
 # TODO: check if file is there, not if it is already imported
-if [ $LOCAL = $REMOTE ]
+if [ "$INIT_REMOTE" = "false" ] # send incremental?
 then
-    echo
-    echo "already 'sent' (captured)"
-else
-    echo
-    REMOTE_F=${REMOTE_FILESYSTEM_F}@${REMOTE}
+    if [ "$LOCAL = $REMOTE" ]
+    then
+        echo
+        echo "already 'sent' (captured)"
+    else
+        echo
+        REMOTE_F=${REMOTE_FILESYSTEM_F}@${REMOTE}
+        LOCAL_F=${FILESYSTEM_F}@$LOCAL
+        echo saving incremental remote: $REMOTE local: $LOCAL
+        echo to /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz
+
+        # wait for up to 5 hours for this stage
+        if ! acquireLock "collecting" 300
+        then
+            echo $$ cannot lock "collecting"
+            exit 1
+        fi
+
+        echo time -p /sbin/zfs send -L -i ${FILESYSTEM}@${REMOTE} ${FILESYSTEM}@${LOCAL}\
+            \| pxz -3 -c - \(direct to /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz \)
+        time -p /sbin/zfs send -L -i ${FILESYSTEM}@${REMOTE} ${FILESYSTEM}@${LOCAL}\
+            | pxz -3 -c - \
+            >/snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz
+
+        releaseLock "collecting"
+
+        # wait for up to 5 hours for this stage
+        if ! acquireLock "transmit" 300
+        then
+            echo $$ cannot lock "transmit"
+            exit 1
+        fi
+
+        echo rsync to $REMOTE_HOST
+        cd /snapshots
+        time -p rsync -av --partial --append-verify --progress \
+        ${REMOTE_F}-${LOCAL_F}.snap.xz ${REMOTE_HOST}:/snapshots/
+        releaseLock "transmit"
+    fi
+else  # send initial
+    REMOTE_F=${REMOTE_FILESYSTEM_F}@${LOCAL}
     LOCAL_F=${FILESYSTEM_F}@$LOCAL
-    echo saving incremental remote: $REMOTE local: $LOCAL
+    echo saving "local snapshotr:" $LOCAL
     echo to /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz
 
-    # wait for up to 5 hours for this stage
-    if ! acquireLock "collecting" 300
+    # don't wait for lock
+    if ! acquireLock "collecting" 0
     then
         echo $$ cannot lock "collecting"
         exit 1
     fi
 
-    echo time -p /sbin/zfs send -L -i ${FILESYSTEM}@${REMOTE} ${FILESYSTEM}@${LOCAL}\
-         \| pxz -3 -c - \(direct to /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz \)
-    time -p /sbin/zfs send -L -i ${FILESYSTEM}@${REMOTE} ${FILESYSTEM}@${LOCAL}\
-         | pxz -3 -c - \
-         >/snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz
+    echo time -p /sbin/zfs send -L ${FILESYSTEM}@${LOCAL}\
+        \| pxz -3 -c - \(direct to /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz \)
+    time -p /sbin/zfs send -L ${FILESYSTEM}@${LOCAL}\
+        | pxz -3 -c - \
+        >/snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz
 
     releaseLock "collecting"
 
     # wait for up to 5 hours for this stage
-    if ! acquireLock "transmit" 300
+    if ! acquireLock "transmit" 0
     then
         echo $$ cannot lock "transmit"
         exit 1
@@ -220,8 +284,9 @@ else
     echo rsync to $REMOTE_HOST
     cd /snapshots
     time -p rsync -av --partial --append-verify --progress \
-	${REMOTE_F}-${LOCAL_F}.snap.xz ${REMOTE_HOST}:/snapshots/
+    ${REMOTE_F}-${LOCAL_F}.snap.xz ${REMOTE_HOST}:/snapshots/
     releaseLock "transmit"
+
 fi
 
 date +%Y-%m-%d\ %H:%M:%S
@@ -236,10 +301,18 @@ then
     exit 1
 fi
 
-echo time -p ssh $REMOTE_HOST "xzcat /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz \| \
-         zfs receive $REMOTE_FILESYSTEM" 
-time -p ssh $REMOTE_HOST "xzcat /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz | \
-         zfs receive $REMOTE_FILESYSTEM" 
+if [ "$INIT_REMOTE" = "false" ] # send incremental?
+then
+    echo time -p ssh $REMOTE_HOST "xzcat /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz \| \
+            zfs receive $REMOTE_FILESYSTEM"
+    time -p ssh $REMOTE_HOST "xzcat /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz | \
+            zfs receive $REMOTE_FILESYSTEM"
+else
+    echo time -p ssh $REMOTE_HOST "xzcat /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz \| \
+            zfs receive -F $REMOTE_FILESYSTEM"
+    time -p ssh $REMOTE_HOST "xzcat /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz | \
+            zfs receive -F $REMOTE_FILESYSTEM"
+fi
 
 releaseLock "receive"
 
