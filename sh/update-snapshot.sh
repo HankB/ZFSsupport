@@ -200,7 +200,7 @@ then
         /usr/bin/time -p /sbin/zfs snap ${FILESYSTEM}@`date +%Y-%m-%d`
 
         PREV_LOCAL=$LOCAL
-        LOCAL=`/sbin/zfs list -d 1 -t snap -r $FILESYSTEM | tail -1 | \
+        LOCAL=`/sbin/zfs list -d 1 -t snap -r $FILESYSTEM |  \
             filterLatestSnap`
 
         # check to see if the snapshot operation worked, $LOCAL should change
