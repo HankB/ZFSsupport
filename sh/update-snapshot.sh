@@ -188,7 +188,7 @@ fi
 if [ "$INIT_REMOTE" = "false" ]
 then
     echo check for "`date +%Y-%m-%d`" against $LOCAL
-    if [ `date +%Y-%m-%d` = $LOCAL ]
+    if [ `date +%Y-%m-%d` = "$LOCAL" ]
     then
         echo
         echo "snapshot already captured today $LOCAL"
@@ -205,7 +205,7 @@ then
 
         # check to see if the snapshot operation worked, $LOCAL should change
         echo  test "$PREV_LOCAL = $LOCAL"
-        if [ $PREV_LOCAL = $LOCAL  ]
+        if [ "$PREV_LOCAL" = "$LOCAL"  ]
         then
             echo snapshot failed
             exit 1 # no obvious recovery
@@ -220,7 +220,7 @@ date +%Y-%m-%d\ %H:%M:%S
 # TODO: check if file is there, not if it is already imported
 if [ "$INIT_REMOTE" = "false" ] # send incremental?
 then
-    if [ "$LOCAL = $REMOTE" ]
+    if [ "$LOCAL" = "$REMOTE" ]
     then
         echo
         echo "already 'sent' (captured)"
