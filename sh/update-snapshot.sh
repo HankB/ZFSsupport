@@ -180,7 +180,22 @@ fi
 if [ "$LOCAL" = ""  ]
 then
     echo "no local snapshots "
-    exit
+    echo
+    echo snapshotting $FILESYSTEM
+    echo /usr/bin/time -p /sbin/zfs snap ${FILESYSTEM}@`date +%Y-%m-%d`
+    /usr/bin/time -p /sbin/zfs snap ${FILESYSTEM}@`date +%Y-%m-%d`
+    PREV_LOCAL=$LOCAL
+    LOCAL=`/sbin/zfs list -d 1 -t snap -r $FILESYSTEM |  \
+        filterLatestSnap`
+
+    # check to see if the snapshot operation worked, $LOCAL should change
+    echo  test "$PREV_LOCAL = $LOCAL"
+    if [ "$PREV_LOCAL" = "$LOCAL"  ]
+    then
+        echo snapshot failed
+        exit 1 # no obvious recovery
+    fi
+    echo
 fi
 
 
