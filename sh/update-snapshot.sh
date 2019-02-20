@@ -326,10 +326,12 @@ releaseLock "receive"
 echo
 echo "after send/receive to ${REMOTE_HOST}"
 ssh $REMOTE_HOST /sbin/zfs list
+echo
 ssh $REMOTE_HOST /sbin/zfs list -d 1 -t snap -r $REMOTE_FILESYSTEM
 
 echo "locally"
 /sbin/zfs list
+echo
 /sbin/zfs list -d 1 -t snap -r $FILESYSTEM
 
 date +%Y-%m-%d\ %H:%M:%S
