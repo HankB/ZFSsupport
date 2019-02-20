@@ -202,7 +202,7 @@ then
         if [ $PREV_LOCAL = $LOCAL  ]
         then
             echo snapshot failed
-            exit 1 # no obvious recoveryzpool create
+            exit 1 # no obvious recovery
         fi
         echo
     fi
