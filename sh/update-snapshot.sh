@@ -59,6 +59,14 @@ show_help()
     echo "v0.4"
 
 }
+
+# find the most recent snapshot that matches the pattern "<filesystem>@YYYY-MM-DD"
+filterLatestSnap()
+{
+    awk 'match($1,"@([0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]$)")\
+    {print substr($1, RSTART+1, RLENGTH)}' | tail -1
+}
+
 # external code
 
 . `dirname $0`/lock.sh || exit 1
@@ -151,12 +159,10 @@ ssh $REMOTE_HOST /sbin/zfs list -d 1 -t snap -r $REMOTE_FILESYSTEM
 
 # capture newest local and remote snapshots. The date tag is separated 
 # from the filesystem part since local and remote filesystems may differ
-export REMOTE=`ssh $REMOTE_HOST /sbin/zfs list -d 1 -t snap -r $REMOTE_FILESYSTEM |\
-       tail -1 | \
-       awk '{match($1,"@(.*)")}END{print substr($1, RSTART+1, RLENGTH)}'`
-export LOCAL=`/sbin/zfs list -d 1 -t snap -r $FILESYSTEM | \
-       tail -1 | \
-       awk '{match($1,"@(.*)")}END{print substr($1, RSTART+1, RLENGTH)}'`
+export REMOTE=`ssh $REMOTE_HOST /sbin/zfs list -d 1 -H -o name -t snap -r $REMOTE_FILESYSTEM |\
+       filterLatestSnap`
+export LOCAL=`/sbin/zfs list -d 1 -H -o name -t snap -r $FILESYSTEM | \
+       filterLatestSnap`
 
 echo REMOTE $REMOTE
 echo LOCAL $LOCAL
@@ -195,7 +201,7 @@ then
 
         PREV_LOCAL=$LOCAL
         LOCAL=`/sbin/zfs list -d 1 -t snap -r $FILESYSTEM | tail -1 | \
-            awk '{match($1,"@(.*)")}END{print substr($1, RSTART+1, RLENGTH)}'`
+            filterLatestSnap`
 
         # check to see if the snapshot operation worked, $LOCAL should change
         echo  test "$PREV_LOCAL = $LOCAL"
