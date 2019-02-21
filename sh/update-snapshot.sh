@@ -198,6 +198,13 @@ then
     echo
 fi
 
+# see if remote is already up to date
+if [ "$LOCAL" = "$REMOTE" ]
+then
+    echo "LOCAL=REMOTE=$LOCAL - remote is already up to date"
+    exit 0
+fi
+
 
 # see if we need to snap (if not init)
 if [ "$INIT_REMOTE" = "false" ]
@@ -235,45 +242,34 @@ date +timestamp:dump\ \ %Y-%m-%d\ %H:%M:%S
 # TODO: check if file is there, not if it is already imported
 if [ "$INIT_REMOTE" = "false" ] # send incremental?
 then
-    if [ "$LOCAL" = "$REMOTE" ]
+    echo
+    REMOTE_F=${REMOTE_FILESYSTEM_F}@${REMOTE}
+    LOCAL_F=${FILESYSTEM_F}@$LOCAL
+    echo saving incremental remote: $REMOTE local: $LOCAL
+    echo to /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz
+
+    # wait for up to 5 hours for this stage
+    if ! acquireLock "collecting" 300
     then
-        echo
-        echo "already 'sent' (captured)"
-    else
-        echo
-        REMOTE_F=${REMOTE_FILESYSTEM_F}@${REMOTE}
-        LOCAL_F=${FILESYSTEM_F}@$LOCAL
-        echo saving incremental remote: $REMOTE local: $LOCAL
-        echo to /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz
-
-        # wait for up to 5 hours for this stage
-        if ! acquireLock "collecting" 300
-        then
-            echo $$ cannot lock "collecting"
-            exit 1
-        fi
-
-        echo time -p /sbin/zfs send -L -i ${FILESYSTEM}@${REMOTE} ${FILESYSTEM}@${LOCAL}\
-            \| pxz -3 -c - \(direct to /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz \)
-        time -p /sbin/zfs send -L -i ${FILESYSTEM}@${REMOTE} ${FILESYSTEM}@${LOCAL}\
-            | pxz -3 -c - \
-            >/snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz
-
-        releaseLock "collecting"
-
-        # wait for up to 5 hours for this stage
-        if ! acquireLock "transmit" 300
-        then
-            echo $$ cannot lock "transmit"
-            exit 1
-        fi
-
-        echo rsync to $REMOTE_HOST
-        cd /snapshots
-        time -p rsync -av --partial --append-verify --progress \
-        ${REMOTE_F}-${LOCAL_F}.snap.xz ${REMOTE_HOST}:/snapshots/
-        releaseLock "transmit"
+        echo $$ cannot lock "collecting"
+        exit 1
     fi
+
+    echo time -p /sbin/zfs send -L -i ${FILESYSTEM}@${REMOTE} ${FILESYSTEM}@${LOCAL}\
+        \| pxz -3 -c - \(direct to /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz \)
+    time -p /sbin/zfs send -L -i ${FILESYSTEM}@${REMOTE} ${FILESYSTEM}@${LOCAL}\
+        | pxz -3 -c - \
+        >/snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz
+
+    releaseLock "collecting"
+
+    # wait for up to 5 hours for this stage
+    if ! acquireLock "transmit" 300
+    then
+        echo $$ cannot lock "transmit"
+        exit 1
+    fi
+
 else  # send initial
     REMOTE_F=${REMOTE_FILESYSTEM_F}@${LOCAL}
     LOCAL_F=${FILESYSTEM_F}@$LOCAL
@@ -301,12 +297,15 @@ else  # send initial
         echo $$ cannot lock "transmit"
         exit 1
     fi
+fi
 
-    echo rsync to $REMOTE_HOST
-    cd /snapshots
-    time -p rsync -av --partial --append-verify --progress \
-    ${REMOTE_F}-${LOCAL_F}.snap.xz ${REMOTE_HOST}:/snapshots/
-    releaseLock "transmit"
+# transport the dump file to the remote
+date +timestamp:rsync\ %Y-%m-%d\ %H:%M:%S
+echo rsync to $REMOTE_HOST
+cd /snapshots
+time -p rsync -av --partial --append-verify --progress \
+${REMOTE_F}-${LOCAL_F}.snap.xz ${REMOTE_HOST}:/snapshots/
+releaseLock "transmit"
 
 date +timestamp:recv\ \ %Y-%m-%d\ %H:%M:%S
 
