@@ -72,7 +72,7 @@ filterLatestSnap()
 . `dirname $0`/lock.sh || exit 1
 
 echo "########################################################################"
-date +%Y-%m-%d\ %H:%M:%S
+date +timestamp:start\ %Y-%m-%d\ %H:%M:%S
 
 # process command line arguments
 # from https://stackoverflow.com//questions192249/how-do-i-parse-command-line-arguments-in-bash
@@ -229,7 +229,7 @@ then
     fi
 fi
 
-date +%Y-%m-%d\ %H:%M:%S
+date +timestamp:dump\ \ %Y-%m-%d\ %H:%M:%S
 
 # see if we need to send
 # TODO: check if file is there, not if it is already imported
@@ -308,9 +308,7 @@ else  # send initial
     ${REMOTE_F}-${LOCAL_F}.snap.xz ${REMOTE_HOST}:/snapshots/
     releaseLock "transmit"
 
-fi
-
-date +%Y-%m-%d\ %H:%M:%S
+date +timestamp:recv\ \ %Y-%m-%d\ %H:%M:%S
 
 # now 'receive' the snapshot at the remote
 # time ssh cashapona 'xzcat /snapshots/pool2TB4K-test@initial-tank@2018-03-08.snap.xz|\
@@ -349,13 +347,13 @@ echo "locally"
 echo
 /sbin/zfs list -d 1 -t snap -r $FILESYSTEM
 
-date +%Y-%m-%d\ %H:%M:%S
+date +timestamp:post\ \ %Y-%m-%d\ %H:%M:%S
 
 if [ "$AFTER_HOOK" != "" ]
 then
     echo executing AFTER_HOOK $AFTER_HOOK
     $AFTER_HOOK
 fi
-date +%Y-%m-%d\ %H:%M:%S
+date +timestamp:done\!\ %Y-%m-%d\ %H:%M:%S
 
 echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
