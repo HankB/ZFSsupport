@@ -261,6 +261,14 @@ then
         | pxz -3 -c - \
         >/snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz
 
+    # check status of command
+    if [ $? -ne 0 ]
+    then
+        echo "'zfs send/dump' failed "
+        releaseLock "collecting"
+        exit 1
+    fi
+
     releaseLock "collecting"
 
     # wait for up to 5 hours for this stage
@@ -288,6 +296,13 @@ else  # send initial
     time -p /sbin/zfs send -L ${FILESYSTEM}@${LOCAL}\
         | pxz -3 -c - \
         >/snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz
+
+    if [ $? -ne 0 ]
+    then
+        echo "'zfs send/dump' failed "
+        releaseLock "collecting"
+        exit 1
+    fi
 
     releaseLock "collecting"
 
