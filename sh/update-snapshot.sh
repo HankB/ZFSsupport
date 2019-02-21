@@ -52,7 +52,7 @@ show_help()
     echo "Usage $0 [-i] [-b \"pre cmd\"] [-a \"post cmd\"] host filesystem [remote_filesystem]"
     echo "[-i]              - Initialize remote dataset (first run.)"
     echo "[-b \"pre cmd\"]    - command to run before the transfer."
-    echo "[-b \"post cmd\"]   - command to run after the transfer."
+    echo "[-a \"post cmd\"]   - command to run after the transfer."
     echo "host              - remote host name"
     echo "filesystem        - local filesystem name (not dir.)"
     echo "remote_filesystem - remote filesystem name if different from filesystem"
