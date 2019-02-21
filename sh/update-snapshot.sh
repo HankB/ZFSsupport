@@ -198,14 +198,6 @@ then
     echo
 fi
 
-# see if remote is already up to date
-if [ "$LOCAL" = "$REMOTE" ]
-then
-    echo "LOCAL=REMOTE=$LOCAL - remote is already up to date"
-    exit 0
-fi
-
-
 # see if we need to snap (if not init)
 if [ "$INIT_REMOTE" = "false" ]
 then
@@ -235,6 +227,14 @@ then
         echo
     fi
 fi
+
+# see if remote is already up to date
+if [ "$LOCAL" = "$REMOTE" ]
+then
+    echo "LOCAL=REMOTE=$LOCAL - remote is already up to date"
+    exit 0
+fi
+
 
 date +timestamp:dump\ \ %Y-%m-%d\ %H:%M:%S
 
@@ -319,18 +319,15 @@ then
     exit 1
 fi
 
-if [ "$INIT_REMOTE" = "false" ] # send incremental?
+RECV_OPT=" "
+if [ "$INIT_REMOTE" = "true" ] # send incremental?
 then
-    echo time -p ssh $REMOTE_HOST "xzcat /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz \| \
-            zfs receive $REMOTE_FILESYSTEM"
-    time -p ssh $REMOTE_HOST "xzcat /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz | \
-            zfs receive $REMOTE_FILESYSTEM"
-else
-    echo time -p ssh $REMOTE_HOST "xzcat /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz \| \
-            zfs receive -F $REMOTE_FILESYSTEM"
-    time -p ssh $REMOTE_HOST "xzcat /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz | \
-            zfs receive -F $REMOTE_FILESYSTEM"
+    RECV_OPT=" -F "
 fi
+echo time -p ssh $REMOTE_HOST "xzcat /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz \| \
+        zfs receive $RECV_OPT $REMOTE_FILESYSTEM"
+time -p ssh $REMOTE_HOST "xzcat /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz | \
+        zfs receive $RECV_OPT $REMOTE_FILESYSTEM"
 
 releaseLock "receive"
 
