@@ -22,6 +22,23 @@ Further comments on usage.
 * The script is far from bulletproof. More work needs to be done to insure that.
 * At present the script is used on a host (Debian Stretch) which uses ZFS V0.6.5 and does not support the `allow` command so it must run as root and requires passwordless SSH login to the remote host. This can probably be relaxed on systems with newer versions of ZFS tools but that has not been tested.
 
+## Error notification
+
+Where errors (such as disk full, remote not reachable and so on) are identified, notification can be sent using the script `sa.ah`. A "description" is passed to the standard input and "subject" as a command line argument. For example
+```shell
+echo "'zfs send/dump' failed " | sa.sh "$0 exit 1 on `hostname`"
+```
+The implementation selected for in house use is
+```shell
+#!/bin/sh
+
+# Script to send alarm notifications to root via email
+# usage 'echo "message to send" | sa.sh "subject"
+# bugs - will hang if nothing is sent to STDIN (perhaps die if run from another script)
+
+mail -s "$1" root
+```
+It is expected that the implementer will provide their own variant if desired. It is only called prior to `exit 1` so it will not terminate when `update-snapshot.sh` is not encountering problems.
 
 ## Components
 
