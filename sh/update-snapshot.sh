@@ -142,7 +142,8 @@ do
     if [ "$INIT_REMOTE" = "true" ]
     then
         echo $REMOTE_HOST not reachable
-        exit
+        echo "$REMOTE_HOST not reachable" | sa.sh "$0 exit 1 on `hostname`"
+        exit 1
     fi
     echo $REMOTE_HOST not reachable
     sleep 60
@@ -170,11 +171,11 @@ echo LOCAL $LOCAL
 if [ "$REMOTE" = ""  ] && [ "$INIT_REMOTE" = "false" ]
 then
     echo "no remote snapshots - did you mean to initialize with the '-i' option?"
-    exit
+    exit 1
 elif [ "$REMOTE" != ""  ] && [ "$INIT_REMOTE" = "true" ]
 then
     echo "remote snapshot exists - They must be destroyed before init."
-    exit
+    exit 1
 fi
 
 if [ "$LOCAL" = ""  ]
@@ -193,6 +194,7 @@ then
     if [ "$PREV_LOCAL" = "$LOCAL"  ]
     then
         echo snapshot failed
+        echo "snapshot failed" | sa.sh "$0 exit 1 on `hostname`"
         exit 1 # no obvious recovery
     fi
     echo
@@ -222,6 +224,7 @@ then
         if [ "$PREV_LOCAL" = "$LOCAL"  ]
         then
             echo snapshot failed
+            echo "snapshot failed" | sa.sh "$0 exit 1 on `hostname`"
             exit 1 # no obvious recovery
         fi
         echo
@@ -252,6 +255,7 @@ then
     if ! acquireLock "collecting" 300
     then
         echo $$ cannot lock "collecting"
+        echo "$$ cannot lock 'collecting'" | sa.sh "$0 exit 1 on `hostname`"
         exit 1
     fi
 
@@ -266,6 +270,7 @@ then
     then
         echo "'zfs send/dump' failed "
         releaseLock "collecting"
+        echo "'zfs send/dump' failed " | sa.sh "$0 exit 1 on `hostname`"
         exit 1
     fi
 
@@ -275,6 +280,7 @@ then
     if ! acquireLock "transmit" 300
     then
         echo $$ cannot lock "transmit"
+        echo "$$ cannot lock 'transmit'" | sa.sh "$0 exit 1 on `hostname`"
         exit 1
     fi
 
@@ -306,7 +312,7 @@ else  # send initial
 
     releaseLock "collecting"
 
-    # wait for up to 5 hours for this stage
+    # don't wait for this stage
     if ! acquireLock "transmit" 0
     then
         echo $$ cannot lock "transmit"
@@ -331,6 +337,7 @@ date +timestamp:recv\ \ %Y-%m-%d\ %H:%M:%S
 if ! acquireLock "receive" 300
 then
     echo $$ cannot lock "receive"
+    echo "$$ cannot lock 'receive'" | sa.sh "$0 exit 1 on `hostname`"
     exit 1
 fi
 
