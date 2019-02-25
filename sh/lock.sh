@@ -18,7 +18,14 @@ acquireLock() # dir minutes
         if mkdir "/tmp/$1" 2>/dev/null
         then
             echo $$ >"/tmp/$1/pid"
-            return 0 # acquired lock
+            return 0    # acquired lock
+        else            # check for dead process
+            lock_pid=`cat "/tmp/$1/pid"`
+        if ! ps -q  $lock_pid >/dev/null    # process not still running?
+            then
+                echo $$ >"/tmp/$1/pid"      # if not. claim the lock for ourselves
+                return 0                    # acquired lock
+           fi
         fi
         sleep 15
         intervals=`expr $intervals - 1`
