@@ -88,5 +88,10 @@ Testing is pretty minimal at this point - sort of "it worked - ship it!" One tes
 ```shell
 ./test_lock.sh testlock 10 5
 ```
+## Status 
 
 The script is "in production" on my home LAN with the sender running Debian Stretch and remote Ubuntu 16.04.
+
+### 2019-02-25
+
+Following daily processing, the script `update-snapshot.sh` in "production" was updated to v0.5 after running several days without issue in a test environment. It will run next on 2019-02-25. A trial run from the console reported "already up to date" as desired.
