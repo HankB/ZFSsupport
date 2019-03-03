@@ -25,10 +25,13 @@ Further comments on usage.
 ## Error notification
 
 Where errors (such as disk full, remote not reachable and so on) are identified, notification can be sent using the script `sa.ah`. A "description" is passed to the standard input and "subject" as a command line argument. For example
+
 ```shell
 echo "'zfs send/dump' failed " | sa.sh "$0 exit 1 on `hostname`"
 ```
+
 The implementation selected for in house use is
+
 ```shell
 #!/bin/sh
 
@@ -38,6 +41,7 @@ The implementation selected for in house use is
 
 mail -s "$1" root
 ```
+
 It is expected that the implementer will provide their own variant if desired. It is only called prior to `exit 1` so it will not terminate when `update-snapshot.sh` is not encountering problems.
 
 ## Components
@@ -50,29 +54,41 @@ Other scripts are support and/or test scripts.
 The script that dumps local snapshots (ZFS send), sends them to the remote
 and incorporates them into the remote image.
 
-### lock.sh
+### lock.sh DEPRECATED
 
 A couple Bourne shell functions to provide process interlocks.
 
-### test_lock.sh
+The lock related scripts have been moved to https://gitlab.com/HankB/shell-locking. The scripts in this directory still work but it is recommended to use the one in the Gitlab repo.
+
+### test_lock.sh DEPRECATED
 
 Test script for `lock.sh`. (See script for suggested ways to test.)
 
+Se comments above for `lock.sh`.
 
 ## Installing
 
 Copy the shell scripts somewhere convenient. Suggested:
 
-```
+```shell
 cd sh
-sudo cp update-snapshot.sh lock.sh /usr/local/sbin
+sudo cp update-snapshot.sh /usr/local/sbin
+```
+
+Unpack the project https://gitlab.com/HankB/shell-locking somewhere convenient and copy `lock.sh` to the same location used for `update-snapshot.sh`
+
+```shell
+sudo cp lock.sh /usr/local/sbin
 ```
 
 Add a cron job to execute the script once daily. Something like:
+
 ```shell
 /usr/local/sbin/update-snapshot.sh -a /usr/local/sbin/srvpool-srv-cleanup.sh drago srvpool/srv tank/srv >>/tmp/update-shapshot.srv.sh.lst 2>&1
 ```
+
 The script `/usr/local/sbin/srvpool-srv-cleanup.sh` executes the cleanup script on local and remote hosts.
+
 ```shell
 root@oak:/srvpool/srv/redwood# cat /usr/local/sbin/srvpool-srv-cleanup.sh
 #!/bin/sh
@@ -82,15 +98,18 @@ ssh drago /usr/local/sbin/myzfs.pl -v -f tank/srv > /tmp/tank-srv-cleanup-drago.
 
 root@oak:/srvpool/srv/redwood# 
 ```
+
 ## Testing
 
 Testing is pretty minimal at this point - sort of "it worked - ship it!" One test exists which is used to test the locking shell functions - `test_lock.sh` It can be invoked from two different windows to verify that locking appears to work.
+
 ```shell
 ./test_lock.sh testlock 10 5
 ```
+
 ## Status 
 
-The script is "in production" on my home LAN with the sender running Debian Stretch and remote Ubuntu 16.04.
+The script is "in production" on my home LAN with the sender running Debian Stretch and remote Ubuntu 16.04. It is also exercised form time to time with two hosts running Ubuntu 18.04.
 
 ### 2019-02-25
 
