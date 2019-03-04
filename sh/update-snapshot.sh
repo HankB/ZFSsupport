@@ -56,7 +56,7 @@ show_help()
     echo "host              - remote host name"
     echo "filesystem        - local filesystem name (not dir.)"
     echo "remote_filesystem - remote filesystem name if different from filesystem"
-    echo "v0.5"
+    echo "v0.6"
 
 }
 
