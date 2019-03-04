@@ -10,6 +10,12 @@ backup are sent as incremental snapshot 'send's. The actual backups are
 handled outside of these using `rsync` as the clients backed up are not
 presently using ZFS.
 
+## Contributing
+
+If you look at this and see opportunities for improvement, feel free to let me know. If you find bugs, file an issue! If you have questions, feel free to email me or file an issue. I would generally be open to PRs as long as they improve the result in some way. Thanks!
+
+NB: There are probably better projects for doing this and my code is probably highly specific to how I do things but if it looks like a fit for you, go for it.
+
 ## Motivation
 
 Sending incremental snapshot dumps to a remote system will
