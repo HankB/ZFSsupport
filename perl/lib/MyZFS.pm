@@ -1,5 +1,8 @@
 #!/usr/bin/perl
 package MyZFS;
+
+our $VERSION = 0.1;
+
 use strict;
 use warnings;
 use Getopt::Long qw(GetOptions);
