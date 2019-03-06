@@ -25,6 +25,9 @@
 # transmit - deliver the resulting file to the remote system (network bandwidth)
 # receive - 'receive' incremental snapshot on remote system. (remote disk,CPU)
 
+# exit on command error
+set -e
+
 # useful functions
 
 # check to see if we can ssh to remote system. (May not respond to 'ping')
@@ -142,7 +145,7 @@ do
     if [ "$INIT_REMOTE" = "true" ]
     then
         echo $REMOTE_HOST not reachable
-        echo "$REMOTE_HOST not reachable" | /usr/local/sbin/sa.sh "$0 exit 1 on `hostname`"
+        echo "$REMOTE_HOST not reachable" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on `hostname`"
         exit 1
     fi
     echo $REMOTE_HOST not reachable
@@ -194,7 +197,7 @@ then
     if [ "$PREV_LOCAL" = "$LOCAL"  ]
     then
         echo snapshot failed
-        echo "snapshot failed" | /usr/local/sbin/sa.sh "$0 exit 1 on `hostname`"
+        echo "snapshot failed" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on `hostname`"
         exit 1 # no obvious recovery
     fi
     echo
@@ -224,7 +227,7 @@ then
         if [ "$PREV_LOCAL" = "$LOCAL"  ]
         then
             echo snapshot failed
-            echo "snapshot failed" | /usr/local/sbin/sa.sh "$0 exit 1 on `hostname`"
+            echo "snapshot failed" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on `hostname`"
             exit 1 # no obvious recovery
         fi
         echo
@@ -255,7 +258,7 @@ then
     if ! acquireLock "collecting" 300
     then
         echo $$ cannot lock "collecting"
-        echo "$$ cannot lock 'collecting'" | /usr/local/sbin/sa.sh "$0 exit 1 on `hostname`"
+        echo "$$ cannot lock 'collecting'" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on `hostname`"
         exit 1
     fi
 
@@ -270,7 +273,7 @@ then
     then
         echo "'zfs send/dump' failed "
         releaseLock "collecting"
-        echo "'zfs send/dump' failed " | /usr/local/sbin/sa.sh "$0 exit 1 on `hostname`"
+        echo "'zfs send/dump' failed " | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on `hostname`"
         exit 1
     fi
 
@@ -280,7 +283,7 @@ then
     if ! acquireLock "transmit" 300
     then
         echo $$ cannot lock "transmit"
-        echo "$$ cannot lock 'transmit'" | /usr/local/sbin/sa.sh "$0 exit 1 on `hostname`"
+        echo "$$ cannot lock 'transmit'" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on `hostname`"
         exit 1
     fi
 
@@ -337,7 +340,7 @@ date +timestamp:recv\ \ %Y-%m-%d\ %H:%M:%S
 if ! acquireLock "receive" 300
 then
     echo $$ cannot lock "receive"
-    echo "$$ cannot lock 'receive'" | /usr/local/sbin/sa.sh "$0 exit 1 on `hostname`"
+    echo "$$ cannot lock 'receive'" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on `hostname`"
     exit 1
 fi
 
@@ -350,7 +353,7 @@ echo time -p ssh $REMOTE_HOST "xzcat /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz \
         zfs receive $RECV_OPT $REMOTE_FILESYSTEM"
 time -p ssh $REMOTE_HOST "xzcat /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz | \
         zfs receive $RECV_OPT $REMOTE_FILESYSTEM" | \
-        echo "$REMOTE_HOST receive failed" | /usr/local/sbin/sa.sh "$0 exit 1 on `hostname`"
+	echo "$REMOTE_HOST receive failed" | (/usr/local/sbin/sa.sh "admin-alert $0 exit 1 on `hostname`";exit 1)
 
 releaseLock "receive"
 
