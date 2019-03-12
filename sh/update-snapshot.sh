@@ -264,18 +264,16 @@ then
 
     echo time -p /sbin/zfs send -L -i ${FILESYSTEM}@${REMOTE} ${FILESYSTEM}@${LOCAL}\
         \| pxz -3 -c - \(direct to /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz \)
-    time -p /sbin/zfs send -L -i ${FILESYSTEM}@${REMOTE} ${FILESYSTEM}@${LOCAL}\
-        | pxz -3 -c - \
-        >/snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz
+    
+    # capture snapshot dump
+    time -p /sbin/zfs send -L -i ${FILESYSTEM}@${REMOTE} ${FILESYSTEM}@${LOCAL} > /snapshots/${REMOTE_F}-${LOCAL_F}.snap || \
+    (echo "'zfs send/dump' failed " | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on `hostname`"; rm -f pipe; releaseLock "collecting"; exit 1)
+    test $? -eq 0 || exit 1
 
-    # check status of command
-    if [ $? -ne 0 ]
-    then
-        echo "'zfs send/dump' failed "
-        releaseLock "collecting"
-        echo "'zfs send/dump' failed " | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on `hostname`"
-        exit 1
-    fi
+    # compress snapshot dump
+    cat /snapshots/${REMOTE_F}-${LOCAL_F}.snap | pxz -3 -c - >/snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz|| \
+    (echo "can't compress snapshot dump" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on `hostname`"; rm -f pipe; releaseLock "collecting"; exit 1)
+    test $? -eq 0 || exit 1
 
     releaseLock "collecting"
 
@@ -290,7 +288,7 @@ then
 else  # send initial
     REMOTE_F=${REMOTE_FILESYSTEM_F}@${LOCAL}
     LOCAL_F=${FILESYSTEM_F}@$LOCAL
-    echo saving "local snapshotr:" $LOCAL
+    echo "saving local snapshot:" $LOCAL
     echo to /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz
 
     # don't wait for lock
