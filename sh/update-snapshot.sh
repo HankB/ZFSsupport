@@ -262,8 +262,8 @@ then
         exit 1
     fi
 
-    echo time -p /sbin/zfs send -L -i ${FILESYSTEM}@${REMOTE} ${FILESYSTEM}@${LOCAL}\
-        \| pxz -3 -c - \(direct to /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz \)
+    echo "time -p /sbin/zfs send -L -i ${FILESYSTEM}@${REMOTE} ${FILESYSTEM}@${LOCAL} \>\
+         /snapshots/${REMOTE_F}-${LOCAL_F}.snap"
     
     # capture snapshot dump
     time -p /sbin/zfs send -L -i ${FILESYSTEM}@${REMOTE} ${FILESYSTEM}@${LOCAL} > /snapshots/${REMOTE_F}-${LOCAL_F}.snap || \
@@ -271,7 +271,8 @@ then
     test $? -eq 0 || exit 1
 
     # compress snapshot dump
-    cat /snapshots/${REMOTE_F}-${LOCAL_F}.snap | pxz -3 -c - >/snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz|| \
+    echo "pxz -3 /snapshots/${REMOTE_F}-${LOCAL_F}.snap"
+    pxz -3 /snapshots/${REMOTE_F}-${LOCAL_F}.snap || \
     (echo "can't compress snapshot dump" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on `hostname`"; rm -f pipe; releaseLock "collecting"; exit 1)
     test $? -eq 0 || exit 1
 
