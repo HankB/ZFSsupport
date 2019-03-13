@@ -1,6 +1,6 @@
 ## Components
 
-`myzfsMain.pl` will cleanup
+`myzfs.pl` will cleanup
 after (or before) `update-snapshot.sh`. Heavy lifting is put in MyZFS.pm
 in order to make testing easier. Other scripts are support and/or testing
 scripts. There are hooks in `update-snapshot.sh` to execute external 
