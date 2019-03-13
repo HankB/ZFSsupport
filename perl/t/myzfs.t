@@ -416,6 +416,67 @@ ok(
     "undeleted files"
 );
 
+# Test to identify problem with dump files not being deleted
+# issue #19
+
+my @rpoolTestDumpsToDelete;
+my @rpoolTestSnapToDelete;
+# deletable snapshots
+my @rpoolTestSnapDeletable;
+
+# all snapshot dumps presently on baobabb
+# ls -1 /snapshots
+$dumpfiles = 'tank-test@2019-03-01-rpool-test@2019-03-02.snap.xz
+tank-test@2019-03-02-rpool-test@2019-03-03.snap.xz
+tank-test@2019-03-02-rpool-test@2019-03-04.snap.xz
+tank-test@2019-03-02-rpool-test@2019-03-05.snap.xz
+tank-test@2019-03-02-rpool-test@2019-03-06.snap.xz
+tank-test@2019-03-06-rpool-test@2019-03-07.snap.xz
+tank-test@2019-03-08-rpool-test@2019-03-09.snap.xz
+tank-test@2019-03-08-rpool-test@2019-03-10.snap.xz
+tank-test@2019-03-08-rpool-test@2019-03-11.snap.xz
+tank-test@2019-03-11-rpool-test@2019-03-12.snap.xz
+tank-test@2019-03-12-rpool-test@2019-03-13.snap.xz
+';
+@dumpfiles = split /^/, $dumpfiles;
+chomp @dumpfiles;
+@rpoolTestDumpsToDelete = @dumpfiles;
+splice @rpoolTestDumpsToDelete, 7, 4;
+
+# print "rpoolTestDumpsToDelete\n", join("\n", @rpoolTestDumpsToDelete), "\n\n";
+
+createTestDumps( TESTDIR, @dumpfiles );
+
+# hbarta@baobabb:~/Documents/ZFS/ZFSsupport/perl$ zfs list -t snap -H -o name
+my $rpoolTestSnapAll = 'rpool/srv/test@first
+rpool/test@2019-03-07
+rpool/test@2019-03-09
+rpool/test@2019-03-10
+rpool/test@2019-03-11
+rpool/test@2019-03-12
+rpool/test@2019-03-13
+';
+my @rpoolTestSnapAll = split /^/, $rpoolTestSnapAll;
+chomp @rpoolTestSnapAll;
+@rpoolTestSnapDeletable = @rpoolTestSnapAll;
+splice @rpoolTestSnapDeletable, 0, 1;
+splice @rpoolTestSnapDeletable, 1;
+# print "rpoolTestSnapDeletable\n", join("\n", @rpoolTestSnapDeletable), "\n\n";
+
+@rpoolTestSnapToDelete =
+  @rpoolTestSnapDeletable[ 0 .. $#rpoolTestSnapDeletable -RESERVE_COUNT ];
+# print "rpoolTestSnapToDelete\n", join("\n", @rpoolTestSnapToDelete), "\n\n";
+
+# test count of snapshot dumps to delete
+my @rpoolDumpsToDelete =
+  MyZFS->findDeletableDumps( TESTDIR, \@rpoolTestSnapToDelete );
+=pod
+See issue #19 for why this test is commented out
+
+is( @rpoolDumpsToDelete, @rpoolTestDumpsToDelete,
+    "count of dumps to delete, single fs, issue #19" );
+=cut
+
 unlink glob TESTDIR . "*" || die "cannot delete files in " . TESTDIR;
 rmdir TESTDIR || die "cannot 'rmdir' " . TESTDIR;
 
