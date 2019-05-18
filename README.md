@@ -24,10 +24,13 @@ use the less bandwidth than `rsync`. (It may not always the case. (1))
 ## Organization
 
 Capturing and sending the snapshots is performed by a shell script (with a 
-helper script to provide locking.) These are in the .../sh directory.
+helper script to provide locking.) These are in the .../sh directory. The
+shell script runs locally on the host that is pushing data to the remnote.
 
 Cleanup - removing old snapshots and snapshot dump files is done using Perl
-and code for that is in the .../perl directory. 
+and code for that is in the .../perl directory. Cleanup is triggered by the
+shell script on the local host but requires the Perl script installed on the
+remote host.
 
 For more details on these see the READMEs in the respective .../sh and 
 .../perl subdirectories.
@@ -73,5 +76,6 @@ it is recommended to disable password ssh login on the hosts involved. (Step
 5 at https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-16-04.)
 
 * `/snapshots` directory on both local and remote PCs for storing snapshot dumps.
-* `pxz` (On Debian, Ubuntu `apt install pxz`) 
+* `pxz` (On Debian, Ubuntu `apt install pxz`)
+* `rsync` (on Debian, Ubuntu `apt install rsync`)
 
