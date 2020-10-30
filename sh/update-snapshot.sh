@@ -270,13 +270,25 @@ then
     (echo "'zfs send/dump' failed " | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on `hostname`"; rm -f pipe; releaseLock "collecting"; exit 1)
     test $? -eq 0 || exit 1
 
+    # report size of uncompressed file
+    ls -l /snapshots/${REMOTE_F}-${LOCAL_F}.snap
+
     # compress snapshot dump
     echo "pxz -3 /snapshots/${REMOTE_F}-${LOCAL_F}.snap"
     pxz -3 /snapshots/${REMOTE_F}-${LOCAL_F}.snap || \
     (echo "can't compress snapshot dump" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on `hostname`"; rm -f pipe; releaseLock "collecting"; exit 1)
     test $? -eq 0 || exit 1
 
+    # report size of compressed file
+    ls -l /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz
+
     releaseLock "collecting"
+
+    # abort on excess size - currently 100 Mb
+    if [ $(fileLen /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz) -gt 100000000 ]
+    then
+        /usr/local/sbin/sa.sh "admin-alert $0 too big on `hostname`"
+    fi
 
     # wait for up to 5 hours for this stage
     if ! acquireLock "transmit" 300
