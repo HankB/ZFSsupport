@@ -38,16 +38,16 @@ isRemoteReachable()
 }
 
 # get the length of a local file
-# get return value by e.g. `L=$(fileLen foo`
+# get return value by e.g. `L=$(fileLen foo)`
 fileLen()
 {
     if [ -e $1 ]
     then
-        LEN=`ls -l|tail -1|awk '{print $5}'`
+        LEN=`ls -l $1|tail -1|awk '{print $5}'`
     else
         LEN=-1
     fi
-    echo LEN
+    echo $LEN
 }
 
 show_help()
