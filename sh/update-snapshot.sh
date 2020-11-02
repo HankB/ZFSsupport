@@ -287,7 +287,9 @@ then
     # abort on excess size - currently 100 Mb
     if [ $(fileLen /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz) -gt 100000000 ]
     then
-        /usr/local/sbin/sa.sh "admin-alert $0 too big on `hostname`"
+        ls -lh /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz | \
+            /usr/local/sbin/sa.sh "admin-alert $0 too big on `hostname`"
+        exit 1
     fi
 
     # wait for up to 5 hours for this stage
