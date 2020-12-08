@@ -59,7 +59,7 @@ show_help()
     echo "host              - remote host name"
     echo "filesystem        - local filesystem name (not dir.)"
     echo "remote_filesystem - remote filesystem name if different from filesystem"
-    echo "v0.7e"
+    echo "v0.8"
 
 }
 
@@ -274,8 +274,8 @@ then
     ls -l /snapshots/${REMOTE_F}-${LOCAL_F}.snap
 
     # compress snapshot dump
-    echo "pxz -3 /snapshots/${REMOTE_F}-${LOCAL_F}.snap"
-    pxz -3 /snapshots/${REMOTE_F}-${LOCAL_F}.snap || \
+    echo "xz -T 0 -3 /snapshots/${REMOTE_F}-${LOCAL_F}.snap"
+    xz -T 0 -3 /snapshots/${REMOTE_F}-${LOCAL_F}.snap || \
     (echo "can't compress snapshot dump" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on `hostname`"; rm -f pipe; releaseLock "collecting"; exit 1)
     test $? -eq 0 || exit 1
 
@@ -314,9 +314,9 @@ else  # send initial
     fi
 
     echo time -p /sbin/zfs send -L ${FILESYSTEM}@${LOCAL}\
-        \| pxz -3 -c - \(direct to /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz \)
+        \| xz -T 0 -3 -c - \(direct to /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz \)
     time -p /sbin/zfs send -L ${FILESYSTEM}@${LOCAL}\
-        | pxz -3 -c - \
+        | xz -T 0 -3 -c - \
         >/snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz
 
     if [ $? -ne 0 ]
