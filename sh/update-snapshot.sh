@@ -3,6 +3,12 @@
 # Script to take a snapshot and send to a remote host
 # First argument is the filesystem to mirror and second is the remote host
 
+# Full 'usage' output by running w/out arguments
+
+# Requirements
+
+# copy lock.sh from shell_locking repo to same directory as this script.
+
 # The process takes a number of steps
 # 1) capture snapshot
 # 2) copy snapshot to remote system
