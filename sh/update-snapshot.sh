@@ -295,6 +295,7 @@ then
     then
         ls -lh /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz | \
             /usr/local/sbin/sa.sh "admin-alert $0 too big on `hostname`"
+        echo "admin-alert $0 too big on `hostname`"
         exit 1
     fi
 
