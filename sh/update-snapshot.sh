@@ -280,8 +280,8 @@ then
     ls -l /snapshots/${REMOTE_F}-${LOCAL_F}.snap
 
     # compress snapshot dump
-    echo "xz -T 0 -3 /snapshots/${REMOTE_F}-${LOCAL_F}.snap"
-    xz -T 0 -3 /snapshots/${REMOTE_F}-${LOCAL_F}.snap || \
+    echo "xz -T 0 -f -3 /snapshots/${REMOTE_F}-${LOCAL_F}.snap"
+    xz -T 0 -f -3 /snapshots/${REMOTE_F}-${LOCAL_F}.snap || \
     (echo "can't compress snapshot dump" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on `hostname`"; rm -f pipe; releaseLock "collecting"; exit 1)
     test $? -eq 0 || exit 1
 
