@@ -268,11 +268,11 @@ then
         exit 1
     fi
 
-    echo "time -p /sbin/zfs send -L -i ${FILESYSTEM}@${REMOTE} ${FILESYSTEM}@${LOCAL} \>\
+    echo "time -p /sbin/zfs send -L -R -i ${FILESYSTEM}@${REMOTE} ${FILESYSTEM}@${LOCAL} \>\
          /snapshots/${REMOTE_F}-${LOCAL_F}.snap"
     
     # capture snapshot dump
-    time -p /sbin/zfs send -L -i ${FILESYSTEM}@${REMOTE} ${FILESYSTEM}@${LOCAL} > /snapshots/${REMOTE_F}-${LOCAL_F}.snap || \
+    time -p /sbin/zfs send -L -R -i ${FILESYSTEM}@${REMOTE} ${FILESYSTEM}@${LOCAL} > /snapshots/${REMOTE_F}-${LOCAL_F}.snap || \
     (echo "'zfs send/dump' failed " | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on `hostname`"; rm -f pipe; releaseLock "collecting"; exit 1)
     test $? -eq 0 || exit 1
 
@@ -320,10 +320,10 @@ else  # send initial
         exit 1
     fi
 
-    echo time -p /sbin/zfs send -L ${FILESYSTEM}@${LOCAL}\
-        \| xz -T 0 -3 -c - \(direct to /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz \)
-    time -p /sbin/zfs send -L ${FILESYSTEM}@${LOCAL}\
-        | xz -T 0 -3 -c - \
+    echo time -p /sbin/zfs send -L -R ${FILESYSTEM}@${LOCAL}\
+        \| xz -T 0 -f -3 -c - \(direct to /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz \)
+    time -p /sbin/zfs send -L -R ${FILESYSTEM}@${LOCAL}\
+        | xz -T 0 -f -3 -c - \
         >/snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz
 
     if [ $? -ne 0 ]
