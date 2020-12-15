@@ -69,11 +69,12 @@ show_help()
 
 }
 
-# find the most recent snapshot that matches the pattern "<filesystem>@YYYY-MM-DD"
+# find the most recent snapshot that matches the pattern "<filesystem>@hostname.YYYY-MM-DD"
 filterLatestSnap()
 {
-    awk 'match($1,"@([0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]$)")\
-    {print substr($1, RSTART+1, RLENGTH)}' | tail -1
+    awk -v pattern="@(${HOSTNAME}.[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]$)"\
+    'match($1, pattern)\
+    {print substr($1, RSTART+1, RLENGTH)}'  | tail -1
 }
 
 # external code
