@@ -152,7 +152,7 @@ do
     if [ "$INIT_REMOTE" = "true" ]
     then
         echo $REMOTE_HOST not reachable
-        echo "$REMOTE_HOST not reachable" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on `hostname`"
+        echo "$REMOTE_HOST not reachable" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on $HOSTNAME"
         exit 1
     fi
     echo $REMOTE_HOST not reachable
@@ -162,7 +162,7 @@ done
 # report snapshots before we start
 # TODO: cache results of 'zfs list' to use to ID the most recent snapshot
 echo
-echo "On " `hostname`
+echo "On $HOSTNAME"
 /sbin/zfs list -d 1 -t snap -r $FILESYSTEM
 echo
 echo "On $REMOTE_HOST"
@@ -193,8 +193,8 @@ then
     echo "no local snapshots "
     echo
     echo snapshotting $FILESYSTEM
-    echo /usr/bin/time -p /sbin/zfs snap ${FILESYSTEM}@"$HOSTNAME".`date +%Y-%m-%d`
-    /usr/bin/time -p /sbin/zfs snap ${FILESYSTEM}@"$HOSTNAME".`date +%Y-%m-%d`
+    echo /usr/bin/time -p /sbin/zfs snap ${FILESYSTEM}@${HOSTNAME}.`date +%Y-%m-%d`
+    /usr/bin/time -p /sbin/zfs snap ${FILESYSTEM}@${HOSTNAME}.`date +%Y-%m-%d`
     PREV_LOCAL=$LOCAL
     LOCAL=`/sbin/zfs list -d 1 -t snap -r $FILESYSTEM |  \
         filterLatestSnap`
@@ -204,7 +204,7 @@ then
     if [ "$PREV_LOCAL" = "$LOCAL"  ]
     then
         echo snapshot failed
-        echo "snapshot failed" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on `hostname`"
+        echo "snapshot failed" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on $HOSTNAME"
         exit 1 # no obvious recovery
     fi
     echo
@@ -213,8 +213,8 @@ fi
 # see if we need to snap (if not init)
 if [ "$INIT_REMOTE" = "false" ]
 then
-    echo check for "$HOSTNAME.`date +%Y-%m-%d`" against $LOCAL
-    if [ "$HOSTNAME".`date +%Y-%m-%d` = "$LOCAL" ]
+    echo check for "${HOSTNAME}.`date +%Y-%m-%d`" against $LOCAL
+    if [ ${HOSTNAME}.`date +%Y-%m-%d` = "$LOCAL" ]
     then
         echo
         echo "snapshot already captured today $LOCAL"
@@ -222,8 +222,8 @@ then
     else
         echo
         echo snapshotting $FILESYSTEM
-        echo /usr/bin/time -p /sbin/zfs snap ${FILESYSTEM}@"$HOSTNAME".`date +%Y-%m-%d`
-        /usr/bin/time -p /sbin/zfs snap ${FILESYSTEM}@"$HOSTNAME".`date +%Y-%m-%d`
+        echo /usr/bin/time -p /sbin/zfs snap ${FILESYSTEM}@${HOSTNAME}.`date +%Y-%m-%d`
+        /usr/bin/time -p /sbin/zfs snap ${FILESYSTEM}@${HOSTNAME}.`date +%Y-%m-%d`
 
         PREV_LOCAL=$LOCAL
         LOCAL=`/sbin/zfs list -d 1 -t snap -r $FILESYSTEM |  \
@@ -234,7 +234,7 @@ then
         if [ "$PREV_LOCAL" = "$LOCAL"  ]
         then
             echo snapshot failed
-            echo "snapshot failed" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on `hostname`"
+            echo "snapshot failed" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on $HOSTNAME "
             exit 1 # no obvious recovery
         fi
         echo
@@ -265,7 +265,7 @@ then
     if ! acquireLock "collecting" 300
     then
         echo $$ cannot lock "collecting"
-        echo "$$ cannot lock 'collecting'" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on `hostname`"
+        echo "$$ cannot lock 'collecting'" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on $HOSTNAME"
         exit 1
     fi
 
@@ -274,7 +274,7 @@ then
     
     # capture snapshot dump
     time -p /sbin/zfs send -L -R -i ${FILESYSTEM}@${REMOTE} ${FILESYSTEM}@${LOCAL} > /snapshots/${REMOTE_F}-${LOCAL_F}.snap || \
-    (echo "'zfs send/dump' failed " | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on `hostname`"; rm -f pipe; releaseLock "collecting"; exit 1)
+    (echo "'zfs send/dump' failed " | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on $HOSTNAME"; rm -f pipe; releaseLock "collecting"; exit 1)
     test $? -eq 0 || exit 1
 
     # report size of uncompressed file
@@ -283,7 +283,7 @@ then
     # compress snapshot dump
     echo "xz -T 0 -f -3 /snapshots/${REMOTE_F}-${LOCAL_F}.snap"
     xz -T 0 -f -3 /snapshots/${REMOTE_F}-${LOCAL_F}.snap || \
-    (echo "can't compress snapshot dump" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on `hostname`"; rm -f pipe; releaseLock "collecting"; exit 1)
+    (echo "can't compress snapshot dump" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on $HOSTNAME"; rm -f pipe; releaseLock "collecting"; exit 1)
     test $? -eq 0 || exit 1
 
     # report size of compressed file
@@ -295,8 +295,8 @@ then
     if [ $(fileLen /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz) -gt 100000000 ]
     then
         ls -lh /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz | \
-            /usr/local/sbin/sa.sh "admin-alert $0 too big on `hostname`"
-        echo "admin-alert $0 too big on `hostname`"
+            /usr/local/sbin/sa.sh "admin-alert $0 too big on $HOSTNAME"
+        echo "admin-alert $0 too big on $HOSTNAME"
         exit 1
     fi
 
@@ -304,7 +304,7 @@ then
     if ! acquireLock "transmit" 300
     then
         echo $$ cannot lock "transmit"
-        echo "$$ cannot lock 'transmit'" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on `hostname`"
+        echo "$$ cannot lock 'transmit'" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on $HOSTNAME"
         exit 1
     fi
 
@@ -361,7 +361,7 @@ date +timestamp:recv\ \ %Y-%m-%d\ %H:%M:%S
 if ! acquireLock "receive" 300
 then
     echo $$ cannot lock "receive"
-    echo "$$ cannot lock 'receive'" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on `hostname`"
+    echo "$$ cannot lock 'receive'" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on $HOSTNAME"
     exit 1
 fi
 
@@ -374,7 +374,7 @@ echo time -p ssh $REMOTE_HOST "xzcat /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz \
         zfs receive $RECV_OPT $REMOTE_FILESYSTEM"
 time -p ssh $REMOTE_HOST "xzcat /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz | \
         zfs receive $RECV_OPT $REMOTE_FILESYSTEM" || \
-	echo "$REMOTE_HOST receive failed" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on `hostname`"
+	echo "$REMOTE_HOST receive failed" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on $HOSTNAME"
 
 releaseLock "receive"
 
