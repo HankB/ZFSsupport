@@ -123,6 +123,9 @@ fi
 FILESYSTEM=$2
 REMOTE_HOST=$1
 
+# And useful miscellaneous variables
+DATE=$(date +%Y-%m-%d)
+
 if [ $# -eq 3 ]
 then
     REMOTE_FILESYSTEM=$3
@@ -193,8 +196,8 @@ then
     echo "no local snapshots "
     echo
     echo "snapshotting $FILESYSTEM"
-    echo /usr/bin/time -p /sbin/zfs snap "${FILESYSTEM}@${HOSTNAME}".`date +%Y-%m-%d`
-    /usr/bin/time -p /sbin/zfs snap "${FILESYSTEM}@${HOSTNAME}".`date +%Y-%m-%d`
+    echo /usr/bin/time -p /sbin/zfs snap "${FILESYSTEM}@${HOSTNAME}.$DATE"
+    /usr/bin/time -p /sbin/zfs snap "${FILESYSTEM}@${HOSTNAME}.$DATE"
     PREV_LOCAL="$LOCAL"
     LOCAL=$(/sbin/zfs list -d 1 -t snap -r "$FILESYSTEM" |  \
         filterLatestSnap)
@@ -213,8 +216,8 @@ fi
 # see if we need to snap (if not init)
 if [ "$INIT_REMOTE" = "false" ]
 then
-    echo check for "${HOSTNAME}.`date +%Y-%m-%d` against $LOCAL"
-    if [ "${HOSTNAME}.`date +%Y-%m-%d`" = "$LOCAL" ]
+    echo check for "${HOSTNAME}.$DATE against $LOCAL"
+    if [ "${HOSTNAME}.$DATE" = "$LOCAL" ]
     then
         echo
         echo "snapshot already captured today $LOCAL"
@@ -222,8 +225,8 @@ then
     else
         echo
         echo "snapshotting $FILESYSTEM"
-        echo "/usr/bin/time -p /sbin/zfs snap ${FILESYSTEM}@${HOSTNAME}.`date +%Y-%m-%d`"
-        /usr/bin/time -p /sbin/zfs snap "${FILESYSTEM}@${HOSTNAME}.`date +%Y-%m-%d`"
+        echo "/usr/bin/time -p /sbin/zfs snap ${FILESYSTEM}@${HOSTNAME}.$DATE"
+        /usr/bin/time -p /sbin/zfs snap "${FILESYSTEM}@${HOSTNAME}.$DATE"
 
         PREV_LOCAL=$LOCAL
         LOCAL=`/sbin/zfs list -d 1 -t snap -r "$FILESYSTEM" |  \
