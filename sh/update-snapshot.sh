@@ -49,7 +49,7 @@ fileLen()
 {
     if [ -e "$1" ]
     then
-        LEN=`ls -l "$1"|tail -1|awk '{print $5}'`
+        LEN=$(ls -l "$1"|tail -1|awk '{print $5}')/
     else
         LEN=-1
     fi
@@ -79,7 +79,7 @@ filterLatestSnap()
 
 # external code
 
-. "`dirname "$0"`"/lock.sh || exit 1
+. "$(dirname "$0")"/lock.sh || exit 1
 
 echo "########################################################################"
 date +timestamp:start\ %Y-%m-%d\ %H:%M:%S
@@ -142,8 +142,8 @@ then
 fi
 
 # provide variants of inputs w/out '/' characters
-FILESYSTEM_F=`echo "$FILESYSTEM"|tr / -`
-REMOTE_FILESYSTEM_F=`echo "$REMOTE_FILESYSTEM"|tr / -`
+FILESYSTEM_F=$(echo "$FILESYSTEM"|tr / -)
+REMOTE_FILESYSTEM_F=$(echo "$REMOTE_FILESYSTEM"|tr / -)
 
 
 # check to see if we can reach the remote
@@ -170,10 +170,10 @@ ssh "$REMOTE_HOST" /sbin/zfs list -d 1 -t snap -r "$REMOTE_FILESYSTEM"
 
 # capture newest local and remote snapshots. The date tag is separated 
 # from the filesystem part since local and remote filesystems may differ
-export REMOTE=`ssh "$REMOTE_HOST" /sbin/zfs list -d 1 -H -o name -t snap -r "$REMOTE_FILESYSTEM" |\
-       filterLatestSnap`
-export LOCAL=`/sbin/zfs list -d 1 -H -o name -t snap -r "$FILESYSTEM" | \
-       filterLatestSnap`
+export REMOTE=$(ssh "$REMOTE_HOST" /sbin/zfs list -d 1 -H -o name -t snap -r "$REMOTE_FILESYSTEM" |\
+       filterLatestSnap)
+export LOCAL=$(/sbin/zfs list -d 1 -H -o name -t snap -r "$FILESYSTEM" | \
+       filterLatestSnap)
 
 echo "REMOTE $REMOTE"
 echo "LOCAL $LOCAL"
@@ -196,8 +196,8 @@ then
     echo /usr/bin/time -p /sbin/zfs snap "${FILESYSTEM}@${HOSTNAME}".`date +%Y-%m-%d`
     /usr/bin/time -p /sbin/zfs snap "${FILESYSTEM}@${HOSTNAME}".`date +%Y-%m-%d`
     PREV_LOCAL="$LOCAL"
-    LOCAL=`/sbin/zfs list -d 1 -t snap -r "$FILESYSTEM" |  \
-        filterLatestSnap`
+    LOCAL=$(/sbin/zfs list -d 1 -t snap -r "$FILESYSTEM" |  \
+        filterLatestSnap)
 
     # check to see if the snapshot operation worked, $LOCAL should change
     echo  test "$PREV_LOCAL = $LOCAL"
