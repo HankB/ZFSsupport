@@ -39,7 +39,7 @@ set -e
 # check to see if we can ssh to remote system. (May not respond to 'ping')
 isRemoteReachable()
 {
-    ssh $1 exit
+    ssh "$1" exit
     return $?
 }
 
@@ -47,9 +47,9 @@ isRemoteReachable()
 # get return value by e.g. `L=$(fileLen foo)`
 fileLen()
 {
-    if [ -e $1 ]
+    if [ -e "$1" ]
     then
-        LEN=`ls -l $1|tail -1|awk '{print $5}'`
+        LEN=`ls -l "$1"|tail -1|awk '{print $5}'`
     else
         LEN=-1
     fi
@@ -79,7 +79,7 @@ filterLatestSnap()
 
 # external code
 
-. `dirname $0`/lock.sh || exit 1
+. "`dirname "$0"`"/lock.sh || exit 1
 
 echo "########################################################################"
 date +timestamp:start\ %Y-%m-%d\ %H:%M:%S
@@ -130,32 +130,32 @@ else
     REMOTE_FILESYSTEM=$FILESYSTEM
 fi
 
-echo "filesystem        " $FILESYSTEM
-echo "remote host       " $REMOTE_HOST
-echo "remote filesystem " $REMOTE_FILESYSTEM
-echo "initialize remote " $INIT_REMOTE
+echo "filesystem         $FILESYSTEM"
+echo "remote host        $REMOTE_HOST"
+echo "remote filesystem  $REMOTE_FILESYSTEM"
+echo "initialize remote  $INIT_REMOTE"
 
 if [ "$BEFORE_HOOK" != "" ]
 then
-    echo executing BEFORE_HOOK $BEFORE_HOOK
+    echo "executing BEFORE_HOOK $BEFORE_HOOK"
     $BEFORE_HOOK
 fi
 
 # provide variants of inputs w/out '/' characters
-FILESYSTEM_F=`echo $FILESYSTEM|tr / -`
-REMOTE_FILESYSTEM_F=`echo $REMOTE_FILESYSTEM|tr / -`
+FILESYSTEM_F=`echo "$FILESYSTEM"|tr / -`
+REMOTE_FILESYSTEM_F=`echo "$REMOTE_FILESYSTEM"|tr / -`
 
 
 # check to see if we can reach the remote
-while ( ! isRemoteReachable $REMOTE_HOST)
+while ( ! isRemoteReachable "$REMOTE_HOST")
 do
     if [ "$INIT_REMOTE" = "true" ]
     then
-        echo $REMOTE_HOST not reachable
+        echo "$REMOTE_HOST not reachable"
         echo "$REMOTE_HOST not reachable" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on $HOSTNAME"
         exit 1
     fi
-    echo $REMOTE_HOST not reachable
+    echo "$REMOTE_HOST not reachable"
     sleep 60
 done
 
@@ -163,20 +163,20 @@ done
 # TODO: cache results of 'zfs list' to use to ID the most recent snapshot
 echo
 echo "On $HOSTNAME"
-/sbin/zfs list -d 1 -t snap -r $FILESYSTEM
+/sbin/zfs list -d 1 -t snap -r "$FILESYSTEM"
 echo
 echo "On $REMOTE_HOST"
-ssh $REMOTE_HOST /sbin/zfs list -d 1 -t snap -r $REMOTE_FILESYSTEM
+ssh "$REMOTE_HOST" /sbin/zfs list -d 1 -t snap -r "$REMOTE_FILESYSTEM"
 
 # capture newest local and remote snapshots. The date tag is separated 
 # from the filesystem part since local and remote filesystems may differ
-export REMOTE=`ssh $REMOTE_HOST /sbin/zfs list -d 1 -H -o name -t snap -r $REMOTE_FILESYSTEM |\
+export REMOTE=`ssh "$REMOTE_HOST" /sbin/zfs list -d 1 -H -o name -t snap -r "$REMOTE_FILESYSTEM" |\
        filterLatestSnap`
-export LOCAL=`/sbin/zfs list -d 1 -H -o name -t snap -r $FILESYSTEM | \
+export LOCAL=`/sbin/zfs list -d 1 -H -o name -t snap -r "$FILESYSTEM" | \
        filterLatestSnap`
 
-echo REMOTE $REMOTE
-echo LOCAL $LOCAL
+echo "REMOTE $REMOTE"
+echo "LOCAL $LOCAL"
 
 if [ "$REMOTE" = ""  ] && [ "$INIT_REMOTE" = "false" ]
 then
@@ -192,11 +192,11 @@ if [ "$LOCAL" = ""  ]
 then
     echo "no local snapshots "
     echo
-    echo snapshotting $FILESYSTEM
-    echo /usr/bin/time -p /sbin/zfs snap ${FILESYSTEM}@${HOSTNAME}.`date +%Y-%m-%d`
-    /usr/bin/time -p /sbin/zfs snap ${FILESYSTEM}@${HOSTNAME}.`date +%Y-%m-%d`
-    PREV_LOCAL=$LOCAL
-    LOCAL=`/sbin/zfs list -d 1 -t snap -r $FILESYSTEM |  \
+    echo "snapshotting $FILESYSTEM"
+    echo /usr/bin/time -p /sbin/zfs snap "${FILESYSTEM}@${HOSTNAME}".`date +%Y-%m-%d`
+    /usr/bin/time -p /sbin/zfs snap "${FILESYSTEM}@${HOSTNAME}".`date +%Y-%m-%d`
+    PREV_LOCAL="$LOCAL"
+    LOCAL=`/sbin/zfs list -d 1 -t snap -r "$FILESYSTEM" |  \
         filterLatestSnap`
 
     # check to see if the snapshot operation worked, $LOCAL should change
@@ -213,20 +213,20 @@ fi
 # see if we need to snap (if not init)
 if [ "$INIT_REMOTE" = "false" ]
 then
-    echo check for "${HOSTNAME}.`date +%Y-%m-%d`" against $LOCAL
-    if [ ${HOSTNAME}.`date +%Y-%m-%d` = "$LOCAL" ]
+    echo check for "${HOSTNAME}.`date +%Y-%m-%d` against $LOCAL"
+    if [ "${HOSTNAME}.`date +%Y-%m-%d`" = "$LOCAL" ]
     then
         echo
         echo "snapshot already captured today $LOCAL"
         echo
     else
         echo
-        echo snapshotting $FILESYSTEM
-        echo /usr/bin/time -p /sbin/zfs snap ${FILESYSTEM}@${HOSTNAME}.`date +%Y-%m-%d`
-        /usr/bin/time -p /sbin/zfs snap ${FILESYSTEM}@${HOSTNAME}.`date +%Y-%m-%d`
+        echo "snapshotting $FILESYSTEM"
+        echo "/usr/bin/time -p /sbin/zfs snap ${FILESYSTEM}@${HOSTNAME}.`date +%Y-%m-%d`"
+        /usr/bin/time -p /sbin/zfs snap "${FILESYSTEM}@${HOSTNAME}.`date +%Y-%m-%d`"
 
         PREV_LOCAL=$LOCAL
-        LOCAL=`/sbin/zfs list -d 1 -t snap -r $FILESYSTEM |  \
+        LOCAL=`/sbin/zfs list -d 1 -t snap -r "$FILESYSTEM" |  \
             filterLatestSnap`
 
         # check to see if the snapshot operation worked, $LOCAL should change
@@ -258,8 +258,8 @@ then
     echo
     REMOTE_F=${REMOTE_FILESYSTEM_F}@${REMOTE}
     LOCAL_F=${FILESYSTEM_F}@$LOCAL
-    echo saving incremental remote: $REMOTE local: $LOCAL
-    echo to /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz
+    echo "saving incremental remote: $REMOTE local: $LOCAL"
+    echo "to /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz"
 
     # wait for up to 5 hours for this stage
     if ! acquireLock "collecting" 300
@@ -273,28 +273,28 @@ then
          /snapshots/${REMOTE_F}-${LOCAL_F}.snap"
     
     # capture snapshot dump
-    time -p /sbin/zfs send -L -R -i ${FILESYSTEM}@${REMOTE} ${FILESYSTEM}@${LOCAL} > /snapshots/${REMOTE_F}-${LOCAL_F}.snap || \
+    time -p /sbin/zfs send -L -R -i "${FILESYSTEM}@${REMOTE}" "${FILESYSTEM}@${LOCAL}" > "/snapshots/${REMOTE_F}-${LOCAL_F}.snap" || \
     (echo "'zfs send/dump' failed " | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on $HOSTNAME"; rm -f pipe; releaseLock "collecting"; exit 1)
     test $? -eq 0 || exit 1
 
     # report size of uncompressed file
-    ls -l /snapshots/${REMOTE_F}-${LOCAL_F}.snap
+    ls -l "/snapshots/${REMOTE_F}-${LOCAL_F}.snap"
 
     # compress snapshot dump
     echo "xz -T 0 -f -3 /snapshots/${REMOTE_F}-${LOCAL_F}.snap"
-    xz -T 0 -f -3 /snapshots/${REMOTE_F}-${LOCAL_F}.snap || \
+    xz -T 0 -f -3 "/snapshots/${REMOTE_F}-${LOCAL_F}.snap" || \
     (echo "can't compress snapshot dump" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on $HOSTNAME"; rm -f pipe; releaseLock "collecting"; exit 1)
     test $? -eq 0 || exit 1
 
     # report size of compressed file
-    ls -l /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz
+    ls -l "/snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz"
 
     releaseLock "collecting"
 
     # abort on excess size - currently 100 Mb
-    if [ $(fileLen /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz) -gt 100000000 ]
+    if [ $(fileLen "/snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz") -gt 100000000 ]
     then
-        ls -lh /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz | \
+        ls -lh "/snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz" | \
             /usr/local/sbin/sa.sh "admin-alert $0 too big on $HOSTNAME"
         echo "admin-alert $0 too big on $HOSTNAME"
         exit 1
@@ -311,8 +311,8 @@ then
 else  # send initial
     REMOTE_F=${REMOTE_FILESYSTEM_F}@${LOCAL}
     LOCAL_F=${FILESYSTEM_F}@$LOCAL
-    echo "saving local snapshot:" $LOCAL
-    echo to /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz
+    echo "saving local snapshot: $LOCAL"
+    echo "to /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz"
 
     # don't wait for lock
     if ! acquireLock "collecting" 0
@@ -321,11 +321,11 @@ else  # send initial
         exit 1
     fi
 
-    echo time -p /sbin/zfs send -L -R ${FILESYSTEM}@${LOCAL}\
-        \| xz -T 0 -f -3 -c - \(direct to /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz \)
-    time -p /sbin/zfs send -L -R ${FILESYSTEM}@${LOCAL}\
+    echo time -p /sbin/zfs send -L -R "${FILESYSTEM}@${LOCAL}"\
+        \| xz -T 0 -f -3 -c - \(direct to "/snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz" \)
+    time -p /sbin/zfs send -L -R "${FILESYSTEM}@${LOCAL}"\
         | xz -T 0 -f -3 -c - \
-        >/snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz
+        >"/snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz"
 
     if [ $? -ne 0 ]
     then
@@ -346,10 +346,10 @@ fi
 
 # transport the dump file to the remote
 date +timestamp:rsync\ %Y-%m-%d\ %H:%M:%S
-echo rsync to $REMOTE_HOST
+echo "rsync to $REMOTE_HOST"
 cd /snapshots
 time -p rsync -av --partial --append-verify --progress \
-${REMOTE_F}-${LOCAL_F}.snap.xz ${REMOTE_HOST}:/snapshots/
+"${REMOTE_F}-${LOCAL_F}.snap.xz" "${REMOTE_HOST}:/snapshots/"
 releaseLock "transmit"
 
 date +timestamp:recv\ \ %Y-%m-%d\ %H:%M:%S
@@ -370,9 +370,9 @@ if [ "$INIT_REMOTE" = "true" ] # send incremental?
 then
     RECV_OPT=" -F "
 fi
-echo time -p ssh $REMOTE_HOST "xzcat /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz \| \
+echo time -p ssh "$REMOTE_HOST" "xzcat /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz \| \
         zfs receive $RECV_OPT $REMOTE_FILESYSTEM"
-time -p ssh $REMOTE_HOST "xzcat /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz | \
+time -p ssh "$REMOTE_HOST" "xzcat /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz | \
         zfs receive $RECV_OPT $REMOTE_FILESYSTEM" || \
 	echo "$REMOTE_HOST receive failed" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on $HOSTNAME"
 
@@ -381,20 +381,20 @@ releaseLock "receive"
 # report snapshots following send
 echo
 echo "after send/receive to ${REMOTE_HOST}"
-ssh $REMOTE_HOST /sbin/zfs list
+ssh "$REMOTE_HOST" /sbin/zfs list
 echo
-ssh $REMOTE_HOST /sbin/zfs list -d 1 -t snap -r $REMOTE_FILESYSTEM
+ssh "$REMOTE_HOST" /sbin/zfs list -d 1 -t snap -r "$REMOTE_FILESYSTEM"
 
 echo "locally"
 /sbin/zfs list
 echo
-/sbin/zfs list -d 1 -t snap -r $FILESYSTEM
+/sbin/zfs list -d 1 -t snap -r "$FILESYSTEM"
 
 date +timestamp:post\ \ %Y-%m-%d\ %H:%M:%S
 
 if [ "$AFTER_HOOK" != "" ]
 then
-    echo executing AFTER_HOOK $AFTER_HOOK
+    echo "executing AFTER_HOOK $AFTER_HOOK"
     $AFTER_HOOK
 fi
 date +timestamp:done\!\ %Y-%m-%d\ %H:%M:%S
