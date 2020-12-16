@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Script to take a snapshot and send to a remote host
 # First argument is the filesystem to mirror and second is the remote host
