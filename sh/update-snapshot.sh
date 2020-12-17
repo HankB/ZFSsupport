@@ -65,7 +65,7 @@ show_help()
     echo "host              - remote host name"
     echo "filesystem        - local filesystem name (not dir.)"
     echo "remote_filesystem - remote filesystem name if different from filesystem"
-    echo "v0.10"
+    echo "v0.11"
 
 }
 
@@ -196,8 +196,8 @@ then
     echo "no local snapshots "
     echo
     echo "snapshotting $FILESYSTEM"
-    echo /usr/bin/time -p /sbin/zfs snap "${FILESYSTEM}@${HOSTNAME}.$DATE"
-    /usr/bin/time -p /sbin/zfs snap "${FILESYSTEM}@${HOSTNAME}.$DATE"
+    echo /usr/bin/time -p /sbin/zfs snap -r "${FILESYSTEM}@${HOSTNAME}.$DATE"
+    /usr/bin/time -p /sbin/zfs snap -r "${FILESYSTEM}@${HOSTNAME}.$DATE"
     PREV_LOCAL="$LOCAL"
     LOCAL=$(/sbin/zfs list -d 1 -t snap -r "$FILESYSTEM" |  \
         filterLatestSnap)
@@ -225,8 +225,8 @@ then
     else
         echo
         echo "snapshotting $FILESYSTEM"
-        echo "/usr/bin/time -p /sbin/zfs snap ${FILESYSTEM}@${HOSTNAME}.$DATE"
-        /usr/bin/time -p /sbin/zfs snap "${FILESYSTEM}@${HOSTNAME}.$DATE"
+        echo "/usr/bin/time -p /sbin/zfs snap -r ${FILESYSTEM}@${HOSTNAME}.$DATE"
+        /usr/bin/time -p /sbin/zfs snap -r "${FILESYSTEM}@${HOSTNAME}.$DATE"
 
         PREV_LOCAL=$LOCAL
         LOCAL=`/sbin/zfs list -d 1 -t snap -r "$FILESYSTEM" |  \
