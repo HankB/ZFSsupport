@@ -32,8 +32,8 @@ Following guidelines from `https://stackoverflow.com/questions/533553/perl-build
 
 
 ```cd perl
-perl Build.PL
 perl Build manifest
+perl Build.PL
 perl Build test
 perl Build testcover
 ```
