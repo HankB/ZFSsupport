@@ -1,3 +1,5 @@
+# ZFS support - Perl components
+
 ## Components
 
 `myzfs.pl` will cleanup
@@ -5,7 +7,6 @@ after (or before) `update-snapshot.sh`. Heavy lifting is put in MyZFS.pm
 in order to make testing easier. Other scripts are support and/or testing
 scripts. There are hooks in `update-snapshot.sh` to execute external 
 commands before or after the other processing.
-
 
 ## Requirements
 
@@ -26,7 +27,7 @@ Test script for `MyZFS.pm`
 
 Module to implement the lower level logic in a testable form.
 
-### Building
+## Building
 
 Following guidelines from `https://stackoverflow.com/questions/533553/perl-build-unit-testing-code-coverage-a-complete-working-example`
 
@@ -56,7 +57,7 @@ hbarta@grandidier:~/Documents/ZFSsupport/perl$ perl -e 'print join "\n", @INC;'
 ```
 Copy the script `myzfs.pl` to a convenient location such as /usr/local/sbin
 
-#### my install commands
+### my install commands
 
 ```
 cd perl
@@ -65,6 +66,6 @@ sudo cp lib/MyZFS.pm /usr/local/lib/site_perl
 sudo cp myzfs.pl /usr/local/sbin
 ```
 
-### Errata
+## Errata
 
 During testing I performed multiple tsts in one day by renaming the most recent snapshot by appending `.n` to the name. (e.g. `.0`, `.1` and so on.) As a result fewer than the desired number of snapshot dumps were preserved.
