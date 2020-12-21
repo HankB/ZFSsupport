@@ -42,7 +42,8 @@ perl Build testcover
 
 Put the module `MyZFS.pm` somewhere convenient. The following command lists possibilities:
 `perl -e 'print join "\n", @INC;'` and on my system shows
-``` perl
+
+```perl
 hbarta@grandidier:~/Documents/ZFSsupport/perl$ perl -e 'print join "\n", @INC;'
 /etc/perl
 /usr/local/lib/x86_64-linux-gnu/perl/5.22.1
@@ -55,11 +56,12 @@ hbarta@grandidier:~/Documents/ZFSsupport/perl$ perl -e 'print join "\n", @INC;'
 /usr/lib/x86_64-linux-gnu/perl-base
 .hbarta@grandidier:~/Documents/ZFSsupport/perl$ 
 ```
+
 Copy the script `myzfs.pl` to a convenient location such as /usr/local/sbin
 
 ### my install commands
 
-```
+```text
 cd perl
 sudo mkdir /usr/local/lib/site_perl
 sudo cp lib/MyZFS.pm /usr/local/lib/site_perl
