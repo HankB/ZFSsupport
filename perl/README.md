@@ -38,7 +38,22 @@ perl Build.PL
 perl Build test
 perl Build testcover
 ```
-### Installing
+
+## Testing
+
+Either 
+
+```text
+perl Build test
+```
+
+or
+
+```text
+./t/myzfs.t 
+```
+
+## Installing
 
 Put the module `MyZFS.pm` somewhere convenient. The following command lists possibilities:
 `perl -e 'print join "\n", @INC;'` and on my system shows
