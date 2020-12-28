@@ -71,10 +71,10 @@ tank/Archive@2018-03-28
 tank/Archive@2018-03-29
 tank/Archive@2018-04-01
 tank/Archive@2018-04-07
-tank/Archive@2018-04-08
-tank/Archive@2018-04-09
-tank/Archive@2018-04-10
-tank/Archive@2018-04-11
+tank/Archive@this-host.2018-04-08
+tank/Archive@3t.example.net.2018-04-09
+tank/Archive@drago2.2018-04-10
+tank/Archive@oak.2018-04-11
 ';
 @archiveTestSnapAll = split /^/, $archiveTestSnapAll;
 chomp @archiveTestSnapAll;
