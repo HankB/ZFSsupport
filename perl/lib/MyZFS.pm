@@ -50,13 +50,22 @@ sub getFilesystems {
     #return \@(keys %f);
 }
 
-# identify snapshots in the provided list that meet criteria for deletion
-# Remove any that do not match the pattern "<filesystem>@YYYY-MM-DD" as produced
-# by update-snapshot.sh
+# Identify snapshots in the provided list that meet criteria for deletion.
+# This includes only the snapshots created by the backup process. Snapshots
+# created by `sanoid` will be identified by another sub.
+# Remove from the list any that do not match the pattern
+#    "<filesystem>@<hostname>.YYYY-MM-DD"
+# as produced by `update-snapshot.sh` or
+#    "<filesystem>@YYYY-MM-DD"  produced by an earlier version of that script.
+
+#
+# Comments about the regex. Capturing the hostname may not enforce all
+# rules that govern a hostname (RFCs 1123 and 1178) but it is believed
+# that all valid hostnames will be captured.
 sub getDestroyableSnaps {
     my $modName = shift;
     my @candidates =
-      grep { $_ =~ /@[1-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]/ } @_;
+      grep { $_ =~ /@[a-z0-9\.-]*\.{0,1}[1-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]/ } @_;
     return @candidates;
 }
 

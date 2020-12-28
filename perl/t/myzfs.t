@@ -221,7 +221,7 @@ tank-srv@2018-04-06-tank-srv@2018-04-07.snap.xz
 tank-srv@2018-04-07-tank-srv@2018-04-08.snap.xz
 tank-srv@2018-04-08-tank-srv@2018-04-09.snap.xz
 tank-srv@2018-04-09-tank-srv@2018-04-10.snap.xz
-tank-srv@2018-04-10-tank-srv@2018-04-11.snap.xz';
+tank-srv@oak.2018-04-10-tank-srv@rowan.2018-04-11.snap.xz';
 my @dumpfiles = split /^/, $dumpfiles;
 chomp @dumpfiles;
 my @archiveTestDumpsToDelete = @dumpfiles;
@@ -401,7 +401,7 @@ tank-Archive@2018-04-10-tank-Archive@2018-04-11.snap.xz
 tank-srv@2018-04-07-tank-srv@2018-04-08.snap.xz
 tank-srv@2018-04-08-tank-srv@2018-04-09.snap.xz
 tank-srv@2018-04-09-tank-srv@2018-04-10.snap.xz
-tank-srv@2018-04-10-tank-srv@2018-04-11.snap.xz
+tank-srv@oak.2018-04-10-tank-srv@rowan.2018-04-11.snap.xz
 ';
 my @remainingTestSnapshotDumps = split /^/, $remainingTestSnapshotDumps;
 chomp @remainingTestSnapshotDumps;
