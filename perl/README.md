@@ -41,7 +41,7 @@ perl Build testcover
 
 ## Testing
 
-Either 
+Either
 
 ```text
 perl Build test
@@ -82,6 +82,14 @@ sudo mkdir /usr/local/lib/site_perl
 sudo cp lib/MyZFS.pm /usr/local/lib/site_perl
 sudo cp myzfs.pl /usr/local/sbin
 ```
+
+## First major revision
+
+The overall system is presently only used to mirror a backup server to a remote backup server. A present desire is to also use it to mirror a filesystem on a client PC to a corresponding filesystem on a server. The problem this presents is that snapshot names created on the client and server are indistinguishable. To overcome this, the hostname will be added to the snapshot name. For example, `tank/srv@2018-01-14` will become, `tank/srv@oak.2018-01-14` if it is created on `oak`. The shell script that creates the snapshots and mirrors them to a different site has already meen modified to accomplish this. This cleanup script needs to be modified to work with the new naming scheme. There are a couple wrinkles with this.
+
+1. During a transitory period, snapshots will exist with both naming schemes. The mods to the script will not deal with the older naming scheme due to the ambiguity possibly leaving fewer desired snapshots when the older format remains.
+1. Clients may be using some additional process to create snapshotrs such as `sanoid`. These get sent to the backup server and are not there desired. They can be safely deleted on the backup server but must remain on the client server. This will require seperate processing triggered by a command line option.
+1. This will require considerable rework and expansion of the test script (`./t/myzfs.t`) in order to test both client and server environments and test with both older and current snapshot and snapshot naming policies. As the test script is already over 500 lines long, it will be split into two scripts, one focused on shapshots and the other on snapshot dumps.
 
 ## Errata
 
