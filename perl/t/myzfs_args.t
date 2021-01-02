@@ -5,8 +5,6 @@ use warnings;
 
 use diagnostics;    # this gives you more debugging information
 use Test::More;     # for the is() and isnt() functions
-use Sub::Override;
-use File::Touch;
 
 use lib './lib';
 use MyZFS qw(:all);
