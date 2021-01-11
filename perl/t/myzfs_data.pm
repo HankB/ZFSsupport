@@ -25,11 +25,14 @@ tank/Archive@2018-03-28
 tank/Archive@2018-03-29
 tank/Archive@2018-04-01
 tank/Archive@2018-04-07
-tank/Archive@this-host.2018-04-08
-tank/Archive@3t.example.net.2018-04-09
-tank/Archive@drago2.2018-04-10
-tank/Archive@oak.2018-04-11
+tank/Archive@2018-04-08
+tank/Archive@2018-04-09
+tank/Archive@2018-04-10
+tank/Archive@2018-04-11
 ';
+our @archiveTestSnapAll = split /^/, $myzfs_data::archiveTestSnapAll;
+chomp @archiveTestSnapAll;
+
 
 our $srvTestSnapAll = 'tank/srv@2018-01-09
 tank/srv@2018-01-14
@@ -92,6 +95,10 @@ tank/srv@2018-04-09
 tank/srv@2018-04-10
 tank/srv@2018-04-11
 ';
+
+our @srvTestSnapAll = split /^/, $myzfs_data::srvTestSnapAll;
+chomp @srvTestSnapAll;
+
 
 # all snapshot dumps presently on grandidier
 # ls -1 /snapshots
@@ -170,6 +177,62 @@ rpool/test@2019-03-11
 rpool/test@2019-03-12
 rpool/test@2019-03-13
 ';
+
+
+
+# some derived data sets
+# snapshots to delete
+our @archiveTestSnapToDelete;
+our @srvTestSnapToDelete;
+our @allTestSnapToDelete;     # union of the previous two
+
+# deletable snapshots
+our @archiveTestSnapDeletable;
+our @srvTestSnapDestroyable;
+our @allTestSnapDeletable;    # union of the previous two
+
+# TODO: eliminate reuse of @dumpfiles
+our @grandidier_dumpfiles = split /^/, $grandidier_dumpfiles;
+chomp @grandidier_dumpfiles;
+
+our @archiveTestDumpsToDelete = @grandidier_dumpfiles;
+splice @archiveTestDumpsToDelete, 16;
+splice @archiveTestDumpsToDelete, 10, 4;
+
+our @srvTestDumpsToDelete = @grandidier_dumpfiles;
+splice @srvTestDumpsToDelete, 36;
+splice @srvTestDumpsToDelete, 0, 16;
+
+#print "srvTestDumpsToDelete\n", join("\n", @srvTestDumpsToDelete), "\n\n";
+
+our @allTestDumpsToDelete;
+push @allTestDumpsToDelete, @archiveTestDumpsToDelete, @srvTestDumpsToDelete;
+
+# prepare 'to delete' lists from Deletable lists by removing the last
+# RESERVE_COUNT entries
+# TODO: test with RESERVE_COUNT equal to and greater than the list length.
+use constant RESERVE_COUNT => 5;
+
+# Prepare deletable snaps by removing any
+# that do not look like "<snapshot>@YYYY-MM-DD"
+@archiveTestSnapDeletable = @archiveTestSnapAll;
+splice @archiveTestSnapDeletable, 0, 1; # TODO not needed?
+
+@srvTestSnapDestroyable = @srvTestSnapAll;
+splice @srvTestSnapDestroyable, 21, 1;
+push @allTestSnapDeletable, @archiveTestSnapDeletable, @srvTestSnapDestroyable;
+
+@archiveTestSnapToDelete =
+  @archiveTestSnapDeletable[ 0 .. $#archiveTestSnapDeletable -RESERVE_COUNT ];
+@srvTestSnapToDelete =
+  @srvTestSnapDestroyable[ 0 .. $#srvTestSnapDestroyable -RESERVE_COUNT ];
+push @allTestSnapToDelete, @archiveTestSnapToDelete, @srvTestSnapToDelete;
+
+# predeclare all collections ...
+# lists of all categorized snapshots
+
+our @allTestSnapAll;    # union of the previous two
+push @allTestSnapAll, @archiveTestSnapAll, @srvTestSnapAll;
 
 # prefix myzfs_data::
 # return success

@@ -43,49 +43,7 @@ pattern except 'Test' will be elided form the name.
 
 =cut
 
-# predeclare all collections ...
-# lists of all categorized snapshots
-my @archiveTestSnapAll;
-my @srvTestSnapAll;
-my @allTestSnapAll;    # union of the previous two
 
-# deletable snapshots
-my @archiveTestSnapDeletable;
-my @srvTestSnapDestroyable;
-my @allTestSnapDeletable;    # union of the previous two
-
-# snapshots to delete
-my @archiveTestSnapToDelete;
-my @srvTestSnapToDelete;
-my @allTestSnapToDelete;     # union of the previous two
-
-@archiveTestSnapAll = split /^/, $myzfs_data::archiveTestSnapAll;
-chomp @archiveTestSnapAll;
-
-
-@srvTestSnapAll = split /^/, $myzfs_data::srvTestSnapAll;
-chomp @srvTestSnapAll;
-
-push @allTestSnapAll, @archiveTestSnapAll, @srvTestSnapAll;
-
-# Prepare deletable snaps by removing any
-# that do not look like "<snapshot>@YYYY-MM-DD"
-@archiveTestSnapDeletable = @archiveTestSnapAll;
-splice @archiveTestSnapDeletable, 0, 1;
-@srvTestSnapDestroyable = @srvTestSnapAll;
-splice @srvTestSnapDestroyable, 21, 1;
-push @allTestSnapDeletable, @archiveTestSnapDeletable, @srvTestSnapDestroyable;
-
-# prepare 'to delete' lists from Deletable lists by removing the last
-# RESERVE_COUNT entries
-# TODO: test with RESERVE_COUNT equal to and greater than the list length.
-use constant RESERVE_COUNT => 5;
-
-@archiveTestSnapToDelete =
-  @archiveTestSnapDeletable[ 0 .. $#archiveTestSnapDeletable -RESERVE_COUNT ];
-@srvTestSnapToDelete =
-  @srvTestSnapDestroyable[ 0 .. $#srvTestSnapDestroyable -RESERVE_COUNT ];
-push @allTestSnapToDelete, @archiveTestSnapToDelete, @srvTestSnapToDelete;
 
 =pod
 # the following print statements can be used to manually verify the
@@ -103,23 +61,7 @@ print "srvTestSnapToDelete\n", join("\n", @srvTestSnapToDelete), "\n\n";
 print "allTestSnapToDelete\n", join("\n", @allTestSnapToDelete), "\n\n";
 =cut
 
-# TODO: eliminate reuse of @dumpfiles
-my @dumpfiles = split /^/, $myzfs_data::grandidier_dumpfiles;
-chomp @dumpfiles;
-my @archiveTestDumpsToDelete = @dumpfiles;
-splice @archiveTestDumpsToDelete, 16;
-splice @archiveTestDumpsToDelete, 10, 4;
-
 #print "archiveTestDumpsToDelete\n", join("\n", @archiveTestDumpsToDelete), "\n\n";
-
-my @srvTestDumpsToDelete = @dumpfiles;
-splice @srvTestDumpsToDelete, 36;
-splice @srvTestDumpsToDelete, 0, 16;
-
-#print "srvTestDumpsToDelete\n", join("\n", @srvTestDumpsToDelete), "\n\n";
-
-my @allTestDumpsToDelete;
-push @allTestDumpsToDelete, @archiveTestDumpsToDelete, @srvTestDumpsToDelete;
 
 use lib './lib';
 use MyZFS qw(:all);
@@ -133,9 +75,9 @@ my $overrideGet = Sub::Override->new(
         my $f       = shift;
 
         if ( defined $f ) {
-            return grep { $_ =~ /$f@/ } @allTestSnapAll;
+            return grep { $_ =~ /$f@/ } @myzfs_data::allTestSnapAll;
         }
-        return @allTestSnapAll;
+        return @myzfs_data::allTestSnapAll;
     }
 );
 
@@ -161,7 +103,7 @@ my $overrideDelete = Sub::Override->new(
 # test fetch of all snapshots
 my @allSnapsAll = MyZFS->getSnapshots();
 ok(
-    eq_array( \@allSnapsAll, \@allTestSnapAll ),
+    eq_array( \@allSnapsAll, \@myzfs_data::allTestSnapAll ),
     "verify expected returned snapshots"
 );
 
@@ -169,167 +111,64 @@ ok(
 
 # test fetch of snapshots for a particular file system 'tank'
 my @srvSnapAll = MyZFS->getSnapshots("tank/srv");
-ok( eq_array( \@srvSnapAll, \@srvTestSnapAll ), "match snapshot lists" );
+ok( eq_array( \@srvSnapAll, \@myzfs_data::srvTestSnapAll ), "match snapshot lists" );
 
 #================== testing script functionality ==================
 
 # test filesystem filtering for getFilesystems()
-my @foundFileSystems = sort( MyZFS->getFilesystems(@allTestSnapAll) );
+my @foundFileSystems = sort( MyZFS->getFilesystems(@myzfs_data::allTestSnapAll) );
 my @expectedFilesystems = sort( "tank", "tank/Archive", "tank/srv" );
 ok( eq_array( \@foundFileSystems, \@expectedFilesystems ),
     "find filesystems from list of snaps" );
 
 # test that getFilesystems() returns only one filesystem when
 # there is only one
-@foundFileSystems    = MyZFS->getFilesystems(@srvTestSnapDestroyable);
+@foundFileSystems    = MyZFS->getFilesystems(@myzfs_data::srvTestSnapDestroyable);
 @expectedFilesystems = ("tank/srv");
 ok( eq_array( \@foundFileSystems, \@expectedFilesystems ),
     "find single filesystem" );
 
 # test filtering of destroyable snaps (one fs only)
-my @srvSnapDeletable = MyZFS->getDestroyableSnaps(@srvTestSnapAll);
-is( @srvSnapDeletable, @srvTestSnapDestroyable, "count of deletable snapshots" );
-ok( eq_array( \@srvSnapDeletable, \@srvTestSnapDestroyable ),
+my @srvSnapDeletable = MyZFS->getDestroyableSnaps(@myzfs_data::srvTestSnapAll);
+is( @srvSnapDeletable, @myzfs_data::srvTestSnapDestroyable, "count of deletable snapshots" );
+ok( eq_array( \@srvSnapDeletable, \@myzfs_data::srvTestSnapDestroyable ),
     "content of deletable snapshots" );
 
 # test filtering of destroyable snaps (multiple filesystems)
-my @allSnapDeletable = MyZFS->getDestroyableSnaps(@allTestSnapAll);
-is( @allSnapDeletable, @allTestSnapDeletable,
+my @allSnapDeletable = MyZFS->getDestroyableSnaps(@myzfs_data::allTestSnapAll);
+is( @allSnapDeletable, @myzfs_data::allTestSnapDeletable,
     "count of deletable snapshots, multiple fs" );
 ok(
-    eq_array( \@allSnapDeletable, \@allTestSnapDeletable ),
+    eq_array( \@allSnapDeletable, \@myzfs_data::allTestSnapDeletable ),
     "content of deletable snapshots, multiple fs"
 );
 
 # test identification of snaps to destroy, single fs
 my @srvSnapToDestroy =
-  sort ( MyZFS->getSnapsToDestroy( \@srvTestSnapDestroyable, RESERVE_COUNT ) );
-is( @srvSnapToDestroy, @srvTestSnapToDelete, "count of snapshots to delete" );
-ok( eq_array( \@srvSnapToDestroy, \@srvTestSnapToDelete ),
+  sort ( MyZFS->getSnapsToDestroy( \@myzfs_data::srvTestSnapDestroyable, myzfs_data::RESERVE_COUNT ) );
+is( @srvSnapToDestroy, @myzfs_data::srvTestSnapToDelete, "count of snapshots to delete" );
+ok( eq_array( \@srvSnapToDestroy, \@myzfs_data::srvTestSnapToDelete ),
     "content of snaps to delete, single fs" );
 
 # test count of snaps to destroy, single fs (only one snap to destroy)
 @srvSnapToDestroy =
-  MyZFS->getSnapsToDestroy( \@srvTestSnapDestroyable, scalar @srvTestSnapDestroyable -1 );
+  MyZFS->getSnapsToDestroy( \@myzfs_data::srvTestSnapDestroyable, scalar @myzfs_data::srvTestSnapDestroyable -1 );
 is( scalar @srvSnapToDestroy, 1, "count of snapshots to delete, reserve+1" );
 
 # test count of snaps to destroy, single fs (none to destroy)
 @srvSnapToDestroy =
-  MyZFS->getSnapsToDestroy( \@srvTestSnapDestroyable, scalar @srvTestSnapDestroyable);
+  MyZFS->getSnapsToDestroy( \@myzfs_data::srvTestSnapDestroyable, scalar @myzfs_data::srvTestSnapDestroyable);
 is( scalar @srvSnapToDestroy, 0, "count of snapshots to delete, reserve+1" );
 
 # test identification of snaps to destroy, multiple fs
 my @allSnapToDelete =
-  sort ( MyZFS->getSnapsToDestroy( \@allTestSnapDeletable, RESERVE_COUNT ) );
-is( @allSnapToDelete, @allTestSnapToDelete, "count of snapshots to delete" );
-ok( eq_array( \@allSnapToDelete, \@allTestSnapToDelete ),
+  sort ( MyZFS->getSnapsToDestroy( \@myzfs_data::allTestSnapDeletable, myzfs_data::RESERVE_COUNT ) );
+is( @allSnapToDelete, @myzfs_data::allTestSnapToDelete, "count of snapshots to delete" );
+ok( eq_array( \@allSnapToDelete, \@myzfs_data::allTestSnapToDelete ),
     "content of snaps to delete, single fs" );
 
-is( MyZFS->destroySnapshots(@allTestSnapToDelete),
-    @allTestSnapToDelete, "count snapshots destroyed" );
+is( MyZFS->destroySnapshots(@myzfs_data::allTestSnapToDelete),
+    @myzfs_data::allTestSnapToDelete, "count snapshots destroyed" );
 
-# test delete functionality
-# first create some files to delete
-sub createTestDumps(@) {
-    my $dir = shift;
-    mkdir $dir;
-    foreach my $f (@_) {
-        touch $dir . $f;
-    }
-}
-use constant TESTDIR => "./snapshots/";
-
-createTestDumps( TESTDIR, @dumpfiles );
-
-# test identification of snapshot dumps to delete
-my @archiveDumpsToDelete =
-  MyZFS->findDeletableDumps( TESTDIR, \@archiveTestSnapToDelete );
-is( @archiveDumpsToDelete, @archiveTestDumpsToDelete,
-    "count of dumps to delete, single fs" );
-
-# print "archiveDumpsToDelete\n", join("\n", @archiveDumpsToDelete), "\n\n";
-@archiveTestDumpsToDelete = sort @archiveTestDumpsToDelete;
-@archiveDumpsToDelete     = sort @archiveDumpsToDelete;
-my @archiveTestDumpsToDeleteFullPath = map TESTDIR . $_,
-  @archiveTestDumpsToDelete;
-ok( eq_array( \@archiveDumpsToDelete, \@archiveTestDumpsToDeleteFullPath ),
-    "content of dumps to delete, single fs" );
-
-#print "archiveDumpsToDelete\n", join("\n", @archiveDumpsToDelete), "\n\n";
-#print "archiveTestDumpsToDeleteFullPath\n", join("\n", @archiveTestDumpsToDeleteFullPath), "\n\n";
-
-# Now check ID of files to delete for multiple filesystems
-my @allDumpsToDelete =
-  MyZFS->findDeletableDumps( TESTDIR, \@allTestSnapToDelete );
-is( @allDumpsToDelete, @allTestDumpsToDelete,
-    "count of dumps to delete, multiple fs" );
-@allDumpsToDelete     = sort @allDumpsToDelete;
-@allTestDumpsToDelete = sort @allTestDumpsToDelete;
-my @allTestDumpsToDeleteFullPath = map TESTDIR . $_, @allTestDumpsToDelete;
-ok( eq_array( \@allDumpsToDelete, \@allTestDumpsToDeleteFullPath ),
-    "content of dumps to delete, multiple fs" );
-
-#print "allDumpsToDelete\n", join("\n", @allDumpsToDelete), "\n\n";
-#print "allTestDumpsToDeleteFullPath\n", join("\n", @allTestDumpsToDeleteFullPath), "\n\n";
-# TODO: implement and test something to delete dumps
-# TODO: delete test directory
-
-MyZFS->deleteSnapshotDumps(@allDumpsToDelete);
-# was definition of $remainingTestSnapshotDumps
-my @remainingTestSnapshotDumps = split /^/, $myzfs_data::remainingTestSnapshotDumps;
-chomp @remainingTestSnapshotDumps;
-@remainingTestSnapshotDumps = sort @remainingTestSnapshotDumps;
-my @remainingTestSnapshotDumpsFullPath = map TESTDIR . $_,
-  @remainingTestSnapshotDumps;
-
-my @remainingSnapshotDumps = glob( TESTDIR . "*.snap.xz" );
-@remainingSnapshotDumps = sort @remainingSnapshotDumps;
-ok(
-    eq_array( \@remainingSnapshotDumps, \@remainingTestSnapshotDumpsFullPath ),
-    "undeleted files"
-);
-
-# Test to identify problem with dump files not being deleted
-# issue #19
-
-my @rpoolTestDumpsToDelete;
-my @rpoolTestSnapToDelete;
-# deletable snapshots
-my @rpoolTestSnapDeletable;
-
-# TODO: eliminate reuse of variable @dumpfiles
-@dumpfiles = split /^/, $myzfs_data::baobabb_dumpfiles;
-chomp @dumpfiles;
-@rpoolTestDumpsToDelete = @dumpfiles;
-splice @rpoolTestDumpsToDelete, 7, 4;
-
-# print "rpoolTestDumpsToDelete\n", join("\n", @rpoolTestDumpsToDelete), "\n\n";
-
-createTestDumps( TESTDIR, @dumpfiles );
-
-# hbarta@baobabb:~/Documents/ZFS/ZFSsupport/perl$ zfs list -t snap -H -o name
-my @rpoolTestSnapAll = split /^/, $myzfs_data::rpoolTestSnapAll;
-chomp @rpoolTestSnapAll;
-@rpoolTestSnapDeletable = @rpoolTestSnapAll;
-splice @rpoolTestSnapDeletable, 0, 1;
-splice @rpoolTestSnapDeletable, 1;
-# print "rpoolTestSnapDeletable\n", join("\n", @rpoolTestSnapDeletable), "\n\n";
-
-@rpoolTestSnapToDelete =
-  @rpoolTestSnapDeletable[ 0 .. $#rpoolTestSnapDeletable -RESERVE_COUNT ];
-# print "rpoolTestSnapToDelete\n", join("\n", @rpoolTestSnapToDelete), "\n\n";
-
-# test count of snapshot dumps to delete
-my @rpoolDumpsToDelete =
-  MyZFS->findDeletableDumps( TESTDIR, \@rpoolTestSnapToDelete );
-=pod
-See issue #19 for why this test is commented out
-
-is( @rpoolDumpsToDelete, @rpoolTestDumpsToDelete,
-    "count of dumps to delete, single fs, issue #19" );
-=cut
-
-unlink glob TESTDIR . "*" || die "cannot delete files in " . TESTDIR;
-rmdir TESTDIR || die "cannot 'rmdir' " . TESTDIR;
 
 done_testing();
