@@ -14,6 +14,17 @@ use myzfs_data;
 # use Data::Dumper;
 
 =pod
+This was the original test script. As it grew and test needs expanded
+it was split into the 4 following files:
+
+* myzfs_snap.t - test pruning snapshots
+* myzfs_dumps.t - test pruning dumps
+* myzfs_args.t - test processing of command line arguments
+* myzfs_data.pm - test data shared between test scripts
+
+=cut
+
+=pod
 ========================== Test Data Prep ==========================
 Naming headaches ...
 The component "Test" indicates that the list is test data fed in via
