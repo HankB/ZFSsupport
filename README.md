@@ -47,6 +47,12 @@ See also issues related to this script.
 
 `myzfs.pl` and `MyZFS.pm` is in testing in a ~test! production environment.
 
+### (tardy) status update
+
+The scripts have been in use for years in a home lab production environment and generally perform well. There were some issues with bandwidth usage (due to stupid creation of a huge test file in a directory that gets backed up) and for that reason, code was added to prevent transmission of a dump file to the remote if it exceeded a specified size.
+
+The other problem is that as my `~Documents` directory grew, the first of the month backup also grew. A solution to this was to create an `~Archive` directory where files not in active use could be moved. The plan is to use ZFS send/receive to mirror the `~Archive` directory from the client to the server. This will keep them out of the first of the month copy and they will then not be duplicated monthly on the server. This is the first time ZFS is used client -> server and introduces another complication in that there is no way to differentiate client -> server snapshots from server ->  remote snapshots. For this purpose the host name (where the snapshot is recorded) is being added to the snapshot name. \<filesystem\>.yyyy-mm-dd becomes \<filesystem\>.\<hostname\>.yyyy-mm-dd.
+
 ## Errata
 
 A (not sufficient) search was performed prior to beginning this with the
@@ -78,4 +84,3 @@ it is recommended to disable password ssh login on the hosts involved. (Step
 * `/snapshots` directory on both local and remote PCs for storing snapshot dumps.
 * `pxz` (On Debian, Ubuntu `apt install pxz`)
 * `rsync` (on Debian, Ubuntu `apt install rsync`)
-
