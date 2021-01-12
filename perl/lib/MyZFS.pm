@@ -11,7 +11,7 @@ use Exporter qw(import);
 
 our @EXPORT_OK = qw( getSnapshots getFilesystems getDestroyableSnaps
   getSnapsToDestroy destroySnapshots findDeletableDumps deleteSnapshotDumps
-  processArgs filesystem);
+  processArgs filesystem hostname);
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );
 
 # find the zfs binary
@@ -155,6 +155,7 @@ our $trial;
 our $reserveCount;
 our $dumpDirectory;
 our $verbosity;
+our $hostname;
 
 sub processArgs {
 
@@ -164,6 +165,7 @@ sub processArgs {
     $reserveCount  = 5;
     $dumpDirectory = "/snapshots/";
     $verbosity     = undef;
+    $hostname      = undef;
 
     GetOptions(
         'filesystem=s' => \$filesystem,
@@ -171,6 +173,7 @@ sub processArgs {
         'reserved=i'   => \$reserveCount,
         'directory=s'  => \$dumpDirectory,
         'verbose'      => \$verbosity,
+        'hostname=s'   => \$hostname,
     );
 }
 

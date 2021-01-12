@@ -17,6 +17,7 @@ our $trial;
 our $reserveCount;
 our $dumpDirectory;
 our $verbosity;
+our $hostname;
 =cut
 
 # first default values
@@ -27,7 +28,8 @@ ok(
       && !defined $MyZFS::trial
       && $MyZFS::reserveCount == 5
       && $MyZFS::dumpDirectory eq "/snapshots/"
-      && !defined $MyZFS::verbosity,
+      && !defined $MyZFS::verbosity
+      && !defined $MyZFS::hostname,
     "expected default values"
 );
 
@@ -53,18 +55,31 @@ ok(
     "expected --reserved and --dir args"
 );
 
-@ARGV = ( "-f", "rpool/var" );                            # some modifications
+@ARGV = ( "-f", "rpool/var", "-h", "host" );              # some modifications
 MyZFS->processArgs();
 ok(
     $MyZFS::filesystem eq "rpool/var"
       && !defined $MyZFS::trial
       && $MyZFS::reserveCount == 5
       && $MyZFS::dumpDirectory eq "/snapshots/"
-      && !defined $MyZFS::verbosity,
-    "expected -f arg"
+      && !defined $MyZFS::verbosity
+      && $MyZFS::hostname eq "host",
+    "expected -f arg -h arg"
 );
 
-@ARGV = ( "-f", "rpool/var", "-v" );                            # some modifications
+@ARGV = ( "-f", "rpool/var", "-host" , "host");           # some modifications
+MyZFS->processArgs();
+ok(
+    $MyZFS::filesystem eq "rpool/var"
+      && !defined $MyZFS::trial
+      && $MyZFS::reserveCount == 5
+      && $MyZFS::dumpDirectory eq "/snapshots/"
+      && !defined $MyZFS::verbosity
+      && $MyZFS::hostname eq "host",
+    "expected -f arg -host arg"
+);
+
+@ARGV = ( "-f", "rpool/var", "-v" );                      # some modifications
 MyZFS->processArgs();
 ok(
     $MyZFS::filesystem eq "rpool/var"
@@ -75,7 +90,7 @@ ok(
     "expected -f arg -v"
 );
 
-@ARGV = ( "-f", "rpool/var", "-verbose" );                            # some modifications
+@ARGV = ( "-f", "rpool/var", "-verbose" );                # some modifications
 MyZFS->processArgs();
 ok(
     $MyZFS::filesystem eq "rpool/var"
