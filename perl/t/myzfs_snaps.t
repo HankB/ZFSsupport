@@ -29,25 +29,38 @@ it was split into the 4 following files:
 Naming headaches ...
 The component "Test" indicates that the list is test data fed in via
 substitute routines and/or used to test against returned lists. Test data
-are hard coded and manipulated.
+are hard coded and manipulated. The lists of test snapshots are also
+relevant WRT which host they come from. A client may have snapshots
+recorded by tools such as `sanoid` and these should be left undisturbed.
+If these extra snapshots get sent to the server, they will need to be 
+managed manually. (It appears they get sent when a filesystem is) 
 
 There are three variants for each 'test' data set of snapshots
- - A list of all snapshots including those that don't match the naming
-   pattern of "<filesystem>@yyyy-mm-dd" identified "All"
- - A list of deletable snapshots that match "<filesystem>@yyyy-mm-dd"
-   identified 'Deletable'.
+ - A list of all snapshots including some that don't match the naming
+   pattern of "<filesystem>@<hostname>.yyyy-mm-dd" identified "All"
+ - A list of deletable snapshots that match 
+   "<filesystem>@<hostname>.yyyy-mm-dd" identified 'Deletable'.
  - A list of shapshots to delete, deletable minus the count of reserved
    snapshots identified 'ToDelete'
 Variants have the tag postpended to 'TestSnap'.
 
 The tests involve primarily two filesystems, tank/srv and tank/Archive
 identified via 'srv' and 'archive'. Filesystems have the tag 'srv',
-'archive' and 'all' prepended to the name.
+'archive' and 'all' prepended to the name. (May no longer be true...)
+
+A further identifier for data sets is to prepend the name of the host
+on which they are collected.
 
 Example: @srvTestSnapToDelete is the list of snapshots of the "tank/srv"
 filesystem that meet criterial to delete. @allTestSnapAll is the list of
 all snapshots including those for other filesystems such as "tank" and/or
 not matching the "<filesystem>@yyyy-mm-dd" naming pattern
+
+TODO: Revisit the above description of the naming scheme. It seems that 
+"Sample" might better identify sample data than "Test" and it may be more
+readable to separate tags with "-" character.
+
+@olive_Sample_Snap_ToDelete
 
 Lists returned form the various subroutines will follow the same naming
 pattern except 'Test' will be elided form the name.
