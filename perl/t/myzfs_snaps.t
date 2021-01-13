@@ -91,17 +91,24 @@ use lib './lib';
 use MyZFS qw(:all);
 
 #================== Override Application Functions ==================
+my $snapshot_list_ref;
+
+# Point to one or other snapshot list to be used by getSnapshots() override
+sub setSnapshotList {
+    $snapshot_list_ref = shift;
+} 
 
 # override getSnapshots() substituting test data
 my $overrideGet = Sub::Override->new(
     'MyZFS::getSnapshots' => sub {
-        my $modName = shift;
-        my $f       = shift;
+        my $modName = shift; # not used
+        my $hostname = 
+        my $f       = shift; 
 
         if ( defined $f ) {
-            return grep { $_ =~ /$f@/ } @myzfs_data::allTestSnapAll;
+            return grep { $_ =~ /$f@/ } @$snapshot_list_ref;
         }
-        return @myzfs_data::allTestSnapAll;
+        return @$snapshot_list_ref;
     }
 );
 
@@ -124,13 +131,16 @@ my $overrideDelete = Sub::Override->new(
 #================== testing test support functions ==================
 # chiefly a mock for getSnapshots()
 
-# test fetch of all snapshots
-my @allSnapsAll = MyZFS->getSnapshots();
+setSnapshotList(\@myzfs_data::olive_Sample_Snap_All);
+
+# test fetch of all snapshots from `olive`
+my @olive_Test_Snap_All = MyZFS->getSnapshots();
 ok(
-    eq_array( \@allSnapsAll, \@myzfs_data::allTestSnapAll ),
+    eq_array( \@olive_Test_Snap_All, \@myzfs_data::olive_Sample_Snap_All ),
     "verify expected returned snapshots"
 );
 
+=pod
 # '~~' experimental feature ok(@testSnaps ~~ @allSnapshots, "verify expected returned snapshots");
 
 # test fetch of snapshots for a particular file system 'tank'
@@ -193,6 +203,6 @@ ok( eq_array( \@allSnapToDelete, \@myzfs_data::allTestSnapToDelete ),
 
 is( MyZFS->destroySnapshots(@myzfs_data::allTestSnapToDelete),
     @myzfs_data::allTestSnapToDelete, "count snapshots destroyed" );
-
+=cut
 
 done_testing();
