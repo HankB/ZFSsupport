@@ -102,13 +102,17 @@ sub setSnapshotList {
 my $overrideGet = Sub::Override->new(
     'MyZFS::getSnapshots' => sub {
         my $modName = shift; # not used
-        my $hostname = 
+        my $hostname = shift;
         my $f       = shift; 
 
+        die "must provide hostname" unless defined $hostname;
+
+        # filter by filesystem?
         if ( defined $f ) {
-            return grep { $_ =~ /$f@/ } @$snapshot_list_ref;
+            return grep { $_ =~ /$f\@$hostname\./ } @$snapshot_list_ref;
         }
-        return @$snapshot_list_ref;
+
+        return grep { $_ =~ /\@$hostname\./ } @$snapshot_list_ref;
     }
 );
 
@@ -131,14 +135,48 @@ my $overrideDelete = Sub::Override->new(
 #================== testing test support functions ==================
 # chiefly a mock for getSnapshots()
 
-setSnapshotList(\@myzfs_data::olive_Sample_Snap_All);
+setSnapshotList(\@myzfs_data::baobabb_Sample_Snap_All);
 
-# test fetch of all snapshots from `olive`
-my @olive_Test_Snap_All = MyZFS->getSnapshots();
+# test fetch of all snapshots from `baobabb`
+my @baobabb_Test_Snap_All = MyZFS->getSnapshots("baobabb");
+print "baobabb_Test_Snap_All\n  ", join("\n  ", @baobabb_Test_Snap_All), "\n\n";
+# filter out just the ones created onb `baobabb`
+my @baobabbHostSubset = grep { $_ =~ /\@baobabb\./ } @myzfs_data::baobabb_Sample_Snap_All;
+# print "baobabbHostSubset\n  ", join("\n  ", @baobabbHostSubset), "\n\n";
 ok(
-    eq_array( \@olive_Test_Snap_All, \@myzfs_data::olive_Sample_Snap_All ),
-    "verify expected returned snapshots"
+    eq_array( \@baobabb_Test_Snap_All, \@baobabbHostSubset ),
+    "verify returned snapshots from MyZFS->getSnapshots()"
 );
+
+# Test specificity of hostname
+my @baobabb_Test_Snap_None = MyZFS->getSnapshots("baobab"); # one character short
+is( scalar @baobabb_Test_Snap_None, 0,
+    "count of invalid host name (baobab), all filesystems" );
+my @baobabb_Test_Snap_None = MyZFS->getSnapshots("baobabbx"); # extra character
+is( scalar @baobabb_Test_Snap_None, 0,
+    "count of invalid host name (baobabbx), all filesystems" );
+
+# Now repeat the test, specifying only one filesystem
+
+# test fetch of all snapshots from `baobabb`
+my @baobabb_Test_Snap_All = MyZFS->getSnapshots("baobabb", "");
+# print "baobabb_Test_Snap_All\n  ", join("\n  ", @baobabb_Test_Snap_All), "\n\n";
+# filter out just the ones created onb `baobabb`
+my @baobabbHostSubset = grep { $_ =~ /\@baobabb\./ } @myzfs_data::baobabb_Sample_Snap_All;
+# print "baobabbHostSubset\n  ", join("\n  ", @baobabbHostSubset), "\n\n";
+ok(
+    eq_array( \@baobabb_Test_Snap_All, \@baobabbHostSubset ),
+    "verify returned snapshots from MyZFS->getSnapshots()"
+);
+
+# Test specificity of hostname
+my @baobabb_Test_Snap_None = MyZFS->getSnapshots("baobab"); # one character short
+is( scalar @baobabb_Test_Snap_None, 0,
+    "count of invalid host name, all filesystems" );
+my @baobabb_Test_Snap_None = MyZFS->getSnapshots("baobabbx"); # extra character
+is( scalar @baobabb_Test_Snap_None, 0,
+    "count of invalid host name, all filesystems" );
+
 
 =pod
 # '~~' experimental feature ok(@testSnaps ~~ @allSnapshots, "verify expected returned snapshots");

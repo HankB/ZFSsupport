@@ -855,7 +855,7 @@ chomp @olive_Sample_Snap_All;
 # filter out sanoid snapshots (Manual inspection shows that no other extraneous 
 # snapshots are included in the result.)
 our @olive_Sample_Snap_Deletable = grep { $_ !~ /autosnap/ } @olive_Sample_Snap_All;
-print "olive_Sample_Snap_Deletable\n  ", join("\n  ", @olive_Sample_Snap_Deletable), "\n\n";
+#print "olive_Sample_Snap_Deletable\n  ", join("\n  ", @olive_Sample_Snap_Deletable), "\n\n";
 
 my $baobabb_Sample_Snap_All =
 'rpool@test
@@ -1067,9 +1067,9 @@ chomp @baobabb_Sample_Snap_All;
 our @baobabb_Sample_Snap_Deletable = grep { $_ !~ /autosnap/ } @baobabb_Sample_Snap_All;
 
 # Need to delete some ad hoc and old style snapshot names
-splice @baobabb_Sample_Snap_Deletable, 37;
+splice @baobabb_Sample_Snap_Deletable, 37, 1;
 splice @baobabb_Sample_Snap_Deletable, 0, 8;
-print "baobabb_Sample_Snap_Deletable\n  ", join("\n  ", @baobabb_Sample_Snap_Deletable), "\n\n";
+#print "baobabb_Sample_Snap_Deletable\n  ", join("\n  ", @baobabb_Sample_Snap_Deletable), "\n\n";
 
 our $remainingTestSnapshotDumps =
   'tank-Archive@2018-04-07-tank-Archive@2018-04-08.snap.xz
