@@ -139,51 +139,42 @@ setSnapshotList(\@myzfs_data::baobabb_Sample_Snap_All);
 
 # test fetch of all snapshots from `baobabb`
 my @baobabb_Test_Snap_All = MyZFS->getSnapshots("baobabb");
-print "baobabb_Test_Snap_All\n  ", join("\n  ", @baobabb_Test_Snap_All), "\n\n";
-# filter out just the ones created onb `baobabb`
+# print "baobabb_Test_Snap_All\n  ", join("\n  ", @baobabb_Test_Snap_All), "\n\n";
+# filter out just the ones created on `baobabb`
 my @baobabbHostSubset = grep { $_ =~ /\@baobabb\./ } @myzfs_data::baobabb_Sample_Snap_All;
 # print "baobabbHostSubset\n  ", join("\n  ", @baobabbHostSubset), "\n\n";
 ok(
     eq_array( \@baobabb_Test_Snap_All, \@baobabbHostSubset ),
-    "verify returned snapshots from MyZFS->getSnapshots()"
+    "verify returned snapshots from MyZFS->getSnapshots(hostname)"
 );
 
 # Test specificity of hostname
 my @baobabb_Test_Snap_None = MyZFS->getSnapshots("baobab"); # one character short
 is( scalar @baobabb_Test_Snap_None, 0,
     "count of invalid host name (baobab), all filesystems" );
-my @baobabb_Test_Snap_None = MyZFS->getSnapshots("baobabbx"); # extra character
+@baobabb_Test_Snap_None = MyZFS->getSnapshots("baobabbx"); # extra character
 is( scalar @baobabb_Test_Snap_None, 0,
     "count of invalid host name (baobabbx), all filesystems" );
 
 # Now repeat the test, specifying only one filesystem
 
 # test fetch of all snapshots from `baobabb`
-my @baobabb_Test_Snap_All = MyZFS->getSnapshots("baobabb", "");
-# print "baobabb_Test_Snap_All\n  ", join("\n  ", @baobabb_Test_Snap_All), "\n\n";
+my @baobabb_Test_Snap_Archive = MyZFS->getSnapshots("baobabb", "rpool/srv/test/Archive");
+# print "baobabb_Test_Snap_Archive\n  ", join("\n  ", @baobabb_Test_Snap_Archive), "\n\n";
 # filter out just the ones created onb `baobabb`
-my @baobabbHostSubset = grep { $_ =~ /\@baobabb\./ } @myzfs_data::baobabb_Sample_Snap_All;
+@baobabbHostSubset = grep { $_ =~ /\@baobabb\./ } @myzfs_data::baobabb_Sample_Snap_All;
+#print "baobabbHostSubset\n  ", join("\n  ", @baobabbHostSubset), "\n\n";
+@baobabbHostSubset = grep { $_ =~ /^rpool\/srv\/test\/Archive\@/ } @baobabbHostSubset;
+#print "baobabbHostSubset\n  ", join("\n  ", @baobabbHostSubset), "\n\n";
 # print "baobabbHostSubset\n  ", join("\n  ", @baobabbHostSubset), "\n\n";
 ok(
-    eq_array( \@baobabb_Test_Snap_All, \@baobabbHostSubset ),
-    "verify returned snapshots from MyZFS->getSnapshots()"
+    eq_array( \@baobabb_Test_Snap_Archive, \@baobabbHostSubset ),
+    "verify returned snapshots from MyZFS->getSnapshots(hostname, filesystem)"
 );
 
-# Test specificity of hostname
-my @baobabb_Test_Snap_None = MyZFS->getSnapshots("baobab"); # one character short
-is( scalar @baobabb_Test_Snap_None, 0,
-    "count of invalid host name, all filesystems" );
-my @baobabb_Test_Snap_None = MyZFS->getSnapshots("baobabbx"); # extra character
-is( scalar @baobabb_Test_Snap_None, 0,
-    "count of invalid host name, all filesystems" );
-
-
 =pod
-# '~~' experimental feature ok(@testSnaps ~~ @allSnapshots, "verify expected returned snapshots");
 
-# test fetch of snapshots for a particular file system 'tank'
-my @srvSnapAll = MyZFS->getSnapshots("tank/srv");
-ok( eq_array( \@srvSnapAll, \@myzfs_data::srvTestSnapAll ), "match snapshot lists" );
+# '~~' experimental feature ok(@testSnaps ~~ @allSnapshots, "verify expected returned snapshots");
 
 #================== testing script functionality ==================
 
