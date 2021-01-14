@@ -38,16 +38,23 @@ sub getSnapshots {
 # Filter snapshots for a specific host
 # filterSnapsByHost( snap_list_ref, hostname)
 sub filterSnapsByHost {
-    die "must profide list of snaps" unless my $snap_list_ref = shift;
+    die "must provide list of snaps" unless my $snap_list_ref = shift;
     die "must provide hostname" unless my $hostname = shift ;
     return grep { $_ =~ /\@$hostname\./ } @$snap_list_ref;
 }
 
-# identify unique filesystems in list of snapshot list.
+# identify unique filesystems in list of snapshots and
+# for a given host.
+# filterSnapsByHost( snap_list_ref, hostname)
 sub getFilesystems {
     my $modName = shift;
+    die "must provide list of snaps" unless my $snap_list_ref = shift;
+    die "must provide hostname" unless my $hostname = shift ;
+
+    my @snaps = filterSnapsByHost($snap_list_ref, $hostname);
+
     my %f;
-    foreach my $s (@_) {
+    foreach my $s (@snaps) {
         $s =~ /(.*)@/;    # isolate the filesystem name
         $f{$1}++;         # count it (to create hash entry)
     }

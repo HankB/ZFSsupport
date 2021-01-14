@@ -1065,12 +1065,14 @@ chomp @baobabb_Sample_Snap_All;
 # filter out sanoid snapshots (Manual inspection shows that no other extraneous 
 # snapshots are included in the result.)
 our @baobabb_Sample_Snap_Deletable = grep { $_ !~ /autosnap/ } @baobabb_Sample_Snap_All;
+# Filter for only host 'baobabb'
+@baobabb_Sample_Snap_Deletable = grep { $_ =~ /\@baobabb\./ } @baobabb_Sample_Snap_Deletable;
 
-# Need to delete some ad hoc and old style snapshot names
-splice @baobabb_Sample_Snap_Deletable, 37, 1;
-splice @baobabb_Sample_Snap_Deletable, 0, 8;
-#print "baobabb_Sample_Snap_Deletable\n  ", join("\n  ", @baobabb_Sample_Snap_Deletable), "\n\n";
+# Filter for s aingle filesystem 'rpool/srv/test'
+our @baobabb_rpool_srv_test_Sample_Snap_Deletable = grep { $_ =~ /^rpool\/srv\/test\@/ } @baobabb_Sample_Snap_Deletable;
 
+
+=pod
 our $remainingTestSnapshotDumps =
   'tank-Archive@2018-04-07-tank-Archive@2018-04-08.snap.xz
 tank-Archive@2018-04-08-tank-Archive@2018-04-09.snap.xz
@@ -1091,7 +1093,6 @@ rpool/test@2019-03-12
 rpool/test@2019-03-13
 ';
 
-=pod
 
 # some derived data sets
 # snapshots to delete

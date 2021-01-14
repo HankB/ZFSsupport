@@ -94,7 +94,7 @@ use MyZFS qw(:all);
 # Verify that getSnapshots() will die if not provided a hostname
 # before we replace with a mock
 
-dies_ok { MyZFS->getSnapshots() } 'die with no hostname';
+dies_ok { MyZFS->getSnapshots() } 'getSnapshots() dies with no hostname';
 # But ... this only tests the mock.
 
 
@@ -194,27 +194,57 @@ ok(
 # '~~' experimental feature ok(@testSnaps ~~ @allSnapshots, "verify expected returned snapshots");
 
 #================== testing script functionality ==================
-=pod
+
+# check some programming error conditions
+dies_ok { MyZFS->getFilesystems() }
+    'getFilesystems() dies with no snap list ref';
+dies_ok { MyZFS->getFilesystems(\@myzfs_data::baobabb_Sample_Snap_All) }
+    'getFilesystems() dies with no hostname';
+
 
 # test filesystem filtering for getFilesystems()
-my @foundFileSystems = sort( MyZFS->getFilesystems(@myzfs_data::allTestSnapAll) );
-my @expectedFilesystems = sort( "tank", "tank/Archive", "tank/srv" );
+my @foundFileSystems = sort( MyZFS->getFilesystems(\@myzfs_data::baobabb_Sample_Snap_All, "baobabb") );
+# print "foundFileSystems\n  ", join("\n  ", @foundFileSystems), "\n\n";
+my @expectedFilesystems = 
+    sort( "rpool/srv/test", "rpool/srv/test/Archive", "rpool/srv/test/Archive/olive" );
 ok( eq_array( \@foundFileSystems, \@expectedFilesystems ),
     "find filesystems from list of snaps" );
 
-# test that getFilesystems() returns only one filesystem when
-# there is only one
-@foundFileSystems    = MyZFS->getFilesystems(@myzfs_data::srvTestSnapDestroyable);
-@expectedFilesystems = ("tank/srv");
+# test for the other host that sends snapshots to `baobabb`
+@foundFileSystems = sort( MyZFS->getFilesystems(\@myzfs_data::baobabb_Sample_Snap_All, "olive") );
+# print "foundFileSystems\n  ", join("\n  ", @foundFileSystems), "\n\n";
+@expectedFilesystems = ("rpool/srv/test/Archive/olive");
 ok( eq_array( \@foundFileSystems, \@expectedFilesystems ),
-    "find single filesystem" );
+    "find filesystems from list of snaps" );
 
-# test filtering of destroyable snaps (one fs only)
-my @srvSnapDeletable = MyZFS->getDestroyableSnaps(@myzfs_data::srvTestSnapAll);
-is( @srvSnapDeletable, @myzfs_data::srvTestSnapDestroyable, "count of deletable snapshots" );
-ok( eq_array( \@srvSnapDeletable, \@myzfs_data::srvTestSnapDestroyable ),
+# test degenerate test
+@foundFileSystems = sort( MyZFS->getFilesystems(\@myzfs_data::baobabb_Sample_Snap_All, "oliv") );
+is( scalar @foundFileSystems, 0, "count of filesystems, truncated host name" );
+
+@foundFileSystems = sort( MyZFS->getFilesystems(\@myzfs_data::baobabb_Sample_Snap_All, "olive23") );
+is( scalar @foundFileSystems, 0, "count of filesystems, invalid host name" );
+
+
+# test filtering of destroyable snaps (all filesystems)
+my @candidateSnaps = MyZFS->getSnapshots("baobabb");
+my @srvSnapDeletable = MyZFS->getDestroyableSnaps(@candidateSnaps);
+#print "srvSnapDeletable\n  ", join("\n  ", @srvSnapDeletable), "\n\n";
+#print "myzfs_data::baobabb_Sample_Snap_Deletable\n  ", join("\n  ", @myzfs_data::baobabb_Sample_Snap_Deletable), "\n\n";
+is( @srvSnapDeletable, @myzfs_data::baobabb_Sample_Snap_Deletable, "count of deletable snapshots" );
+ok( eq_array( \@srvSnapDeletable, \@myzfs_data::baobabb_Sample_Snap_Deletable),
     "content of deletable snapshots" );
 
+# Same test, single filesystem
+@candidateSnaps = MyZFS->getSnapshots("baobabb", "rpool/srv/test");
+@srvSnapDeletable = MyZFS->getDestroyableSnaps(@candidateSnaps);
+#print "srvSnapDeletable\n  ", join("\n  ", @srvSnapDeletable), "\n\n";
+#print "myzfs_data::baobabb_Sample_Snap_Deletable\n  ", join("\n  ", @myzfs_data::baobabb_Sample_Snap_Deletable), "\n\n";
+is( @srvSnapDeletable, @myzfs_data::baobabb_rpool_srv_test_Sample_Snap_Deletable, "count of deletable snapshots" );
+ok( eq_array( \@srvSnapDeletable, \@myzfs_data::baobabb_rpool_srv_test_Sample_Snap_Deletable),
+    "content of deletable snapshots, single fs" );
+
+
+=pod
 # test filtering of destroyable snaps (multiple filesystems)
 my @allSnapDeletable = MyZFS->getDestroyableSnaps(@myzfs_data::allTestSnapAll);
 is( @allSnapDeletable, @myzfs_data::allTestSnapDeletable,
