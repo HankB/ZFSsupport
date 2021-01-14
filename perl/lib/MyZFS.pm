@@ -11,15 +11,17 @@ use Exporter qw(import);
 
 our @EXPORT_OK = qw( getSnapshots getFilesystems getDestroyableSnaps
   getSnapsToDestroy destroySnapshots findDeletableDumps deleteSnapshotDumps
-  processArgs filesystem hostname);
+  processArgs filesystem hostname filterSnapsByHost);
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );
 
 # find the zfs binary
 my $bin = $ENV{ZFSBINPATH} // "/sbin/zfs";
 
-# fetch a list of snapshots, perhaps limited to a particular filesystem
+# fetch a list of snapshots for a given host and perhaps limited 
+# to a particular filesystem
 sub getSnapshots {
     my $modName = shift;
+    die "must provide hostname" unless my $hostname = shift;
     my $f       = shift;
     my $cmd     = "$bin list -t snap -H -o name";
 
@@ -29,9 +31,16 @@ sub getSnapshots {
     my $snapshots = `$cmd` || die;
     my @snapshots = split /^/, $snapshots;
 
-    #print scalar @snapshots. " snapshots\n";
     chomp @snapshots;
-    return @snapshots;
+    return filterSnapsByHost(\@snapshots, $hostname);
+}
+
+# Filter snapshots for a specific host
+# filterSnapsByHost( snap_list_ref, hostname)
+sub filterSnapsByHost {
+    die "must profide list of snaps" unless my $snap_list_ref = shift;
+    die "must provide hostname" unless my $hostname = shift ;
+    return grep { $_ =~ /\@$hostname\./ } @$snap_list_ref;
 }
 
 # identify unique filesystems in list of snapshot list.

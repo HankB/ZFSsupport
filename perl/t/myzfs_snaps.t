@@ -5,6 +5,7 @@ use warnings;
 
 use diagnostics;    # this gives you more debugging information
 use Test::More;     # for the is() and isnt() functions
+use Test::Exception;
 use Sub::Override;
 use File::Touch;
 
@@ -90,6 +91,13 @@ print "allTestSnapToDelete\n", join("\n", @allTestSnapToDelete), "\n\n";
 use lib './lib';
 use MyZFS qw(:all);
 
+# Verify that getSnapshots() will die if not provided a hostname
+# before we replace with a mock
+
+dies_ok { MyZFS->getSnapshots() } 'die with no hostname';
+# But ... this only tests the mock.
+
+
 #================== Override Application Functions ==================
 my $snapshot_list_ref;
 
@@ -107,12 +115,15 @@ my $overrideGet = Sub::Override->new(
 
         die "must provide hostname" unless defined $hostname;
 
+        # filter by hostname
+        my @hostsnaps = MyZFS::filterSnapsByHost($snapshot_list_ref, $hostname);
+
         # filter by filesystem?
         if ( defined $f ) {
-            return grep { $_ =~ /$f\@$hostname\./ } @$snapshot_list_ref;
+            return grep { $_ =~ /^$f\@/ } @hostsnaps;
         }
 
-        return grep { $_ =~ /\@$hostname\./ } @$snapshot_list_ref;
+        return filterSnapsByHost(\@hostsnaps, $hostname);
     }
 );
 
@@ -131,11 +142,18 @@ my $overrideDelete = Sub::Override->new(
     }
 );
 
-###### testing test support functions,  ######
+#====================================================================
 #================== testing test support functions ==================
+#====================================================================
+
 # chiefly a mock for getSnapshots()
 
 setSnapshotList(\@myzfs_data::baobabb_Sample_Snap_All);
+
+# Verify that getSnapshots() will die ifd not provided a hostname
+
+dies_ok { MyZFS->getSnapshots() } 'expecting to die with no hostname';
+# But ... this only tests the mock.
 
 # test fetch of all snapshots from `baobabb`
 my @baobabb_Test_Snap_All = MyZFS->getSnapshots("baobabb");
@@ -160,23 +178,23 @@ is( scalar @baobabb_Test_Snap_None, 0,
 
 # test fetch of all snapshots from `baobabb`
 my @baobabb_Test_Snap_Archive = MyZFS->getSnapshots("baobabb", "rpool/srv/test/Archive");
-# print "baobabb_Test_Snap_Archive\n  ", join("\n  ", @baobabb_Test_Snap_Archive), "\n\n";
-# filter out just the ones created onb `baobabb`
+
+# filter out just the ones created on `baobabb`
 @baobabbHostSubset = grep { $_ =~ /\@baobabb\./ } @myzfs_data::baobabb_Sample_Snap_All;
-#print "baobabbHostSubset\n  ", join("\n  ", @baobabbHostSubset), "\n\n";
+# print "baobabbHostSubset\n  ", join("\n  ", @baobabbHostSubset), "\n\n";
+# filter the filesystem of interest
 @baobabbHostSubset = grep { $_ =~ /^rpool\/srv\/test\/Archive\@/ } @baobabbHostSubset;
-#print "baobabbHostSubset\n  ", join("\n  ", @baobabbHostSubset), "\n\n";
 # print "baobabbHostSubset\n  ", join("\n  ", @baobabbHostSubset), "\n\n";
 ok(
     eq_array( \@baobabb_Test_Snap_Archive, \@baobabbHostSubset ),
     "verify returned snapshots from MyZFS->getSnapshots(hostname, filesystem)"
 );
 
-=pod
 
 # '~~' experimental feature ok(@testSnaps ~~ @allSnapshots, "verify expected returned snapshots");
 
 #================== testing script functionality ==================
+=pod
 
 # test filesystem filtering for getFilesystems()
 my @foundFileSystems = sort( MyZFS->getFilesystems(@myzfs_data::allTestSnapAll) );
