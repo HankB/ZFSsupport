@@ -230,7 +230,8 @@ my @candidateSnaps = MyZFS->getSnapshots("baobabb");
 my @srvSnapDeletable = MyZFS->getDestroyableSnaps(@candidateSnaps);
 #print "srvSnapDeletable\n  ", join("\n  ", @srvSnapDeletable), "\n\n";
 #print "myzfs_data::baobabb_Sample_Snap_Deletable\n  ", join("\n  ", @myzfs_data::baobabb_Sample_Snap_Deletable), "\n\n";
-is( @srvSnapDeletable, @myzfs_data::baobabb_Sample_Snap_Deletable, "count of deletable snapshots" );
+is( @srvSnapDeletable, @myzfs_data::baobabb_Sample_Snap_Deletable,
+    "count of deletable snapshots" );
 ok( eq_array( \@srvSnapDeletable, \@myzfs_data::baobabb_Sample_Snap_Deletable),
     "content of deletable snapshots" );
 
@@ -238,29 +239,16 @@ ok( eq_array( \@srvSnapDeletable, \@myzfs_data::baobabb_Sample_Snap_Deletable),
 @candidateSnaps = MyZFS->getSnapshots("baobabb", "rpool/srv/test");
 @srvSnapDeletable = MyZFS->getDestroyableSnaps(@candidateSnaps);
 #print "srvSnapDeletable\n  ", join("\n  ", @srvSnapDeletable), "\n\n";
-#print "myzfs_data::baobabb_Sample_Snap_Deletable\n  ", join("\n  ", @myzfs_data::baobabb_Sample_Snap_Deletable), "\n\n";
-is( @srvSnapDeletable, @myzfs_data::baobabb_rpool_srv_test_Sample_Snap_Deletable, "count of deletable snapshots" );
-ok( eq_array( \@srvSnapDeletable, \@myzfs_data::baobabb_rpool_srv_test_Sample_Snap_Deletable),
+#print "myzfs_data::baobabb_rpool_srv_test_Sample_Snap_Deletable\n  ",
+    join("\n  ", @myzfs_data::baobabb_rpool_srv_test_Sample_Snap_Deletable), "\n\n";
+is( @srvSnapDeletable,
+    @myzfs_data::baobabb_rpool_srv_test_Sample_Snap_Deletable, "count of deletable snapshots" );
+ok( eq_array( \@srvSnapDeletable,
+    \@myzfs_data::baobabb_rpool_srv_test_Sample_Snap_Deletable),
     "content of deletable snapshots, single fs" );
 
 
 =pod
-# test filtering of destroyable snaps (multiple filesystems)
-my @allSnapDeletable = MyZFS->getDestroyableSnaps(@myzfs_data::allTestSnapAll);
-is( @allSnapDeletable, @myzfs_data::allTestSnapDeletable,
-    "count of deletable snapshots, multiple fs" );
-ok(
-    eq_array( \@allSnapDeletable, \@myzfs_data::allTestSnapDeletable ),
-    "content of deletable snapshots, multiple fs"
-);
-
-# test identification of snaps to destroy, single fs
-my @srvSnapToDestroy =
-  sort ( MyZFS->getSnapsToDestroy( \@myzfs_data::srvTestSnapDestroyable, myzfs_data::RESERVE_COUNT ) );
-is( @srvSnapToDestroy, @myzfs_data::srvTestSnapToDelete, "count of snapshots to delete" );
-ok( eq_array( \@srvSnapToDestroy, \@myzfs_data::srvTestSnapToDelete ),
-    "content of snaps to delete, single fs" );
-
 # test count of snaps to destroy, single fs (only one snap to destroy)
 @srvSnapToDestroy =
   MyZFS->getSnapsToDestroy( \@myzfs_data::srvTestSnapDestroyable, scalar @myzfs_data::srvTestSnapDestroyable -1 );
