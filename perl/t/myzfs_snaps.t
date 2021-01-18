@@ -264,16 +264,8 @@ is( @allSnapToDelete, @myzfs_data::baobabb_Sample_Snap_To_Delete, "count of snap
 ok( eq_array( \@allSnapToDelete, \@myzfs_data::baobabb_Sample_Snap_To_Delete ),
     "content of snaps to delete, multiple fs" );
 
-=pod
-# test identification of snaps to destroy, multiple fs
-my @allSnapToDelete =
-  sort ( MyZFS->getSnapsToDestroy( \@myzfs_data::allTestSnapDeletable, myzfs_data::RESERVE_COUNT ) );
-is( @allSnapToDelete, @myzfs_data::allTestSnapToDelete, "count of snapshots to delete" );
-ok( eq_array( \@allSnapToDelete, \@myzfs_data::allTestSnapToDelete ),
-    "content of snaps to delete, single fs" );
-
-is( MyZFS->destroySnapshots(@myzfs_data::allTestSnapToDelete),
-    @myzfs_data::allTestSnapToDelete, "count snapshots destroyed" );
-=cut
+# Cursory test of mocked sub
+is( MyZFS->destroySnapshots(@allSnapToDelete),
+    @allSnapToDelete, "count snapshots destroyed" );
 
 done_testing();
