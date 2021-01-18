@@ -1068,8 +1068,89 @@ our @baobabb_Sample_Snap_Deletable = grep { $_ !~ /autosnap/ } @baobabb_Sample_S
 # Filter for only host 'baobabb'
 @baobabb_Sample_Snap_Deletable = grep { $_ =~ /\@baobabb\./ } @baobabb_Sample_Snap_Deletable;
 
-# Filter for s aingle filesystem 'rpool/srv/test'
+# Filter for a single filesystem 'rpool/srv/test'
 our @baobabb_rpool_srv_test_Sample_Snap_Deletable = grep { $_ =~ /^rpool\/srv\/test\@/ } @baobabb_Sample_Snap_Deletable;
+
+use constant RESERVE_COUNT => 5;
+
+# snaps to delete from @baobabb_Sample_Snap_Deletable given RESERVE_COUNT => 5
+our $baobabb_Sample_Snap_To_Delete = 
+'rpool/srv/test/Archive/olive@baobabb.2020-12-16
+rpool/srv/test/Archive/olive@baobabb.2020-12-17
+rpool/srv/test/Archive/olive@baobabb.2020-12-18
+rpool/srv/test/Archive/olive@baobabb.2020-12-19
+rpool/srv/test/Archive/olive@baobabb.2020-12-20
+rpool/srv/test/Archive/olive@baobabb.2020-12-21
+rpool/srv/test/Archive/olive@baobabb.2020-12-22
+rpool/srv/test/Archive/olive@baobabb.2020-12-23
+rpool/srv/test/Archive/olive@baobabb.2020-12-24
+rpool/srv/test/Archive/olive@baobabb.2020-12-25
+rpool/srv/test/Archive/olive@baobabb.2020-12-26
+rpool/srv/test/Archive/olive@baobabb.2020-12-27
+rpool/srv/test/Archive/olive@baobabb.2020-12-28
+rpool/srv/test/Archive/olive@baobabb.2020-12-29
+rpool/srv/test/Archive/olive@baobabb.2020-12-30
+rpool/srv/test/Archive/olive@baobabb.2020-12-31
+rpool/srv/test/Archive/olive@baobabb.2021-01-01
+rpool/srv/test/Archive/olive@baobabb.2021-01-02
+rpool/srv/test/Archive/olive@baobabb.2021-01-03
+rpool/srv/test/Archive/olive@baobabb.2021-01-04
+rpool/srv/test/Archive/olive@baobabb.2021-01-05
+rpool/srv/test/Archive/olive@baobabb.2021-01-06
+rpool/srv/test/Archive/olive@baobabb.2021-01-07
+rpool/srv/test/Archive/olive@baobabb.2021-01-08
+rpool/srv/test/Archive@baobabb.2020-12-16
+rpool/srv/test/Archive@baobabb.2020-12-17
+rpool/srv/test/Archive@baobabb.2020-12-18
+rpool/srv/test/Archive@baobabb.2020-12-19
+rpool/srv/test/Archive@baobabb.2020-12-20
+rpool/srv/test/Archive@baobabb.2020-12-21
+rpool/srv/test/Archive@baobabb.2020-12-22
+rpool/srv/test/Archive@baobabb.2020-12-23
+rpool/srv/test/Archive@baobabb.2020-12-24
+rpool/srv/test/Archive@baobabb.2020-12-25
+rpool/srv/test/Archive@baobabb.2020-12-26
+rpool/srv/test/Archive@baobabb.2020-12-27
+rpool/srv/test/Archive@baobabb.2020-12-28
+rpool/srv/test/Archive@baobabb.2020-12-29
+rpool/srv/test/Archive@baobabb.2020-12-30
+rpool/srv/test/Archive@baobabb.2020-12-31
+rpool/srv/test/Archive@baobabb.2021-01-01
+rpool/srv/test/Archive@baobabb.2021-01-02
+rpool/srv/test/Archive@baobabb.2021-01-03
+rpool/srv/test/Archive@baobabb.2021-01-04
+rpool/srv/test/Archive@baobabb.2021-01-05
+rpool/srv/test/Archive@baobabb.2021-01-06
+rpool/srv/test/Archive@baobabb.2021-01-07
+rpool/srv/test/Archive@baobabb.2021-01-08
+rpool/srv/test@baobabb.2020-12-16
+rpool/srv/test@baobabb.2020-12-17
+rpool/srv/test@baobabb.2020-12-18
+rpool/srv/test@baobabb.2020-12-19
+rpool/srv/test@baobabb.2020-12-20
+rpool/srv/test@baobabb.2020-12-21
+rpool/srv/test@baobabb.2020-12-22
+rpool/srv/test@baobabb.2020-12-23
+rpool/srv/test@baobabb.2020-12-24
+rpool/srv/test@baobabb.2020-12-25
+rpool/srv/test@baobabb.2020-12-26
+rpool/srv/test@baobabb.2020-12-27
+rpool/srv/test@baobabb.2020-12-28
+rpool/srv/test@baobabb.2020-12-29
+rpool/srv/test@baobabb.2020-12-30
+rpool/srv/test@baobabb.2020-12-31
+rpool/srv/test@baobabb.2021-01-01
+rpool/srv/test@baobabb.2021-01-02
+rpool/srv/test@baobabb.2021-01-03
+rpool/srv/test@baobabb.2021-01-04
+rpool/srv/test@baobabb.2021-01-05
+rpool/srv/test@baobabb.2021-01-06
+rpool/srv/test@baobabb.2021-01-07
+rpool/srv/test@baobabb.2021-01-08
+';
+
+our @baobabb_Sample_Snap_To_Delete = split /^/, $baobabb_Sample_Snap_To_Delete;
+chomp @baobabb_Sample_Snap_To_Delete;
 
 
 =pod
@@ -1125,7 +1206,6 @@ push @allTestDumpsToDelete, @archiveTestDumpsToDelete, @srvTestDumpsToDelete;
 # prepare 'to delete' lists from Deletable lists by removing the last
 # RESERVE_COUNT entries
 # TODO: test with RESERVE_COUNT equal to and greater than the list length.
-use constant RESERVE_COUNT => 5;
 
 # Prepare deletable snaps by removing any
 # that do not look like "<snapshot>@YYYY-MM-DD"

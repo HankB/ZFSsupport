@@ -246,18 +246,25 @@ my @srvSnapToDestroy =
   MyZFS->getSnapsToDestroy( \@myzfs_data::baobabb_rpool_srv_test_Sample_Snap_Deletable,
     scalar @myzfs_data::baobabb_rpool_srv_test_Sample_Snap_Deletable -1 );
 is( scalar @srvSnapToDestroy, 1, "count of snapshots to delete, reserve+1" );
+#print "myzfs_data::baobabb_rpool_srv_test_Sample_Snap_Deletable\n  ", join("\n  ",
+#     @myzfs_data::baobabb_rpool_srv_test_Sample_Snap_Deletable), "\n\n";
+#print "srvSnapToDestroy\n  ", join("\n  ", @srvSnapToDestroy), "\n\n";
+
+@srvSnapToDestroy =
+  MyZFS->getSnapsToDestroy( \@myzfs_data::baobabb_rpool_srv_test_Sample_Snap_Deletable,
+    scalar @myzfs_data::baobabb_rpool_srv_test_Sample_Snap_Deletable -3 );
+#print "srvSnapToDestroy\n  ", join("\n  ", @srvSnapToDestroy), "\n\n";
+is( scalar @srvSnapToDestroy, 3, "count of snapshots to delete, reserve+3" );
+
+my @allSnapToDelete =
+  sort ( MyZFS->getSnapsToDestroy( \@myzfs_data::baobabb_Sample_Snap_Deletable, myzfs_data::RESERVE_COUNT ) );
+#print "myzfs_data::baobabb_Sample_Snap_Deletable\n  ", join("\n  ", @myzfs_data::baobabb_Sample_Snap_Deletable), "\n\n";
+#print "allSnapToDelete\n  ", join("\n  ", @allSnapToDelete), "\n\n";
+is( @allSnapToDelete, @myzfs_data::baobabb_Sample_Snap_To_Delete, "count of snapshots to delete" );
+ok( eq_array( \@allSnapToDelete, \@myzfs_data::baobabb_Sample_Snap_To_Delete ),
+    "content of snaps to delete, multiple fs" );
 
 =pod
-# test count of snaps to destroy, single fs (only one snap to destroy)
-@srvSnapToDestroy =
-  MyZFS->getSnapsToDestroy( \@myzfs_data::srvTestSnapDestroyable, scalar @myzfs_data::srvTestSnapDestroyable -1 );
-is( scalar @srvSnapToDestroy, 1, "count of snapshots to delete, reserve+1" );
-
-# test count of snaps to destroy, single fs (none to destroy)
-@srvSnapToDestroy =
-  MyZFS->getSnapsToDestroy( \@myzfs_data::srvTestSnapDestroyable, scalar @myzfs_data::srvTestSnapDestroyable);
-is( scalar @srvSnapToDestroy, 0, "count of snapshots to delete, reserve+1" );
-
 # test identification of snaps to destroy, multiple fs
 my @allSnapToDelete =
   sort ( MyZFS->getSnapsToDestroy( \@myzfs_data::allTestSnapDeletable, myzfs_data::RESERVE_COUNT ) );
