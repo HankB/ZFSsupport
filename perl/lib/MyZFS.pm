@@ -1,6 +1,15 @@
 #!/usr/bin/perl
 package MyZFS;
 
+=pod
+Note: The most recent version of this package accommodates the addition
+of hostname to the snapshot name. Fo5r the subs that deal with lists of=
+snapshots, it is presumed that they use lists form a single host as produced
+by getSnapshots(). This is important in the unit tests. In actual practice 
+all snapshot lists will be produced by getSnapshots() (instead of using
+contrived test data.)
+=cut
+
 our $VERSION = 0.1;
 
 use strict;
@@ -38,37 +47,30 @@ sub getSnapshots {
 # Filter snapshots for a specific host
 # filterSnapsByHost( snap_list_ref, hostname)
 sub filterSnapsByHost {
-    die "must provide list of snaps" unless my $snap_list_ref = shift;
+    die "must provide ref to list of snaps" unless my $snap_list_ref = shift;
     die "must provide hostname" unless my $hostname = shift ;
     return grep { $_ =~ /\@$hostname\./ } @$snap_list_ref;
 }
 
-# identify unique filesystems in list of snapshots and
-# for a given host.
-# filterSnapsByHost( snap_list_ref, hostname)
+# identify unique filesystems in list of snapshots.
+# getFilesystems( snap_list_ref)
 sub getFilesystems {
     my $modName = shift;
-    die "must provide list of snaps" unless my $snap_list_ref = shift;
-    die "must provide hostname" unless my $hostname = shift ;
-
-    my @snaps = filterSnapsByHost($snap_list_ref, $hostname);
+    die "must provide ref to list of snaps" unless my $snap_list_ref = shift;
 
     my %f;
-    foreach my $s (@snaps) {
+    foreach my $s (@$snap_list_ref) {
         $s =~ /(.*)@/;    # isolate the filesystem name
         $f{$1}++;         # count it (to create hash entry)
     }
 
-    #$my @candidates = grep { $_ =~ /(.*)@/ } @_;
     my @f = keys %f;
     return @f;
-
-    #return \@(keys %f);
 }
 
 # Identify snapshots in the provided list that meet criteria for deletion.
 # This includes only the snapshots created by the backup process. Snapshots
-# created by `sanoid` will be identified by another sub.
+# created by `sanoid` will be identified by another sub, if needed.
 # Remove from the list any that do not match the pattern
 #    "<filesystem>@<hostname>.YYYY-MM-DD"
 # as produced by `update-snapshot.sh` or
@@ -96,7 +98,7 @@ sub getSnapsToDestroy {
       || die "must call getSnapsToDestroy() with residual count";
 
     # identify filesystems
-    my @filesystems = getFilesystems( @{$snaps} );
+    my @filesystems = getFilesystems( "dummy", $snaps );
     my @deletelist  = ();
 
     # add files to delete for each filesystem

@@ -198,12 +198,13 @@ ok(
 # check some programming error conditions
 dies_ok { MyZFS->getFilesystems() }
     'getFilesystems() dies with no snap list ref';
-dies_ok { MyZFS->getFilesystems(\@myzfs_data::baobabb_Sample_Snap_All) }
-    'getFilesystems() dies with no hostname';
+# dies_ok { MyZFS->getFilesystems(\@myzfs_data::baobabb_Sample_Snap_All) }
+#    'getFilesystems() dies with no hostname';
 
 
 # test filesystem filtering for getFilesystems()
-my @foundFileSystems = sort( MyZFS->getFilesystems(\@myzfs_data::baobabb_Sample_Snap_All, "baobabb") );
+# Note: GetFilesystems expects a list of snaps specific to a given host.
+my @foundFileSystems = sort( MyZFS->getFilesystems(\@baobabb_Test_Snap_All) );
 # print "foundFileSystems\n  ", join("\n  ", @foundFileSystems), "\n\n";
 my @expectedFilesystems = 
     sort( "rpool/srv/test", "rpool/srv/test/Archive", "rpool/srv/test/Archive/olive" );
@@ -211,19 +212,13 @@ ok( eq_array( \@foundFileSystems, \@expectedFilesystems ),
     "find filesystems from list of snaps" );
 
 # test for the other host that sends snapshots to `baobabb`
-@foundFileSystems = sort( MyZFS->getFilesystems(\@myzfs_data::baobabb_Sample_Snap_All, "olive") );
+my @baobabb_Test_Snap_olive = MyZFS->getSnapshots("olive");
+# print "baobabb_Test_Snap_olive\n  ", join("\n  ", @baobabb_Test_Snap_olive), "\n\n";
+@foundFileSystems = sort( MyZFS->getFilesystems(\@baobabb_Test_Snap_olive) );
 # print "foundFileSystems\n  ", join("\n  ", @foundFileSystems), "\n\n";
 @expectedFilesystems = ("rpool/srv/test/Archive/olive");
 ok( eq_array( \@foundFileSystems, \@expectedFilesystems ),
     "find filesystems from list of snaps" );
-
-# test degenerate test
-@foundFileSystems = sort( MyZFS->getFilesystems(\@myzfs_data::baobabb_Sample_Snap_All, "oliv") );
-is( scalar @foundFileSystems, 0, "count of filesystems, truncated host name" );
-
-@foundFileSystems = sort( MyZFS->getFilesystems(\@myzfs_data::baobabb_Sample_Snap_All, "olive23") );
-is( scalar @foundFileSystems, 0, "count of filesystems, invalid host name" );
-
 
 # test filtering of destroyable snaps (all filesystems)
 my @candidateSnaps = MyZFS->getSnapshots("baobabb");
@@ -240,13 +235,17 @@ ok( eq_array( \@srvSnapDeletable, \@myzfs_data::baobabb_Sample_Snap_Deletable),
 @srvSnapDeletable = MyZFS->getDestroyableSnaps(@candidateSnaps);
 #print "srvSnapDeletable\n  ", join("\n  ", @srvSnapDeletable), "\n\n";
 #print "myzfs_data::baobabb_rpool_srv_test_Sample_Snap_Deletable\n  ",
-    join("\n  ", @myzfs_data::baobabb_rpool_srv_test_Sample_Snap_Deletable), "\n\n";
+#    join("\n  ", @myzfs_data::baobabb_rpool_srv_test_Sample_Snap_Deletable), "\n\n";
 is( @srvSnapDeletable,
     @myzfs_data::baobabb_rpool_srv_test_Sample_Snap_Deletable, "count of deletable snapshots" );
 ok( eq_array( \@srvSnapDeletable,
     \@myzfs_data::baobabb_rpool_srv_test_Sample_Snap_Deletable),
     "content of deletable snapshots, single fs" );
 
+my @srvSnapToDestroy =
+  MyZFS->getSnapsToDestroy( \@myzfs_data::baobabb_rpool_srv_test_Sample_Snap_Deletable,
+    scalar @myzfs_data::baobabb_rpool_srv_test_Sample_Snap_Deletable -1 );
+is( scalar @srvSnapToDestroy, 1, "count of snapshots to delete, reserve+1" );
 
 =pod
 # test count of snaps to destroy, single fs (only one snap to destroy)
