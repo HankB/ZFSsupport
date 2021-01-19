@@ -1152,8 +1152,191 @@ rpool/srv/test@baobabb.2021-01-08
 our @baobabb_Sample_Snap_To_Delete = split /^/, $baobabb_Sample_Snap_To_Delete;
 chomp @baobabb_Sample_Snap_To_Delete;
 
+my $baobabb_Sample_Dumps = 
+'rpool-srv-test@2020-10-06-srvpool-apt-cacher-ng@2020-10-06.snap.xz
+rpool-srv-test-Archive-olive@2020-12-08-rpool-home-hbarta-Archive@2020-12-08.snap.xz
+rpool-srv-test-Archive-olive@2020-12-08-rpool-home-hbarta-Archive@2020-12-11.snap.xz
+rpool-srv-test-Archive-olive@2020-12-11-rpool-home-hbarta-Archive@2020-12-12.snap.xz
+rpool-srv-test-Archive-olive@2020-12-12-rpool-home-hbarta-Archive@2020-12-13.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-15-rpool-home-hbarta-Archive@olive.2020-12-15.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-15-rpool-home-hbarta-Archive@olive.2020-12-16.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-16-rpool-home-hbarta-Archive@olive.2020-12-17.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-17-rpool-home-hbarta-Archive@olive.2020-12-18.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-18-rpool-home-hbarta-Archive@olive.2020-12-19.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-19-rpool-home-hbarta-Archive@olive.2020-12-20.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-20-rpool-home-hbarta-Archive@olive.2020-12-21.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-21-rpool-home-hbarta-Archive@olive.2020-12-22.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-22-rpool-home-hbarta-Archive@olive.2020-12-23.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-23-rpool-home-hbarta-Archive@olive.2020-12-24.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-24-rpool-home-hbarta-Archive@olive.2020-12-25.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-25-rpool-home-hbarta-Archive@olive.2020-12-26.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-26-rpool-home-hbarta-Archive@olive.2020-12-27.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-27-rpool-home-hbarta-Archive@olive.2020-12-28.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-28-rpool-home-hbarta-Archive@olive.2020-12-29.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-29-rpool-home-hbarta-Archive@olive.2020-12-30.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-30-rpool-home-hbarta-Archive@olive.2020-12-31.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-31-rpool-home-hbarta-Archive@olive.2021-01-01.snap.xz
+rpool-srv-test-Archive-olive@olive.2021-01-01-rpool-home-hbarta-Archive@olive.2021-01-02.snap.xz
+rpool-srv-test-Archive-olive@olive.2021-01-02-rpool-home-hbarta-Archive@olive.2021-01-03.snap.xz
+rpool-srv-test-Archive-olive@olive.2021-01-03-rpool-home-hbarta-Archive@olive.2021-01-04.snap.xz
+rpool-srv-test-Archive-olive@olive.2021-01-04-rpool-home-hbarta-Archive@olive.2021-01-05.snap.xz
+rpool-srv-test-Archive-olive@olive.2021-01-05-rpool-home-hbarta-Archive@olive.2021-01-06.snap.xz
+rpool-srv-test-Archive-olive@olive.2021-01-06-rpool-home-hbarta-Archive@olive.2021-01-07.snap.xz
+rpool-srv-test-Archive-olive@olive.2021-01-07-rpool-home-hbarta-Archive@olive.2021-01-08.snap.xz
+rpool-srv-test-Archive-olive@olive.2021-01-08-rpool-home-hbarta-Archive@olive.2021-01-09.snap.xz
+rpool-srv-test-Archive-olive@olive.2021-01-09-rpool-home-hbarta-Archive@olive.2021-01-10.snap.xz
+rpool-srv-test-Archive-olive@olive.2021-01-10-rpool-home-hbarta-Archive@olive.2021-01-11.snap.xz
+rpool-srv-test-Archive-olive@olive.2021-01-11-rpool-home-hbarta-Archive@olive.2021-01-12.snap.xz
+rpool-srv-test-Archive-olive@olive.2021-01-12-rpool-home-hbarta-Archive@olive.2021-01-13.snap.xz
+tank-test@2019-03-22-rpool-test@2019-04-03.snap.xz
+tank-test@2019-04-03-rpool-test@2019-04-04.snap.xz
+tank-test@2019-04-04-rpool-test@2019-04-05.snap.xz
+tank-test@2019-04-05-rpool-test@2019-04-06.snap.xz
+tank-test@2019-04-06-rpool-test@2019-04-07.snap.xz
+tpool8tb-tsrv@2020-12-09-rpool-srv-test@2020-12-10.snap.xz
+tpool8tb-tsrv@2020-12-10-rpool-srv-test@2020-12-11.snap.xz
+tpool8tb-tsrv@2020-12-11-rpool-srv-test@2020-12-12.snap.xz
+tpool8tb-tsrv@2020-12-12-rpool-srv-test@2020-12-13.snap.xz
+tpool8tb-tsrv@2020-12-13-rpool-srv-test@2020-12-14.snap.xz
+tpool8tb-tsrv@2020-12-14-rpool-srv-test@2020-12-15.snap
+tpool8tb-tsrv@2020-12-14-rpool-srv-test@2020-12-16.snap
+tpool8tb-tsrv@baobabb.2020-12-16-rpool-srv-test@baobabb.2020-12-17.snap.xz
+tpool8tb-tsrv@baobabb.2020-12-17-rpool-srv-test@baobabb.2020-12-18.snap.xz
+tpool8tb-tsrv@baobabb.2020-12-18-rpool-srv-test@baobabb.2020-12-19.snap.xz
+tpool8tb-tsrv@baobabb.2020-12-19-rpool-srv-test@baobabb.2020-12-20.snap.xz
+tpool8tb-tsrv@baobabb.2020-12-20-rpool-srv-test@baobabb.2020-12-21.snap.xz
+tpool8tb-tsrv@baobabb.2020-12-21-rpool-srv-test@baobabb.2020-12-22.snap.xz
+tpool8tb-tsrv@baobabb.2020-12-22-rpool-srv-test@baobabb.2020-12-23.snap.xz
+tpool8tb-tsrv@baobabb.2020-12-23-rpool-srv-test@baobabb.2020-12-24.snap.xz
+tpool8tb-tsrv@baobabb.2020-12-24-rpool-srv-test@baobabb.2020-12-25.snap.xz
+tpool8tb-tsrv@baobabb.2020-12-25-rpool-srv-test@baobabb.2020-12-26.snap.xz
+tpool8tb-tsrv@baobabb.2020-12-26-rpool-srv-test@baobabb.2020-12-27.snap.xz
+tpool8tb-tsrv@baobabb.2020-12-27-rpool-srv-test@baobabb.2020-12-28.snap.xz
+tpool8tb-tsrv@baobabb.2020-12-28-rpool-srv-test@baobabb.2020-12-29.snap.xz
+tpool8tb-tsrv@baobabb.2020-12-29-rpool-srv-test@baobabb.2020-12-30.snap.xz
+tpool8tb-tsrv@baobabb.2020-12-30-rpool-srv-test@baobabb.2020-12-31.snap.xz
+tpool8tb-tsrv@baobabb.2020-12-31-rpool-srv-test@baobabb.2021-01-01.snap.xz
+tpool8tb-tsrv@baobabb.2021-01-01-rpool-srv-test@baobabb.2021-01-02.snap.xz
+tpool8tb-tsrv@baobabb.2021-01-02-rpool-srv-test@baobabb.2021-01-03.snap.xz
+tpool8tb-tsrv@baobabb.2021-01-03-rpool-srv-test@baobabb.2021-01-04.snap.xz
+tpool8tb-tsrv@baobabb.2021-01-04-rpool-srv-test@baobabb.2021-01-05.snap.xz
+tpool8tb-tsrv@baobabb.2021-01-05-rpool-srv-test@baobabb.2021-01-06.snap.xz
+tpool8tb-tsrv@baobabb.2021-01-06-rpool-srv-test@baobabb.2021-01-07.snap.xz
+tpool8tb-tsrv@baobabb.2021-01-07-rpool-srv-test@baobabb.2021-01-08.snap.xz
+tpool8tb-tsrv@baobabb.2021-01-08-rpool-srv-test@baobabb.2021-01-09.snap.xz
+tpool8tb-tsrv@baobabb.2021-01-09-rpool-srv-test@baobabb.2021-01-10.snap.xz
+tpool8tb-tsrv@baobabb.2021-01-10-rpool-srv-test@baobabb.2021-01-11.snap.xz
+tpool8tb-tsrv@baobabb.2021-01-11-rpool-srv-test@baobabb.2021-01-12.snap.xz
+tpool8tb-tsrv@baobabb.2021-01-12-rpool-srv-test@baobabb.2021-01-13.snap.xz
+';
+
+our @baobabb_Sample_Dumps = split /^/, $baobabb_Sample_Dumps;
+chomp @baobabb_Sample_Dumps;
+
+# List of dumps for a single filesystem
+my $baobabb_rpool_srv_test_Sample_Dumps_Single_FS = 
+'tpool8tb-tsrv@baobabb.2020-12-17-rpool-srv-test@baobabb.2020-12-18.snap.xz
+tpool8tb-tsrv@baobabb.2020-12-18-rpool-srv-test@baobabb.2020-12-19.snap.xz
+tpool8tb-tsrv@baobabb.2020-12-19-rpool-srv-test@baobabb.2020-12-20.snap.xz
+tpool8tb-tsrv@baobabb.2020-12-20-rpool-srv-test@baobabb.2020-12-21.snap.xz
+tpool8tb-tsrv@baobabb.2020-12-21-rpool-srv-test@baobabb.2020-12-22.snap.xz
+tpool8tb-tsrv@baobabb.2020-12-22-rpool-srv-test@baobabb.2020-12-23.snap.xz
+tpool8tb-tsrv@baobabb.2020-12-23-rpool-srv-test@baobabb.2020-12-24.snap.xz
+tpool8tb-tsrv@baobabb.2020-12-24-rpool-srv-test@baobabb.2020-12-25.snap.xz
+tpool8tb-tsrv@baobabb.2020-12-25-rpool-srv-test@baobabb.2020-12-26.snap.xz
+tpool8tb-tsrv@baobabb.2020-12-26-rpool-srv-test@baobabb.2020-12-27.snap.xz
+tpool8tb-tsrv@baobabb.2020-12-27-rpool-srv-test@baobabb.2020-12-28.snap.xz
+tpool8tb-tsrv@baobabb.2020-12-28-rpool-srv-test@baobabb.2020-12-29.snap.xz
+tpool8tb-tsrv@baobabb.2020-12-29-rpool-srv-test@baobabb.2020-12-30.snap.xz
+tpool8tb-tsrv@baobabb.2020-12-30-rpool-srv-test@baobabb.2020-12-31.snap.xz
+tpool8tb-tsrv@baobabb.2020-12-31-rpool-srv-test@baobabb.2021-01-01.snap.xz
+tpool8tb-tsrv@baobabb.2021-01-01-rpool-srv-test@baobabb.2021-01-02.snap.xz
+tpool8tb-tsrv@baobabb.2021-01-02-rpool-srv-test@baobabb.2021-01-03.snap.xz
+tpool8tb-tsrv@baobabb.2021-01-03-rpool-srv-test@baobabb.2021-01-04.snap.xz
+tpool8tb-tsrv@baobabb.2021-01-04-rpool-srv-test@baobabb.2021-01-05.snap.xz
+tpool8tb-tsrv@baobabb.2021-01-05-rpool-srv-test@baobabb.2021-01-06.snap.xz
+tpool8tb-tsrv@baobabb.2021-01-06-rpool-srv-test@baobabb.2021-01-07.snap.xz
+tpool8tb-tsrv@baobabb.2021-01-07-rpool-srv-test@baobabb.2021-01-08.snap.xz
+tpool8tb-tsrv@baobabb.2021-01-08-rpool-srv-test@baobabb.2021-01-09.snap.xz
+tpool8tb-tsrv@baobabb.2021-01-09-rpool-srv-test@baobabb.2021-01-10.snap.xz
+tpool8tb-tsrv@baobabb.2021-01-10-rpool-srv-test@baobabb.2021-01-11.snap.xz
+';
+our @baobabb_rpool_srv_test_Sample_Dumps_Single_FS = split /^/, $baobabb_rpool_srv_test_Sample_Dumps_Single_FS;
+chomp @baobabb_rpool_srv_test_Sample_Dumps_Single_FS;
+
+# The corresponding snapsw that relate to them
+my $baobabb_rpool_srv_test_Sample_Snaps = 
+'rpool/srv/test@baobabb.2020-12-17
+rpool/srv/test@baobabb.2020-12-18
+rpool/srv/test@baobabb.2020-12-19
+rpool/srv/test@baobabb.2020-12-20
+rpool/srv/test@baobabb.2020-12-21
+rpool/srv/test@baobabb.2020-12-22
+rpool/srv/test@baobabb.2020-12-23
+rpool/srv/test@baobabb.2020-12-24
+rpool/srv/test@baobabb.2020-12-25
+rpool/srv/test@baobabb.2020-12-26
+rpool/srv/test@baobabb.2020-12-27
+rpool/srv/test@baobabb.2020-12-28
+rpool/srv/test@baobabb.2020-12-29
+rpool/srv/test@baobabb.2020-12-30
+rpool/srv/test@baobabb.2020-12-31
+rpool/srv/test@baobabb.2021-01-01
+rpool/srv/test@baobabb.2021-01-02
+rpool/srv/test@baobabb.2021-01-03
+rpool/srv/test@baobabb.2021-01-04
+rpool/srv/test@baobabb.2021-01-05
+rpool/srv/test@baobabb.2021-01-06
+rpool/srv/test@baobabb.2021-01-07
+rpool/srv/test@baobabb.2021-01-08';
+
+our @baobabb_rpool_srv_test_Sample_Snaps = split /^/, $baobabb_rpool_srv_test_Sample_Snaps;
+chomp @baobabb_rpool_srv_test_Sample_Snaps;
+
+my $baobabb_rpool_srv_test_Archive_Sample_Dumps_Single_FS = 
+'rpool-srv-test-Archive-olive@olive.2020-12-15-rpool-home-hbarta-Archive@olive.2020-12-15.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-15-rpool-home-hbarta-Archive@olive.2020-12-16.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-16-rpool-home-hbarta-Archive@olive.2020-12-17.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-17-rpool-home-hbarta-Archive@olive.2020-12-18.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-18-rpool-home-hbarta-Archive@olive.2020-12-19.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-19-rpool-home-hbarta-Archive@olive.2020-12-20.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-20-rpool-home-hbarta-Archive@olive.2020-12-21.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-21-rpool-home-hbarta-Archive@olive.2020-12-22.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-22-rpool-home-hbarta-Archive@olive.2020-12-23.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-23-rpool-home-hbarta-Archive@olive.2020-12-24.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-24-rpool-home-hbarta-Archive@olive.2020-12-25.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-25-rpool-home-hbarta-Archive@olive.2020-12-26.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-26-rpool-home-hbarta-Archive@olive.2020-12-27.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-27-rpool-home-hbarta-Archive@olive.2020-12-28.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-28-rpool-home-hbarta-Archive@olive.2020-12-29.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-29-rpool-home-hbarta-Archive@olive.2020-12-30.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-30-rpool-home-hbarta-Archive@olive.2020-12-31.snap.xz
+rpool-srv-test-Archive-olive@olive.2020-12-31-rpool-home-hbarta-Archive@olive.2021-01-01.snap.xz
+rpool-srv-test-Archive-olive@olive.2021-01-01-rpool-home-hbarta-Archive@olive.2021-01-02.snap.xz
+rpool-srv-test-Archive-olive@olive.2021-01-02-rpool-home-hbarta-Archive@olive.2021-01-03.snap.xz
+rpool-srv-test-Archive-olive@olive.2021-01-03-rpool-home-hbarta-Archive@olive.2021-01-04.snap.xz
+rpool-srv-test-Archive-olive@olive.2021-01-04-rpool-home-hbarta-Archive@olive.2021-01-05.snap.xz
+rpool-srv-test-Archive-olive@olive.2021-01-05-rpool-home-hbarta-Archive@olive.2021-01-06.snap.xz
+rpool-srv-test-Archive-olive@olive.2021-01-06-rpool-home-hbarta-Archive@olive.2021-01-07.snap.xz
+rpool-srv-test-Archive-olive@olive.2021-01-07-rpool-home-hbarta-Archive@olive.2021-01-08.snap.xz
+rpool-srv-test-Archive-olive@olive.2021-01-08-rpool-home-hbarta-Archive@olive.2021-01-09.snap.xz
+rpool-srv-test-Archive-olive@olive.2021-01-09-rpool-home-hbarta-Archive@olive.2021-01-10.snap.xz
+rpool-srv-test-Archive-olive@olive.2021-01-10-rpool-home-hbarta-Archive@olive.2021-01-11.snap.xz
+rpool-srv-test-Archive-olive@olive.2021-01-11-rpool-home-hbarta-Archive@olive.2021-01-12.snap.xz
+rpool-srv-test-Archive-olive@olive.2021-01-12-rpool-home-hbarta-Archive@olive.2021-01-13.snap.xz
+';
+
+our @baobabb_rpool_srv_test_Archive_Sample_Dumps_Single_FS = 
+    split /^/, $baobabb_rpool_srv_test_Archive_Sample_Dumps_Single_FS;
+chomp @baobabb_rpool_srv_test_Archive_Sample_Dumps_Single_FS;
+
+our @baobabb_Sample_Dumps_Multiple_FS = (@baobabb_rpool_srv_test_Sample_Dumps_Single_FS,
+    @baobabb_rpool_srv_test_Archive_Sample_Dumps_Single_FS);
+#our $baobabb_rpool_srv_test_Test_Snap_ToDelete =
+#  splice @baobabb_rpool_srv_test_Sample_Snap_Deletable, -RESERVE_COUNT;
 
 =pod
+our @baobabb_Sample_Dumps_To_Delete = 
 our $remainingTestSnapshotDumps =
   'tank-Archive@2018-04-07-tank-Archive@2018-04-08.snap.xz
 tank-Archive@2018-04-08-tank-Archive@2018-04-09.snap.xz

@@ -31,14 +31,23 @@ sub createTestDumps(@) {
 use constant TESTDIR => "./snapshots/";
 
 
-createTestDumps( TESTDIR, @myzfs_data::grandidier_dumpfiles );
+createTestDumps( TESTDIR, @myzfs_data::baobabb_Sample_Dumps );
 
 # test identification of snapshot dumps to delete
 my @archiveDumpsToDelete =
-  sort MyZFS->findDeletableDumps( TESTDIR, \@myzfs_data::archiveTestSnapToDelete );
-is( @archiveDumpsToDelete, @myzfs_data::archiveTestDumpsToDelete,
+  sort MyZFS->findDeletableDumps( TESTDIR, \@myzfs_data::baobabb_rpool_srv_test_Sample_Snaps );
+is( @archiveDumpsToDelete, @myzfs_data::baobabb_rpool_srv_test_Sample_Snaps,
     "count of dumps to delete, single fs" );
+=pod
+print "myzfs_data::baobabb_rpool_srv_test_Sample_Snaps\n  ", join("\n  ",
+   @myzfs_data::baobabb_rpool_srv_test_Sample_Snaps), "\n\n";
+print "archiveDumpsToDelete\n  ", join("\n  ", @archiveDumpsToDelete), "\n\n";
+=cut
 
+# Now try for myultiple filesystems
+
+
+=pod
 # print "archiveDumpsToDelete\n", join("\n", @archiveDumpsToDelete), "\n\n";
 @myzfs_data::archiveTestDumpsToDelete = sort @myzfs_data::archiveTestDumpsToDelete;
 # @myzfs_data::archiveDumpsToDelete     = sort @myzfs_data::archiveDumpsToDelete;
