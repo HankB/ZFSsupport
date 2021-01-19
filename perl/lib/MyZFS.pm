@@ -137,13 +137,14 @@ sub findDeletableDumps {
     my @files = glob( "$dir" . "*.snap.xz" );
 
     # print "\n\n", join("\nfile ", @files), "\n";
-    # now search for matches between snapos and files
+    # now search for matches between snaps and files
     foreach my $s ( @{$snaps} ) {
 
         # first substitute '-' for any '/' in the snapshot name
-        $s =~ tr /\//-/;
+        my $copy_s = $s;    # make copy of snap name to leave original list unmolested.
+        $copy_s =~ tr /\//-/;
         foreach my $f (@files) {
-            if ( $f =~ $s ) {
+            if ( $f =~ $copy_s ) {
                 push( @filesToDelete, $f );
 
                 #print "Matched $f <-> $s\n";
