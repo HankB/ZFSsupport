@@ -5,8 +5,15 @@
 use strict;
 use warnings;
 use Getopt::Long qw(GetOptions);
+use File::Basename qw(dirname);
 
-use lib './lib';
+my $dir;
+BEGIN {
+  $dir = dirname($0);
+}
+
+use lib "./lib";          # lib path for unit testing
+use lib "$dir/lib";       # lib path to faciliate integration testing
 use MyZFS;
 
 sub main {
