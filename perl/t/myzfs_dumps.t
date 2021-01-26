@@ -19,7 +19,8 @@ BEGIN {
   $dir = dirname($0);
 }
 use lib "./lib";          # lib path for unit testing
-use lib $dir, "/lib";     # lib path to faciliate integration testing
+use lib "./t";            # lib path to data module
+use lib "$dir/lib";       # lib path to faciliate integration testing
 
 use MyZFS qw(:all);
 use myzfs_data;
