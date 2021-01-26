@@ -35,7 +35,7 @@ createTestDumps( TESTDIR, @myzfs_data::baobabb_Sample_Dumps );
 
 # test identification of snapshot dumps to delete
 my @archiveDumpsToDelete =
-  sort MyZFS->findDeletableDumps( TESTDIR, \@myzfs_data::baobabb_rpool_srv_test_Sample_Snaps );
+  sort MyZFS->findDeletableDumps( TESTDIR, \@myzfs_data::baobabb_rpool_srv_test_Sample_Snaps);
 is( @archiveDumpsToDelete, @myzfs_data::baobabb_rpool_srv_test_Sample_Snaps,
     "count of dumps to delete, single fs" );
 =pod
@@ -44,18 +44,23 @@ print "myzfs_data::baobabb_rpool_srv_test_Sample_Snaps\n  ", join("\n  ",
 print "archiveDumpsToDelete\n  ", join("\n  ", @archiveDumpsToDelete), "\n\n";
 =cut
 
-# Now try for myultiple filesystems
-
+# Now try for multiple filesystems
+@archiveDumpsToDelete = 
+  sort MyZFS->findDeletableDumps( TESTDIR, \@myzfs_data::baobabb_Sample_Snaps_Multiple_FS );
+is( @archiveDumpsToDelete, @myzfs_data::baobabb_Sample_Dumps_To_Delete,
+    "count of dumps to delete, multiple fs" );
+ok( eq_array( \@archiveDumpsToDelete, \@myzfs_data::baobabb_Sample_Dumps_To_Delete ),
+    "content of dumps to delete, multiple fs" );
 
 =pod
-# print "archiveDumpsToDelete\n", join("\n", @archiveDumpsToDelete), "\n\n";
-@myzfs_data::archiveTestDumpsToDelete = sort @myzfs_data::archiveTestDumpsToDelete;
-# @myzfs_data::archiveDumpsToDelete     = sort @myzfs_data::archiveDumpsToDelete;
-my @archiveTestDumpsToDeleteFullPath = map TESTDIR . $_,
-  @myzfs_data::archiveTestDumpsToDelete;
-ok( eq_array( \@archiveDumpsToDelete, \@archiveTestDumpsToDeleteFullPath ),
-    "content of dumps to delete, single fs" );
+print "myzfs_data::baobabb_Sample_Snaps_Multiple_FS\n  ", join("\n  ",
+   @myzfs_data::baobabb_Sample_Snaps_Multiple_FS), "\n\n";
+print "archiveDumpsToDelete\n  ", join("\n  ", @archiveDumpsToDelete), "\n\n";
+print "archiveDumpsToDelete\n  >", join("\n  >", @archiveDumpsToDelete), "\n\n";
+print "myzfs_data::baobabb_Sample_Dumps_To_Delete\n  >", join("\n  >", @myzfs_data::baobabb_Sample_Dumps_To_Delete), "\n\n";
+=cut
 
+=pod
 #print "archiveDumpsToDelete\n  ", join("\n  ", @archiveDumpsToDelete), "\n\n";
 #print "archiveTestDumpsToDeleteFullPath\n  ", join("\n  ", @archiveTestDumpsToDeleteFullPath), "\n\n";
 
