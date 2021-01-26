@@ -13,6 +13,7 @@ sub main {
 
     MyZFS->processArgs() or die "Usage: $0
 		[-f|--filesystem filesystem (default=all)]
+		[-h|--hostname hostname (required, no default)]
 		[-t|--trial]
 		[-r|--reserved reserve_count (default=5)]
 		[-d|--directory dump_directory (default=\"/snapshots\")]
@@ -23,7 +24,9 @@ sub main {
         warn "warning: not running as root\n";
     }
 
-    my @snapshots = MyZFS->getSnapshots($MyZFS::filesystem);
+    die "must specify hostname" unless defined $MyZFS::hostname;
+
+    my @snapshots = MyZFS->getSnapshots($MyZFS::hostname, $MyZFS::filesystem);
     if ( defined $MyZFS::trial || defined $MyZFS::verbosity ) {
         print(
             "found ", scalar(@snapshots),
