@@ -12,11 +12,16 @@ use diagnostics;    # this gives you more debugging information
 use Test::More;     # for the is() and isnt() functions
 # use Sub::Override;
 use File::Touch;
+use File::Basename;
 
-use lib './lib';
+my $dir;
+BEGIN {
+  $dir = dirname($0);
+}
+use lib "./lib";          # lib path for unit testing
+use lib $dir, "/lib";     # lib path to faciliate integration testing
+
 use MyZFS qw(:all);
-
-use lib './t';
 use myzfs_data;
 
 # test delete functionality
