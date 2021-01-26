@@ -39,7 +39,7 @@ perl Build test
 perl Build testcover
 ```
 
-## Testing
+## Unit Testing
 
 Either
 
@@ -51,6 +51,34 @@ or
 
 ```text
 ./t/myzfs.t 
+```
+
+## Integration testing
+
+In order to test, the executable must be run from cron since that is the environment in which it will be used. The strategy adopted is to create `~/testbin` and `~/testbin/lib` and place `myzfs.pl` and `MyZFS.pm` in their respective directories. Optionally create a script to execute the program with the desired arguments.
+
+Copy the script and library to suitable directories.
+
+```text
+mkdir -p ~/testbin/lib
+cp lib/MyZFS.pm  ~/testbin/lib
+cp myzfs.pl ~/testbin
+```
+
+```text
+hbarta@olive:~/Programming/ZFSsupport/perl$ cat /home/hbarta/testbin/rpool-Archive-cleanup.sh
+#!/bin/sh
+# run cleanup scripts from test directory
+
+/home/hbarta/testbin/myzfs.pl -v -h olive > /tmp/rpool-Archive-cleanup.lst 2>&1
+#ssh drago /usr/local/sbin/myzfs.pl -v -f tank/Archive > /tmp/tank-Archive-cleanup-drago.lst 2>&1
+hbarta@olive:~/Programming/ZFSsupport/perl$ 
+```
+
+Next add an entry to `crontab` to execute the driver script.
+
+```text
+51 8 * * * /home/hbarta/testbin/rpool-Archive-cleanup.sh >/tmp/testcleanup.lst 2>&1
 ```
 
 ## Installing
