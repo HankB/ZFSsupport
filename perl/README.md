@@ -10,10 +10,11 @@ commands before or after the other processing.
 
 ## Requirements
 
-* Perl module `Sub::Override` (`apt install libsub-override-perl` on Ubuntu 16.04 and Debian 9)
+* Perl module  `Sub::Override` (`apt install libsub-override-perl` on Ubuntu 16.04 and Debian 9)
 * Perl module  `File::Touch` (`apt install libfile-touch-perl` on Debian Stretch)
 * Perl module  `Module::Build` (`apt install libmodule-build-perl`  on Ubuntu 16.04)
 * Perl module  `Devel::Cover` (`apt install libdevel-cover-perl` on Ubuntu 16.04)
+* Perl module  `Test::Exception` (`apt install libtest-exception-perl` on Ubuntu 18.04, Debian 10)
 
 ### myzfs.pl
 
