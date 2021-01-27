@@ -374,9 +374,9 @@ then
     RECV_OPT=" -F "
 fi
 echo time -p ssh "$REMOTE_HOST" "xzcat /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz \| \
-        zfs receive $RECV_OPT $REMOTE_FILESYSTEM"
+        /sbin/zfs receive $RECV_OPT $REMOTE_FILESYSTEM"
 time -p ssh "$REMOTE_HOST" "xzcat /snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz | \
-        zfs receive $RECV_OPT $REMOTE_FILESYSTEM" || \
+        /sbin/zfs receive $RECV_OPT $REMOTE_FILESYSTEM" || \
 	echo "$REMOTE_HOST receive failed" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on $HOSTNAME"
 
 releaseLock "receive"
