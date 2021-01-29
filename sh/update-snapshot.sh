@@ -49,7 +49,7 @@ fileLen()
 {
     if [ -e "$1" ]
     then
-        LEN=$(ls -l "$1"|tail -1|awk '{print $5}')/
+        LEN=$(ls -l "$1"|tail -1|awk '{print $5}')
     else
         LEN=-1
     fi
