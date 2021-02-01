@@ -65,8 +65,7 @@ show_help()
     echo "host              - remote host name"
     echo "filesystem        - local filesystem name (not dir.)"
     echo "remote_filesystem - remote filesystem name if different from filesystem"
-    echo "v0.11"
-
+    echo "v1.0.0"
 }
 
 # find the most recent snapshot that matches the pattern "<filesystem>@hostname.YYYY-MM-DD"
