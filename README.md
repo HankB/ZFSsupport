@@ -53,7 +53,7 @@ The scripts have been in use for years in a home lab production environment and 
 
 The other problem is that as my `~Documents` directory grew, the first of the month backup also grew. A solution to this was to create an `~Archive` directory where files not in active use could be moved. The plan is to use ZFS send/receive to mirror the `~Archive` directory from the client to the server. This will keep them out of the first of the month copy and they will then not be duplicated monthly on the server. This is the first time ZFS is used client -> server and introduces another complication in that there is no way to differentiate client -> server snapshots from server ->  remote snapshots. For this purpose the host name (where the snapshot is recorded) is being added to the snapshot name. \<filesystem\>.yyyy-mm-dd becomes \<filesystem\>.\<hostname\>.yyyy-mm-dd.
 
-### 2021-01-31 hostname changes comnplete
+### 2021-01-31 hostname changes complete
 
 this work is complete and has run two days w/out difficulty in production (from a test directory) and in a tetst environment for severla days longer. It is not w/out issues but is deemed ready to roll out. 
 
