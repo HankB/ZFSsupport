@@ -24,12 +24,9 @@ sub main {
 		[-t|--trial]
 		[-r|--reserved reserve_count (default=5)]
 		[-d|--directory dump_directory (default=\"/snapshots\")]
-		[-v|--verbose]\n";
-
-    # warn the user
-    if ( $< != 0 ) {
-        warn "warning: not running as root\n";
-    }
+		[-v|--verbose]
+        script version v1.0.0
+        MyZFS  version $MyZFS::VERSION\n";
 
     die "must specify hostname" unless defined $MyZFS::hostname;
 

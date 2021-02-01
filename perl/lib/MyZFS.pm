@@ -10,7 +10,7 @@ all snapshot lists will be produced by getSnapshots() (instead of using
 contrived test data.)
 =cut
 
-our $VERSION = 0.1;
+our $VERSION = "v1.0.0";
 
 use strict;
 use warnings;
