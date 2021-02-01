@@ -53,6 +53,14 @@ The scripts have been in use for years in a home lab production environment and 
 
 The other problem is that as my `~Documents` directory grew, the first of the month backup also grew. A solution to this was to create an `~Archive` directory where files not in active use could be moved. The plan is to use ZFS send/receive to mirror the `~Archive` directory from the client to the server. This will keep them out of the first of the month copy and they will then not be duplicated monthly on the server. This is the first time ZFS is used client -> server and introduces another complication in that there is no way to differentiate client -> server snapshots from server ->  remote snapshots. For this purpose the host name (where the snapshot is recorded) is being added to the snapshot name. \<filesystem\>.yyyy-mm-dd becomes \<filesystem\>.\<hostname\>.yyyy-mm-dd.
 
+### 2021-01-31 hostname changes comnplete
+
+this work is complete and has run two days w/out difficulty in production (from a test directory) and in a tetst environment for severla days longer. It is not w/out issues but is deemed ready to roll out. 
+
+In addition to the upgrades to the scripts, all involved hosts have been upgraded to a version of ZFS that supports `allow` in order that the scripts can be run as a normal user. See the README.md in `../sh`  for further information.
+
+It will likely be necessary for some manual cleanup following the transition to 1.0.0 due to naming changes in snapshots and dumps.
+
 ## Errata
 
 A (not sufficient) search was performed prior to beginning this with the
@@ -82,5 +90,5 @@ it is recommended to disable password ssh login on the hosts involved. (Step
 5 at https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-16-04.)
 
 * `/snapshots` directory on both local and remote PCs for storing snapshot dumps.
-* `pxz` (On Debian, Ubuntu `apt install pxz`)
+* `pxz` (On Debian, Ubuntu `apt install pxz`) Note: No longer used as of 1.0.0 and no longer packaged for Debian Buster. (Using `xz -T` instead.)
 * `rsync` (on Debian, Ubuntu `apt install rsync`)
