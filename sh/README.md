@@ -22,6 +22,19 @@ Further comments on usage.
 * The script is far from bulletproof. More work needs to be done to insure that.
 * At present the script is used on a host (Debian Stretch) which uses ZFS V0.6.5 and does not support the `allow` command so it must run as root and requires passwordless SSH login to the remote host. This can probably be relaxed on systems with newer versions of ZFS tools but that has not been tested.
 
+## Running as non-root
+
+Versions of ZFS since 0.7.x provide the `zfs allow` command to permit non-root users to run the backup script, eliminating the need for passwordless root login on the server. These permissions enable most operations.
+
+```text
+sudo zfs allow -u <user> compression,create,mount,mountpoint,send,snapshot,destroy,receive,hold <filesystem>
+```
+
+I have not audited these to insure there are none that are not required. I use them on both client and server so obviously `receive` is probably not needed on the client and `send` may not be required on the server. I note the following when transitioning from `root` to `user`.
+
+* The initial send did not succeed as `user` and `zfs receive` had to be repeated as `root`. It may turn out that snapshots and snapshot dumps cannot then be destroyed or deleted by `user` and may require manual intervention.
+* Adjust permissions on the snapshot dump directory and older snapshots so `user` can manipulate them.
+
 ## Error notification
 
 Where errors (such as disk full, remote not reachable and so on) are identified, notification can be sent using the script `sa.ah`. A "description" is passed to the standard input and "subject" as a command line argument. For example
@@ -107,9 +120,9 @@ Testing is pretty minimal at this point - sort of "it worked - ship it!" One tes
 ./test_lock.sh testlock 10 5
 ```
 
-## Status 
+## Status
 
-The script is "in production" on my home LAN with the sender running Debian Stretch and remote Ubuntu 16.04. It is also exercised form time to time with two hosts running Ubuntu 18.04.
+The script is "in production" on my home LAN with the sender running Debian Buster or Debian Stretch (0.8.6 and 0.7.12 respectively) and remote Debian Buster at 0.8.6.
 
 ### 2019-02-25
 
