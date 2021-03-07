@@ -67,7 +67,7 @@ show_help()
     echo "host                  - remote host name"
     echo "filesystem            - local filesystem name (not dir.)"
     echo "remote_filesystem     - remote filesystem name if different from filesystem"
-    echo "v1.1.0"
+    echo "v1.1.1"
 }
 
 # find the most recent snapshot that matches the pattern "<filesystem>@hostname.YYYY-MM-DD"
@@ -154,6 +154,7 @@ REMOTE_FILESYSTEM_F=$(echo "$REMOTE_FILESYSTEM"|tr / -)
 
 
 # check to see if we can reach the remote
+retry=0     # count retries
 while ( ! isRemoteReachable "$REMOTE_HOST")
 do
     if [ "$INIT_REMOTE" = "true" ]
@@ -163,6 +164,13 @@ do
         exit 1
     fi
     echo "$REMOTE_HOST not reachable"
+    ((retry++)) || true
+    if [ "$retry" -ge 60 ]  # retry for an hour
+    then
+        echo "$REMOTE_HOST not reachable, giving up"
+        echo "$REMOTE_HOST not reachable, giving up" | /usr/local/sbin/sa.sh "admin-alert $0 exit 1 on $HOSTNAME"
+        exit 1
+    fi
     sleep 60
 done
 
