@@ -45,6 +45,7 @@ isRemoteReachable()
 
 # get the length of a local file
 # get return value by e.g. `L=$(fileLen foo)`
+# Should be replaced by 'stat --printf="%s" foo'
 fileLen()
 {
     if [ -e "$1" ]
@@ -59,13 +60,14 @@ fileLen()
 show_help()
 {
     echo "Usage $0 [-i] [-b \"pre cmd\"] [-a \"post cmd\"] host filesystem [remote_filesystem]"
-    echo "[-i]              - Initialize remote dataset (first run.)"
-    echo "[-b \"pre cmd\"]    - command to run before the transfer."
-    echo "[-a \"post cmd\"]   - command to run after the transfer."
-    echo "host              - remote host name"
-    echo "filesystem        - local filesystem name (not dir.)"
-    echo "remote_filesystem - remote filesystem name if different from filesystem"
-    echo "v1.0.0"
+    echo "[-i]                  - Initialize remote dataset (first run.)"
+    echo "[-b \"pre cmd\"]      - command to run before the transfer."
+    echo "[-a \"post cmd\"]     - command to run after the transfer."
+    echo "[-r \"path to csv\"]  - location to accumulate performance statistics"
+    echo "host                  - remote host name"
+    echo "filesystem            - local filesystem name (not dir.)"
+    echo "remote_filesystem     - remote filesystem name if different from filesystem"
+    echo "v1.1.0"
 }
 
 # find the most recent snapshot that matches the pattern "<filesystem>@hostname.YYYY-MM-DD"
@@ -87,12 +89,13 @@ date +timestamp:start\ %Y-%m-%d\ %H:%M:%S
 # from https://stackoverflow.com//questions192249/how-do-i-parse-command-line-arguments-in-bash
 BEFORE_HOOK=""
 AFTER_HOOK=""
+RECORD_FILE=""
 INIT_REMOTE="false"
 
 # A POSIX variable
 OPTIND=1         # Reset in case getopts has been used previously in the shell.
 
-while getopts "h?b:a:i" opt; do
+while getopts "h?b:a:r:i" opt; do
     case "$opt" in
     h|\?)
         show_help
@@ -101,6 +104,8 @@ while getopts "h?b:a:i" opt; do
     b)  BEFORE_HOOK=$OPTARG
         ;;
     a)  AFTER_HOOK=$OPTARG
+        ;;
+    r)  RECORD_FILE=$OPTARG
         ;;
     i)  INIT_REMOTE="true"
         ;;
@@ -344,6 +349,12 @@ else  # send initial
         echo $$ cannot lock "transmit"
         exit 1
     fi
+fi
+
+# save a record of the transmitted file
+if [ "$RECORD_FILE" != "" ]
+then
+    echo \"$(date +%Y-%m-%d)\",$(stat --printf="%s" "/snapshots/${REMOTE_F}-${LOCAL_F}.snap.xz" ) >> "$RECORD_FILE" 
 fi
 
 # transport the dump file to the remote
